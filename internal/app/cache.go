@@ -33,18 +33,22 @@ var limitScript = redis.NewScript(limitLua)
 const stream = "fc:outbox"
 
 type Service struct {
-	Store  *Store
-	R      *redis.Client
-	Config Config
+	Store   *Store
+	R       *redis.Client
+	Config  Config
+	Metrics *Metrics
 }
 
 func NewService(c Config) (*Service, error) {
+	if c.Role != "api" && c.Role != "relay" && c.Role != "worker" && c.Role != "all" {
+		return nil, fmt.Errorf("invalid ROLE %q", c.Role)
+	}
 	s, e := OpenStore(c)
 	if e != nil {
 		return nil, e
 	}
-	r := redis.NewClient(&redis.Options{Addr: c.RedisAddr, PoolSize: 100})
-	return &Service{s, r, c}, nil
+	r := redis.NewClient(&redis.Options{Addr: c.RedisAddr, PoolSize: 100, PoolTimeout: 30 * time.Second})
+	return &Service{Store: s, R: r, Config: c, Metrics: NewMetrics(c.Role)}, nil
 }
 func (s *Service) Close() { s.R.Close(); s.Store.DB.Close(); s.Store.Coupons.Close() }
 func bloomOffsets(key string) []int64 {
@@ -243,7 +247,14 @@ func (s *Service) CacheCoupon(ctx context.Context, c Coupon) error {
 	_, e = p.Exec(ctx)
 	return e
 }
-func (s *Service) Deliver(ctx context.Context, ev Event, mode string) (string, error) {
+func (s *Service) Deliver(ctx context.Context, ev Event, mode string) (state string, err error) {
+	defer func() {
+		outcome := state
+		if err != nil {
+			outcome = "error"
+		}
+		s.Metrics.Attempts.WithLabelValues(mode, outcome).Inc()
+	}()
 	if mode == "async" {
 		raw, err := s.R.HGet(ctx, prefix(ev.MerchantID, ev.TemplateID)+"reservations", ev.ID).Result()
 		if err != nil {
@@ -257,15 +268,23 @@ func (s *Service) Deliver(ctx context.Context, ev Event, mode string) (string, e
 			return "", fmt.Errorf("event does not match accepted reservation")
 		}
 	}
+	start := time.Now()
 	c, state, e := s.Store.Grant(ctx, ev, mode)
+	s.Metrics.Stage.WithLabelValues("grant_transaction").Observe(time.Since(start).Seconds())
 	if e != nil {
 		return "", e
 	}
 	if state == "issued" {
-		if e = s.Store.ProjectCoupon(ctx, c); e != nil {
+		start = time.Now()
+		e = s.Store.ProjectCoupon(ctx, c)
+		s.Metrics.Stage.WithLabelValues("coupon_projection").Observe(time.Since(start).Seconds())
+		if e != nil {
 			return state, e
 		}
-		if e = s.CacheCoupon(ctx, c); e != nil {
+		start = time.Now()
+		e = s.CacheCoupon(ctx, c)
+		s.Metrics.Stage.WithLabelValues("coupon_cache").Observe(time.Since(start).Seconds())
+		if e != nil {
 			return state, e
 		}
 	}

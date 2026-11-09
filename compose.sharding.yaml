@@ -21,3 +21,13 @@ services:
   toolbox:
     environment:
       COUPON_DSN: root:flashcoupon@tcp(proxy:3307)/coupons?parseTime=true&loc=UTC
+  relay:
+    environment:
+      COUPON_DSN: root:flashcoupon@tcp(proxy:3307)/coupons?parseTime=true&loc=UTC
+    depends_on:
+      proxy: {condition: service_healthy}
+  worker:
+    environment:
+      COUPON_DSN: root:flashcoupon@tcp(proxy:3307)/coupons?parseTime=true&loc=UTC
+    depends_on:
+      proxy: {condition: service_healthy}

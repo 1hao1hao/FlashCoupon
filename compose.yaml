@@ -10,7 +10,7 @@ services:
       - mysql-data:/var/lib/mysql
       - ./deploy/mysql:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-pflashcoupon']
+      test: ['CMD', 'mysqladmin', 'ping', '-h', '127.0.0.1', '-P', '3306', '-pflashcoupon']
       interval: 5s
       retries: 40
   redis:
@@ -53,14 +53,16 @@ services:
       retries: 40
   mq-topic:
     image: apache/rocketmq:5.3.1
-    command: sh mqadmin updateTopic -n namesrv:9876 -c FlashCouponCluster -t FlashCouponGrant
+    command: ['sh', '-c', 'for attempt in 1 2 3 4 5 6 7 8 9 10; do sh mqadmin updateTopic -n namesrv:9876 -b broker:10911 -t FlashCouponGrant && sh mqadmin topicRoute -n namesrv:9876 -t FlashCouponGrant > /tmp/fc-route.json 2>/dev/null && grep -q broker-a /tmp/fc-route.json && exit 0; sleep 2; done; exit 1']
     depends_on:
       broker: {condition: service_healthy}
-  app:
+  app: &runtime
     build: .
+    image: flashcoupon-runtime:local
     restart: unless-stopped
+    stop_grace_period: 60s
     ports: ['127.0.0.1:8080:8080']
-    environment:
+    environment: &runtime-env
       CONTROL_DSN: root:flashcoupon@tcp(mysql:3306)/control?parseTime=true&loc=UTC
       COUPON_DSN: root:flashcoupon@tcp(mysql:3306)/control?parseTime=true&loc=UTC
       REDIS_ADDR: redis:6379
@@ -68,10 +70,34 @@ services:
       ADMIN_KEY: ${ADMIN_KEY:-dev-admin-key}
       USER_KEY: ${USER_KEY:-dev-user-key}
       RATE_LIMIT: ${RATE_LIMIT:-5000}
+      ROLE: api
+    healthcheck:
+      test: ['CMD', '/flashcoupon', '--healthcheck']
+      interval: 5s
+      timeout: 4s
+      retries: 30
     depends_on:
       mysql: {condition: service_healthy}
       redis: {condition: service_healthy}
-      broker: {condition: service_healthy}
+  relay:
+    <<: *runtime
+    ports: ['127.0.0.1:8081:8080']
+    environment:
+      <<: *runtime-env
+      ROLE: relay
+    depends_on:
+      mysql: {condition: service_healthy}
+      redis: {condition: service_healthy}
+      mq-topic: {condition: service_completed_successfully}
+  worker:
+    <<: *runtime
+    ports: ['127.0.0.1:8082:8080']
+    environment:
+      <<: *runtime-env
+      ROLE: worker
+    depends_on:
+      mysql: {condition: service_healthy}
+      redis: {condition: service_healthy}
       mq-topic: {condition: service_completed_successfully}
   toolbox:
     image: golang:1.24-bookworm

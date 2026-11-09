@@ -1,0 +1,295 @@
+{
+  "root_group": {
+    "groups": [],
+    "checks": [
+      {
+        "passes": 1,
+        "fails": 0,
+        "name": "batch durable import",
+        "path": "::batch durable import",
+        "id": "044adba572958d370f2299d4e24426cc"
+      },
+      {
+        "fails": 0,
+        "name": "all whitelist users accepted",
+        "path": "::all whitelist users accepted",
+        "id": "b146e953f1690ac26499bad411a28a2f",
+        "passes": 1
+      },
+      {
+        "name": "batch inventory consistent",
+        "path": "::batch inventory consistent",
+        "id": "a519cfaf0ffaeca4249c2a52eb9b6fc7",
+        "passes": 1,
+        "fails": 0
+      }
+    ],
+    "name": "",
+    "path": "",
+    "id": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "options": {
+    "summaryTrendStats": [
+      "avg",
+      "min",
+      "med",
+      "max",
+      "p(90)",
+      "p(95)"
+    ],
+    "summaryTimeUnit": "",
+    "noColor": false
+  },
+  "state": {
+    "isStdOutTTY": false,
+    "isStdErrTTY": false,
+    "testRunDurationMs": 1210.510755
+  },
+  "metrics": {
+    "data_sent": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 8581,
+        "rate": 7088.743296626059
+      }
+    },
+    "http_req_sending": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 0.0493286,
+        "min": 0.011476,
+        "med": 0.056455,
+        "max": 0.084806,
+        "p(90)": 0.0815964,
+        "p(95)": 0.0832012
+      }
+    },
+    "http_req_receiving": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 0.143025,
+        "min": 0.048359,
+        "med": 0.121166,
+        "max": 0.305955,
+        "p(90)": 0.2451422,
+        "p(95)": 0.2755485999999999
+      }
+    },
+    "vus_max": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "max": 1,
+        "value": 1,
+        "min": 1
+      }
+    },
+    "http_req_tls_handshaking": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 0,
+        "max": 0,
+        "p(90)": 0,
+        "p(95)": 0,
+        "avg": 0,
+        "min": 0
+      }
+    },
+    "http_req_failed": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0,
+        "passes": 0,
+        "fails": 5
+      }
+    },
+    "http_req_duration": {
+      "contains": "time",
+      "values": {
+        "max": 188.647605,
+        "p(90)": 116.48529180000001,
+        "p(95)": 152.56644839999996,
+        "avg": 41.772333800000006,
+        "min": 1.485849,
+        "med": 6.47774
+      },
+      "type": "trend"
+    },
+    "data_received": {
+      "values": {
+        "count": 1497,
+        "rate": 1236.6680707434111
+      },
+      "type": "counter",
+      "contains": "data"
+    },
+    "vus": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "value": 1,
+        "min": 1,
+        "max": 1
+      }
+    },
+    "http_req_waiting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 6.160309,
+        "max": 188.4169,
+        "p(90)": 116.27865760000002,
+        "p(95)": 152.34777879999996,
+        "avg": 41.5799802,
+        "min": 1.420366
+      }
+    },
+    "http_req_blocked": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 0.09786779999999999,
+        "min": 0.002291,
+        "med": 0.004666,
+        "max": 0.467964,
+        "p(90)": 0.28474960000000005,
+        "p(95)": 0.37635679999999994
+      }
+    },
+    "checks": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 1,
+        "passes": 3,
+        "fails": 0
+      },
+      "thresholds": {
+        "rate==1": {
+          "ok": true
+        }
+      }
+    },
+    "http_reqs": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 5,
+        "rate": 4.130487878234506
+      }
+    },
+    "http_req_duration{expected_response:true}": {
+      "contains": "time",
+      "values": {
+        "p(90)": 116.48529180000001,
+        "p(95)": 152.56644839999996,
+        "avg": 41.772333800000006,
+        "min": 1.485849,
+        "med": 6.47774,
+        "max": 188.647605
+      },
+      "type": "trend"
+    },
+    "http_req_connecting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(95)": 0.10442959999999997,
+        "avg": 0.026107399999999996,
+        "min": 0,
+        "med": 0,
+        "max": 0.130537,
+        "p(90)": 0.07832220000000001
+      }
+    },
+    "iteration_duration": {
+      "contains": "time",
+      "values": {
+        "p(95)": 1210.434655,
+        "avg": 1210.434655,
+        "min": 1210.434655,
+        "med": 1210.434655,
+        "max": 1210.434655,
+        "p(90)": 1210.434655
+      },
+      "type": "trend"
+    },
+    "iterations": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "rate": 0.8260975756469012,
+        "count": 1
+      }
+    }
+  },
+  "resources": {
+    "cpu_percent_definition": "100% = one logical CPU; Docker memory usage excludes reclaimable cache",
+    "samples": [
+      {
+        "seconds": 2.09,
+        "services": {
+          "worker": {
+            "cpu_percent": 0.16,
+            "memory_bytes": 19943916
+          },
+          "relay": {
+            "cpu_percent": 3.88,
+            "memory_bytes": 14229176
+          },
+          "app": {
+            "cpu_percent": 0.51,
+            "memory_bytes": 211917210
+          },
+          "proxy": {
+            "cpu_percent": 2.32,
+            "memory_bytes": 4811437113
+          },
+          "mysql": {
+            "cpu_percent": 4.56,
+            "memory_bytes": 559205581
+          },
+          "broker": {
+            "cpu_percent": 9.99,
+            "memory_bytes": 581645107
+          },
+          "redis": {
+            "cpu_percent": 0.61,
+            "memory_bytes": 31142707
+          },
+          "namesrv": {
+            "cpu_percent": 0.14,
+            "memory_bytes": 237397606
+          },
+          "k6": {
+            "cpu_percent": 0.96,
+            "memory_bytes": 12173967
+          }
+        }
+      }
+    ]
+  },
+  "stage_latency": {
+    "relay/relay_send": {
+      "attempts": 100.0,
+      "mean_ms": 1.066
+    },
+    "worker/coupon_cache": {
+      "attempts": 100.0,
+      "mean_ms": 2.229
+    },
+    "worker/coupon_projection": {
+      "attempts": 100.0,
+      "mean_ms": 3.085
+    },
+    "worker/grant_transaction": {
+      "attempts": 100.0,
+      "mean_ms": 3.891
+    }
+  }
+}

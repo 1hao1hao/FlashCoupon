@@ -78,9 +78,11 @@ func positive(raw string) (int64, error) {
 func (s *Service) Router() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
+	r.Use(s.Metrics.middleware())
 	r.Use(gin.Recovery())
 	r.Use(func(c *gin.Context) { c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 20<<20); c.Next() })
 	r.GET("/health/live", func(c *gin.Context) { c.JSON(200, gin.H{"status": "ok"}) })
+	r.GET("/metrics", s.metricsHandler())
 	r.GET("/health/ready", func(c *gin.Context) {
 		if e := s.Store.DB.PingContext(c.Request.Context()); e != nil {
 			fail(c, e)
@@ -96,6 +98,9 @@ func (s *Service) Router() *gin.Engine {
 		}
 		c.JSON(200, gin.H{"status": "ready"})
 	})
+	if s.Config.Role != "api" && s.Config.Role != "all" {
+		return r
+	}
 	admin := r.Group("/admin", func(c *gin.Context) {
 		if subtle.ConstantTimeCompare([]byte(c.GetHeader("X-Admin-Key")), []byte(s.Config.AdminKey)) != 1 {
 			c.AbortWithStatus(401)
@@ -145,7 +150,7 @@ func (s *Service) Router() *gin.Engine {
 		c.JSON(200, gin.H{"status": "warmed"})
 	})
 	admin.GET("/audit", func(c *gin.Context) {
-		a, e := s.Reconcile(c.Request.Context(), false)
+		a, e := s.ReconcileFor(c.Request.Context(), false, c.Query("merchant_id"), c.Query("template_id"))
 		if e != nil {
 			fail(c, e)
 			return

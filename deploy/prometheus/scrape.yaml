@@ -1,0 +1,11 @@
+# Merge into an existing Prometheus configuration. No new server is required by Compose.
+scrape_configs:
+  - job_name: flashcoupon
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['app:8080', 'relay:8080', 'worker:8080']
+# HTTP QPS: sum by (route) (rate(flashcoupon_http_requests_total{role="api"}[1m]))
+# P95/P99: histogram_quantile(0.95, sum by (le,route) (rate(flashcoupon_http_duration_seconds_bucket{role="api"}[5m])))
+# Unique successful/failed facts: flashcoupon_grants{role="worker",state="issued|failed"}
+# Collector freshness: time() - flashcoupon_metrics_last_success_timestamp_seconds{role="worker"}
+# E2E pending is updated by reconciliation; use its freshness timestamp too.

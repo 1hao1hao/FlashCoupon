@@ -3,3 +3,5 @@ reports/*
 !reports/.gitkeep
 *.exe
 coverage.out
+__pycache__/
+*.pyc

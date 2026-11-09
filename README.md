@@ -1,78 +1,86 @@
 # FlashCoupon
 
-多商户优惠券分发与核销后端：Go / Gin / MySQL / Redis Lua / Redis Streams / RocketMQ / Excelize / ShardingSphere-Proxy / Docker Compose / k6。
+多商户优惠券分发与核销后端：Go、Gin、MySQL、Redis Lua/Streams、RocketMQ、Excelize、ShardingSphere-Proxy、Docker Compose、k6。提供模板管理、限量抢券、白名单批量发放、查询、优惠结算、幂等核销、过期流转、补偿与对账。
 
-## 启动
+## 部署
 
-需要 Docker Engine 与 Compose。推荐直接启用分片配置：
-
-```powershell
+```sh
 docker compose -f compose.yaml -f compose.sharding.yaml up -d --build
-Invoke-RestMethod http://localhost:8080/health/ready
+docker compose -f compose.yaml -f compose.sharding.yaml ps
 ```
 
-API 地址 `http://localhost:8080`；MySQL `127.0.0.1:13306`；Redis `127.0.0.1:16379`；Proxy `127.0.0.1:13307`。所有宿主端口仅绑定本机。启动过程自动建表、准备 MQ 数据卷权限、创建 Topic、安装 MySQL JDBC 驱动。首次启动需下载镜像和依赖。
+| Compose 服务 | ROLE / 职责 | 本机接口 |
+|---|---|---|
+| app | api：业务 HTTP、Lua 受理、同步发券基线 | `127.0.0.1:8080` |
+| relay | relay：Stream → RocketMQ，确认发送后 ACK | `127.0.0.1:8081` |
+| worker | worker：MQ 落库、批次消费、定时对账与过期流转 | `127.0.0.1:8082` |
 
-`docker compose up -d --build` 是不使用 Proxy 的轻量开发配置。两种配置使用不同的用户券物理表，已有数据时不要直接切换；需要迁移用户券、订单唯一约束及模板投影后再切流。验收脚本默认使用分片配置。
+三个服务独立进程、独立健康检查；均提供 `/health/live`、`/health/ready`、`/metrics`，只有 API 开放业务路由。API 不依赖 Broker 启动，Broker 故障期间仍可持久受理。Relay/Worker 等待 Topic 创建完成；分片模式均等待 Proxy。SIGTERM 时 HTTP 停止接入并排空，后台消费者取消和等待退出，Compose 退出宽限 60 秒；重启恢复依靠 Stream PEL、MQ 重投与数据库幂等。
 
-默认开发密钥 `ADMIN_KEY=dev-admin-key`、`USER_KEY=dev-user-key`，可通过环境变量或 `.env` 设置。管理员接口供营销后台调用，用户接口校验 HMAC 签名的用户凭证，不能通过请求体指定其他用户 ID。`USER_KEY` 仅由可信登录后端持有。
+MySQL：`127.0.0.1:13306`；Redis：`127.0.0.1:16379`；Proxy：`127.0.0.1:13307`。当前只有**单个 MySQL 实例，内含两个优惠券逻辑库、四张用户券分片表**，不是物理多实例扩容。`control` 是同实例中的控制库。商户模板还有独立的四张查询投影分表。
 
-```powershell
-# 在真实业务中由登录服务签发；此命令用于本地演示。
-$token = docker compose run --rm -e INTEGRATION=0 toolbox go run ./cmd/token 1001 | Select-Object -Last 1
-$userHeaders = @{Authorization="Bearer $token"}
-$adminHeaders = @{'X-Admin-Key'='dev-admin-key'}
-$now = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
-$body = @{merchant_id=1;name='新客立减';stock=100;per_user=1;threshold=1000;discount=200;starts_at=$now-1;ends_at=$now+3600;valid_until=$now+86400;mode='async'} | ConvertTo-Json
-$t = Invoke-RestMethod http://localhost:8080/admin/templates -Method Post -Headers $adminHeaders -ContentType application/json -Body $body
-$claim = @{merchant_id=1;template_id=$t.id;request_id='checkout-1001-001'} | ConvertTo-Json
-Invoke-RestMethod http://localhost:8080/v1/claims -Method Post -Headers $userHeaders -ContentType application/json -Body $claim
-Invoke-RestMethod http://localhost:8080/v1/coupons -Headers $userHeaders
+不带 `compose.sharding.yaml` 可运行无 Proxy 开发模式。已有数据时不能直接切换两种存储布局，应先迁移券、订单唯一约束及模板投影。启动自动建表、初始化 MQ 数据卷权限、创建 Topic 和安装 JDBC 驱动；首次需要网络下载依赖。Redis 使用 AOF `appendfsync always`/`noeviction`，Broker 使用 `SYNC_FLUSH`。
+
+## 调用
+
+默认开发密钥为 `ADMIN_KEY=dev-admin-key`、`USER_KEY=dev-user-key`；可通过环境变量或本地 `.env` 覆盖，`.env` 不提交。管理员接口携带 `X-Admin-Key`，用户接口使用 `Authorization: Bearer <token>`。签名密钥仅由可信登录后端持有；请求体不能指定其他用户 ID。
+
+```sh
+# 本地签发演示用户凭证；真实部署由登录服务签发。
+docker compose run --rm -e INTEGRATION=0 toolbox go run ./cmd/token 1001
 ```
 
-金额全部使用整数分，时间使用 UTC Unix 秒。优惠不叠加；结算返回按优惠金额排序的可选券，最多抵扣订单金额。订单金额应由可信订单服务校验后传入，本项目没有实现商品和支付系统。
+创建模板 JSON 示例（时间替换成有效 UTC Unix 秒）：
 
-## API
+```json
+{"merchant_id":1,"name":"new-user","stock":100,"per_user":1,"threshold":1000,"discount":200,"starts_at":1794210000,"ends_at":1794296400,"valid_until":1794382800,"mode":"async"}
+```
 
-| 方法与路径 | 内容 |
+| 方法和路径 | 请求 / 行为 |
 |---|---|
-| GET `/health/live`, `/health/ready` | 进程、数据库/Proxy/Redis 连通性；不代表 MQ 无积压 |
-| POST / GET `/admin/templates` | 创建模板 / 查询全部模板 |
+| POST / GET `/admin/templates` | 创建 / 查询模板 |
 | POST `/admin/templates/:merchant/:id/status` | `{"status":"paused"}` 或 `active`；只影响新受理 |
-| POST `/admin/templates/:merchant/:id/warm` | 幂等预热；库存账本丢失时拒绝重新初始化 |
-| POST `/v1/claims` | `merchant_id,template_id,request_id`；202 表示持久受理 |
-| POST `/v1/claims/direct` | 同上；仅允许 `mode=direct` 模板，同步落库基线 |
-| GET `/v1/claims/:id` | 当前用户的数据库处理结果；尚未落库时 404，稍后重试 |
-| GET `/v1/coupons` | 当前用户优惠券，包含已使用和已过期券 |
-| POST `/v1/settlements` | `merchant_id,amount`；返回 `offers` |
-| POST `/v1/coupons/:id/redeem` | `merchant_id,order_id,amount`；相同订单重复调用返回成功 |
-| POST `/admin/batches/:merchant/:template` | multipart `file`，xlsx 首表首列，首行可为 `user_id` |
-| GET `/admin/batches/:id` | 导入状态、唯一人数、已处理、受理/拒绝、最终已发/失败数量 |
-| GET `/admin/audit` | 数据库库存、发券事实、用户券投影、Redis 库存、pending 和一致性 |
-| POST `/admin/reconcile` | 重放待发事件、修复未完成投影和 Redis 计数；返回当前对账结果 |
+| POST `/admin/templates/:merchant/:id/warm` | 幂等预热；已有库存账本丢失时拒绝重置 |
+| POST `/v1/claims` | `merchant_id,template_id,request_id`；202 仅表示持久受理 |
+| POST `/v1/claims/direct` | 同上，仅限 `mode=direct` 模板；同步落库基线 |
+| GET `/v1/claims/:id` | 当前用户的 SQL 处理结果；尚未落库时 404，可重试 |
+| GET `/v1/coupons` | 当前用户优惠券 |
+| POST `/v1/settlements` | `merchant_id,amount`；按优惠金额返回可选券 |
+| POST `/v1/coupons/:id/redeem` | `merchant_id,order_id,amount`；条件更新与订单幂等 |
+| POST `/admin/batches/:merchant/:template` | multipart `file`，xlsx 首表首列；可有 `user_id` 表头 |
+| GET `/admin/batches/:id` | 唯一人数、受理/拒绝、最终发券/失败数 |
+| GET `/admin/audit` | 库存、SQL 事实、分片投影、pending 和一致性；可同时指定 `merchant_id`、`template_id` 查询单活动 |
+| POST `/admin/reconcile` | 重试待发事件、修复缺失投影、CAS 修复 Redis 计数 |
 
-管理员接口携带 `X-Admin-Key`，用户接口携带 `Authorization: Bearer <token>`。业务冲突返回 409，限流 429，基础设施故障 503。默认用户限流 100 次/秒，全局 `RATE_LIMIT=5000` 次/秒。活动时间为 `[starts_at, ends_at)`，券在 `valid_until` 时失效。模板发布后金额、库存和有效期不可变，修改营销规则时创建新模板。
+金额为整数分，优惠不叠加，最多抵扣订单金额。订单归属和金额须由可信订单服务校验，本项目不实现商品/支付。活动窗口为 `[starts_at,ends_at)`；发布后金额、库存、有效期不可变。业务拒绝 409、限流 429、基础设施错误 503。默认用户 100 次/秒、API 全局 `RATE_LIMIT=5000` 次/秒。
 
-单用户券列表和结算候选上限为 1000 张；单模板用户限领最大 100；模板库存最大 1000 万。导入请求最大 20 MiB、最多 100 万数据行，解压总量限制 128 MiB。非法行导致 `partial`，此前已持久排队的行仍继续执行；不会把整份名单一次加载进内存。批次 `accepted` 是 Redis 受理人数，`issued` 是数据库最终发券人数。
+单用户列表/结算候选上限 1000 张；单模板每用户最多 100 张，库存最多 1000 万。xlsx 请求最大 20 MiB，最多 100 万数据行，解压限制 128 MiB。非法行产生 partial；此前已排队的行继续执行。批次 accepted 是受理数，issued 是最终 SQL 发券数。
 
-## 验证与压测
+## 指标
 
-```powershell
-# 完整验收：真实中间件、race、vet、k6 和故障注入。
-./scripts/verify.ps1 -Benchmark -Faults
+三个进程均可直接抓取 `/metrics`，无需新增 Prometheus 服务。抓取配置示例见 [scrape.yaml](deploy/prometheus/scrape.yaml)，指标口径和 PromQL 见 [架构说明](docs/ARCHITECTURE.md)。只使用路由模板、HTTP 方法/状态、角色、处理阶段等有限标签，不把用户、商户、请求或模板 ID 放进标签。
 
-# 独立单元测试（可在服务运行时执行）
-docker compose run --rm -e INTEGRATION=0 toolbox go test -race ./...
+## 可复现验收
 
-# 真实中间件集成测试。先停 app，避免测试消费者和部署消费者交错。
-docker compose -f compose.yaml -f compose.sharding.yaml stop app
-docker compose -f compose.yaml -f compose.sharding.yaml run --rm toolbox go test -race -count=1 -v ./internal/app
-docker compose -f compose.yaml -f compose.sharding.yaml start app
+需要 Docker Compose v2；完整编排另需 Python 3.10+，仅使用标准库，支持 Windows/Linux/macOS。
 
-# 100 并发、2000 请求竞争 1000 库存
-docker compose -f compose.yaml -f compose.sharding.yaml run --rm k6 run -e MODE=async -e VUS=100 -e ITERATIONS=2000 -e STOCK=1000 -e REPORT_NAME=async-contention /scripts/claims.js
+```sh
+# 真实中间件、常规/race/vet、SDK 竞态回归；恢复独立服务并检查健康/metrics。
+python scripts/verify.py
+# 额外执行进程重启、Broker 故障、Redis AOF、补偿与核销故障验收。
+python scripts/faults.py
+# 三轮配对对比 + 1000/5000 并发 + 重复请求 + 批量发券，含排空和 CPU/内存采样。
+python scripts/benchmark.py
+python scripts/summarize.py
+# 可选：使用独立网络和全新数据卷验证首次启动，结束后仅清理本次临时数据卷。
+# 此入口的端口覆盖使用 Compose 2.24+；先执行上述启动/构建命令。
+python scripts/fresh-start.py
+# 一次执行全部：
+python scripts/verify.py --faults --benchmark
 ```
 
-Linux/macOS 可使用同样的 Compose 命令；故障编排脚本需要 PowerShell 5.1+ 或 pwsh。k6 脚本位于 `tests/k6`，原始 JSON 与日志输出到 `reports`。`claim_latency` 统计抢券请求的 P95/P99；`measurements.accepted_http_qps` 使用抢券请求窗口；`final_issue_tps` 使用从开抢到所有已受理请求完成落库的窗口。重复请求的受理 QPS 包含幂等重放，最终 TPS 按唯一发券数计算。测试会等待排空再核对，超时或不一致导致失败。
+无需 Python 的真实集成入口：`sh scripts/integration.sh`（Docker + POSIX shell）。PowerShell 兼容入口：`./scripts/verify.ps1 -Benchmark -Faults`。脚本不删除数据卷，会停止/恢复本项目服务，请串行执行故障与压测。GitHub Actions 对每次 push/PR 执行常规测试、race、vet 以及 SDK 竞态回归；真实中间件验收独立运行。
 
-实测记录见 [验证报告](docs/VALIDATION.md)，系统边界和故障处理见 [设计说明](docs/ARCHITECTURE.md)。
+原始冗长日志仅保留在忽略的 `reports/`。必要脱敏 k6 JSON、CPU/内存样本、测试配置、故障记录及摘要提交到 [evidence](evidence/engineering-2026-11-09)。[VALIDATION.md](docs/VALIDATION.md) 由汇总脚本生成，不把受理吞吐当成最终发券吞吐。
+
+RocketMQ Go v2.1.2 存在本次真实 race 验证捕获的订阅版本并发写问题；项目固定使用附带回归测试的最小本地源码补丁，来源和改动见 [ROCKETMQ_PATCH.md](third_party/ROCKETMQ_PATCH.md)。未更换客户端、消息链路或中间件。

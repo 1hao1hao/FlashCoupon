@@ -1,0 +1,249 @@
+{
+  "comparison_medians": {
+    "direct": {
+      "accepted_qps": 265.816,
+      "final_tps": 265.393,
+      "p95_ms": 121.762,
+      "p99_ms": 129.868
+    },
+    "async": {
+      "accepted_qps": 2136.752,
+      "final_tps": 218.15,
+      "p95_ms": 32.236,
+      "p99_ms": 35.007
+    }
+  },
+  "runs": [
+    {
+      "scenario": "direct-round-1",
+      "configuration": {
+        "duplicate": false,
+        "contention": false,
+        "latency_budget_ms": 10000,
+        "mode": "direct",
+        "iterations": 500,
+        "vus": 30,
+        "stock": 500
+      },
+      "accepted": 500,
+      "accepted_qps": 266.8089647812166,
+      "final_tps": 266.3825253063399,
+      "p95_ms": 121.76219379999999,
+      "p99_ms": 129.86808245999998,
+      "error_rate": 0,
+      "limited": 0,
+      "issued": 500
+    },
+    {
+      "scenario": "direct-round-2",
+      "configuration": {
+        "vus": 30,
+        "stock": 500,
+        "duplicate": false,
+        "contention": false,
+        "latency_budget_ms": 10000,
+        "mode": "direct",
+        "iterations": 500
+      },
+      "accepted": 500,
+      "accepted_qps": 259.4706798131811,
+      "final_tps": 259.0673575129534,
+      "p95_ms": 160.84877315,
+      "p99_ms": 169.11317489,
+      "error_rate": 0,
+      "limited": 0,
+      "issued": 500
+    },
+    {
+      "scenario": "direct-round-3",
+      "configuration": {
+        "mode": "direct",
+        "iterations": 500,
+        "vus": 30,
+        "stock": 500,
+        "duplicate": false,
+        "contention": false,
+        "latency_budget_ms": 10000
+      },
+      "accepted": 500,
+      "accepted_qps": 265.8160552897395,
+      "final_tps": 265.3927813163482,
+      "p95_ms": 119.5329894,
+      "p99_ms": 123.30973244999997,
+      "error_rate": 0,
+      "limited": 0,
+      "issued": 500
+    },
+    {
+      "scenario": "async-round-1",
+      "configuration": {
+        "stock": 500,
+        "duplicate": false,
+        "contention": false,
+        "latency_budget_ms": 10000,
+        "mode": "async",
+        "iterations": 500,
+        "vus": 30
+      },
+      "accepted": 500,
+      "accepted_qps": 1930.5019305019305,
+      "final_tps": 216.45021645021646,
+      "p95_ms": 33.96531994999999,
+      "p99_ms": 35.007325,
+      "error_rate": 0,
+      "limited": 0,
+      "issued": 500
+    },
+    {
+      "scenario": "async-round-2",
+      "configuration": {
+        "latency_budget_ms": 10000,
+        "mode": "async",
+        "iterations": 500,
+        "vus": 30,
+        "stock": 500,
+        "duplicate": false,
+        "contention": false
+      },
+      "accepted": 500,
+      "accepted_qps": 2136.7521367521367,
+      "final_tps": 218.15008726003492,
+      "p95_ms": 32.235907149999925,
+      "p99_ms": 35.0309941,
+      "error_rate": 0,
+      "limited": 0,
+      "issued": 500
+    },
+    {
+      "scenario": "async-round-3",
+      "configuration": {
+        "duplicate": false,
+        "contention": false,
+        "latency_budget_ms": 10000,
+        "mode": "async",
+        "iterations": 500,
+        "vus": 30,
+        "stock": 500
+      },
+      "accepted": 500,
+      "accepted_qps": 2232.142857142857,
+      "final_tps": 218.72265966754156,
+      "p95_ms": 31.479425799999994,
+      "p99_ms": 32.7152888,
+      "error_rate": 0,
+      "limited": 0,
+      "issued": 500
+    },
+    {
+      "scenario": "contention-1000",
+      "configuration": {
+        "mode": "async",
+        "iterations": 1000,
+        "vus": 1000,
+        "stock": 500,
+        "duplicate": false,
+        "contention": true,
+        "latency_budget_ms": 60000
+      },
+      "accepted": 500,
+      "rejected": 500,
+      "limited": 0,
+      "accepted_qps": 1984.126984126984,
+      "final_tps": 215.88946459412782,
+      "p95_ms": 119.08193185,
+      "p99_ms": 122.19988228999999,
+      "error_rate": 0,
+      "issued": 500
+    },
+    {
+      "scenario": "contention-5000",
+      "configuration": {
+        "stock": 2500,
+        "duplicate": false,
+        "contention": true,
+        "latency_budget_ms": 60000,
+        "mode": "async",
+        "iterations": 5000,
+        "vus": 5000
+      },
+      "accepted": 2500,
+      "rejected": 2500,
+      "limited": 0,
+      "accepted_qps": 2164.5021645021643,
+      "final_tps": 234.38964935308456,
+      "p95_ms": 796.09215925,
+      "p99_ms": 817.61156173,
+      "error_rate": 0,
+      "issued": 2500
+    },
+    {
+      "scenario": "duplicate",
+      "configuration": {
+        "latency_budget_ms": 10000,
+        "mode": "async",
+        "iterations": 500,
+        "vus": 30,
+        "stock": 500,
+        "duplicate": true,
+        "contention": false
+      },
+      "accepted": 500,
+      "rejected": 0,
+      "limited": 0,
+      "accepted_qps": 2976.190476190476,
+      "final_tps": 58.139534883720934,
+      "p95_ms": 34.18566735,
+      "p99_ms": 35.35657607,
+      "error_rate": 0,
+      "issued": 10
+    }
+  ],
+  "resources": {
+    "worker": {
+      "cpu_percent_peak": 57.75,
+      "memory_bytes_peak": 22261268,
+      "samples": 21
+    },
+    "relay": {
+      "cpu_percent_peak": 9.69,
+      "memory_bytes_peak": 15393096,
+      "samples": 21
+    },
+    "app": {
+      "cpu_percent_peak": 242.33,
+      "memory_bytes_peak": 228589568,
+      "samples": 21
+    },
+    "proxy": {
+      "cpu_percent_peak": 35.95,
+      "memory_bytes_peak": 4811437113,
+      "samples": 21
+    },
+    "mysql": {
+      "cpu_percent_peak": 93.14,
+      "memory_bytes_peak": 559205581,
+      "samples": 21
+    },
+    "broker": {
+      "cpu_percent_peak": 67.81,
+      "memory_bytes_peak": 587517133,
+      "samples": 21
+    },
+    "redis": {
+      "cpu_percent_peak": 44.11,
+      "memory_bytes_peak": 34005320,
+      "samples": 21
+    },
+    "namesrv": {
+      "cpu_percent_peak": 1.83,
+      "memory_bytes_peak": 238446182,
+      "samples": 21
+    },
+    "k6": {
+      "cpu_percent_peak": 498.63,
+      "memory_bytes_peak": 1082331759,
+      "samples": 12
+    }
+  },
+  "all_inventory_checks_passed": true
+}

@@ -1,0 +1,377 @@
+{
+  "root_group": {
+    "name": "",
+    "path": "",
+    "id": "d41d8cd98f00b204e9800998ecf8427e",
+    "groups": [
+      {
+        "name": "teardown",
+        "path": "::teardown",
+        "id": "a8a9942382e8ffe2e56ef29e664b8229",
+        "groups": [],
+        "checks": [
+          {
+            "path": "::teardown::final inventory consistent",
+            "id": "c494ca9710d1a2c2015533161adc087e",
+            "passes": 1,
+            "fails": 0,
+            "name": "final inventory consistent"
+          },
+          {
+            "name": "expected final unique issuance",
+            "path": "::teardown::expected final unique issuance",
+            "id": "74c7935b758418be33767201668a521a",
+            "passes": 1,
+            "fails": 0
+          }
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "name": "claim accepted or business rejected",
+        "path": "::claim accepted or business rejected",
+        "id": "75d89f7f975fa010141cc2512103ec78",
+        "passes": 500,
+        "fails": 0
+      }
+    ]
+  },
+  "options": {
+    "summaryTrendStats": [
+      "avg",
+      "min",
+      "med",
+      "max",
+      "p(95)",
+      "p(99)"
+    ],
+    "summaryTimeUnit": "",
+    "noColor": false
+  },
+  "state": {
+    "isStdOutTTY": false,
+    "isStdErrTTY": false,
+    "testRunDurationMs": 182.690037
+  },
+  "metrics": {
+    "acceptance_window_seconds": {
+      "contains": "default",
+      "values": {
+        "p(99)": 0.168,
+        "avg": 0.168,
+        "min": 0.168,
+        "med": 0.168,
+        "max": 0.168,
+        "p(95)": 0.168
+      },
+      "type": "trend"
+    },
+    "checks": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 1,
+        "passes": 502,
+        "fails": 0
+      },
+      "thresholds": {
+        "rate==1": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_blocked": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 0.001977,
+        "max": 1.742545,
+        "p(95)": 0.15623809999999985,
+        "p(99)": 0.7610332800000004,
+        "avg": 0.03185118127490039,
+        "min": 0.000729
+      }
+    },
+    "http_req_sending": {
+      "values": {
+        "avg": 0.01841003585657372,
+        "min": 0.003148,
+        "med": 0.0083045,
+        "max": 0.332303,
+        "p(95)": 0.051432649999999996,
+        "p(99)": 0.18825806000000017
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "http_req_duration{expected_response:true}": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "max": 35.796087,
+        "p(95)": 34.17797115,
+        "p(99)": 35.35645814,
+        "avg": 9.664218687250997,
+        "min": 3.310766,
+        "med": 7.961943
+      }
+    },
+    "http_reqs": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 502,
+        "rate": 2747.823626528687
+      }
+    },
+    "http_req_tls_handshaking": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(95)": 0,
+        "p(99)": 0,
+        "avg": 0,
+        "min": 0,
+        "med": 0,
+        "max": 0
+      }
+    },
+    "http_req_waiting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(95)": 34.028190249999994,
+        "p(99)": 35.246336140000004,
+        "avg": 9.610916617529876,
+        "min": 3.2381,
+        "med": 7.9263585,
+        "max": 35.704886
+      }
+    },
+    "http_req_failed": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "passes": 0,
+        "fails": 502,
+        "rate": 0
+      },
+      "thresholds": {
+        "rate==0": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_connecting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 0,
+        "max": 1.707409,
+        "p(95)": 0.09598854999999998,
+        "p(99)": 0.7143621100000006,
+        "avg": 0.023754834661354578,
+        "min": 0
+      }
+    },
+    "accepted_claims": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 500,
+        "rate": 2736.876122040525
+      }
+    },
+    "final_issue_tps": {
+      "type": "trend",
+      "contains": "default",
+      "values": {
+        "max": 58.139534883720934,
+        "p(95)": 58.139534883720934,
+        "p(99)": 58.139534883720934,
+        "avg": 58.139534883720934,
+        "min": 58.139534883720934,
+        "med": 58.139534883720934
+      }
+    },
+    "drain_seconds": {
+      "type": "trend",
+      "contains": "default",
+      "values": {
+        "p(99)": 0.004,
+        "avg": 0.004,
+        "min": 0.004,
+        "med": 0.004,
+        "max": 0.004,
+        "p(95)": 0.004
+      }
+    },
+    "iteration_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 8.092983499999999,
+        "max": 36.799714,
+        "p(95)": 34.95651625,
+        "p(99)": 36.40467257,
+        "avg": 9.865908011999986,
+        "min": 4.487779
+      }
+    },
+    "iterations": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "rate": 2736.876122040525,
+        "count": 500
+      }
+    },
+    "http_req_receiving": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 0.034892033864541844,
+        "min": 0.006294,
+        "med": 0.022679,
+        "max": 0.739463,
+        "p(95)": 0.08894429999999998,
+        "p(99)": 0.19341819000000005
+      }
+    },
+    "claim_latency": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 9.676651432000003,
+        "min": 4.409529,
+        "med": 7.961943,
+        "max": 35.796087,
+        "p(95)": 34.18566735,
+        "p(99)": 35.35657607
+      },
+      "thresholds": {
+        "p(99)<10000": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 7.961943,
+        "max": 35.796087,
+        "p(95)": 34.17797115,
+        "p(99)": 35.35645814,
+        "avg": 9.664218687250997,
+        "min": 3.310766
+      }
+    },
+    "data_sent": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 183543,
+        "rate": 1004668.9081353681
+      }
+    },
+    "data_received": {
+      "contains": "data",
+      "values": {
+        "count": 180718,
+        "rate": 989205.5580458392
+      },
+      "type": "counter"
+    }
+  },
+  "measurements": {
+    "accepted_http_qps": 2976.190476190476,
+    "final_issue_tps": 58.139534883720934
+  },
+  "configuration": {
+    "latency_budget_ms": 10000,
+    "mode": "async",
+    "iterations": 500,
+    "vus": 30,
+    "stock": 500,
+    "duplicate": true,
+    "contention": false
+  },
+  "test_template": {
+    "id": "ea53c9fcd4e4aa28221474e8e267582b",
+    "merchant_id": 1794214220820
+  },
+  "audit": {
+    "merchant_id": 1794214220820,
+    "template_id": "ea53c9fcd4e4aa28221474e8e267582b",
+    "initial": 500,
+    "db_remaining": 490,
+    "issued": 10,
+    "projected": 10,
+    "redis_remaining": 490,
+    "pending": 0,
+    "failed": 0,
+    "consistent": true
+  },
+  "resources": {
+    "cpu_percent_definition": "100% = one logical CPU; Docker memory usage excludes reclaimable cache",
+    "samples": [
+      {
+        "seconds": 2.09,
+        "services": {
+          "worker": {
+            "cpu_percent": 18.55,
+            "memory_bytes": 18182308
+          },
+          "relay": {
+            "cpu_percent": 0.01,
+            "memory_bytes": 12027167
+          },
+          "app": {
+            "cpu_percent": 0.25,
+            "memory_bytes": 210554061
+          },
+          "proxy": {
+            "cpu_percent": 21.57,
+            "memory_bytes": 4791036019
+          },
+          "mysql": {
+            "cpu_percent": 74.67,
+            "memory_bytes": 558261862
+          },
+          "broker": {
+            "cpu_percent": 4.32,
+            "memory_bytes": 576087654
+          },
+          "redis": {
+            "cpu_percent": 7.48,
+            "memory_bytes": 30545019
+          },
+          "namesrv": {
+            "cpu_percent": 0.12,
+            "memory_bytes": 237187891
+          }
+        }
+      }
+    ]
+  },
+  "stage_latency": {
+    "relay/relay_send": {
+      "attempts": 10.0,
+      "mean_ms": 1.456
+    },
+    "worker/coupon_cache": {
+      "attempts": 10.0,
+      "mean_ms": 3.228
+    },
+    "worker/coupon_projection": {
+      "attempts": 10.0,
+      "mean_ms": 3.667
+    },
+    "worker/grant_transaction": {
+      "attempts": 10.0,
+      "mean_ms": 8.425
+    }
+  }
+}

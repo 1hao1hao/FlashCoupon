@@ -1,0 +1,19 @@
+{
+  "logical_cpus": 28,
+  "memory_bytes": 16654200832,
+  "engine_version": "29.8.1",
+  "mysql_topology": "one instance, two logical coupon databases, four user-coupon tables",
+  "comparison": {
+    "rounds": 3,
+    "iterations": 500,
+    "vus": 30,
+    "stock": 500,
+    "per_user": 1,
+    "redis_appendfsync": "always",
+    "broker_flush": "SYNC_FLUSH",
+    "api_global_rate_limit": 5000,
+    "worker_count": 1,
+    "relay_count": 1
+  },
+  "evidence_schema": 1
+}

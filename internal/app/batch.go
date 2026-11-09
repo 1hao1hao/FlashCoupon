@@ -142,6 +142,9 @@ func (s *Service) processBatch(ctx context.Context, msg redis.XMessage) error {
 	state = "accepted"
 	if e != nil {
 		var ce *ClaimError
+		if errors.As(e, &ce) && ce.Code == 5 {
+			return e
+		} // Missing inventory is a recoverable infrastructure state, never a permanent batch rejection.
 		if !errors.As(e, &ce) && !errors.Is(e, sql.ErrNoRows) {
 			return e
 		}
@@ -159,10 +162,14 @@ func (s *Service) batchWorker(ctx context.Context) {
 	name := "batch-" + id()
 	handle := func(msg redis.XMessage) {
 		if e := s.processBatch(ctx, msg); e != nil {
+			s.Metrics.Retry.WithLabelValues("batch").Inc()
 			slog.Warn("batch retry", "id", msg.ID, "error", e)
 			return
 		}
-		s.R.XAck(ctx, batchStream, "batch", msg.ID)
+		if err := s.R.XAck(ctx, batchStream, "batch", msg.ID).Err(); err != nil {
+			s.Metrics.Retry.WithLabelValues("ack").Inc()
+			slog.Warn("batch ack retry", "error", err)
+		}
 	}
 	for ctx.Err() == nil {
 		start := "0-0"

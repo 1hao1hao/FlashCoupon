@@ -1,68 +1,95 @@
-# 设计与故障处理
+# 架构、指标与可靠性
 
-## 数据与链路
+## 真实部署
 
 ```mermaid
 flowchart LR
-  U[签名用户请求] --> G[Gin 全局及用户限流]
-  G --> L[Redis Lua 活动/限领/库存/幂等]
-  L --> S[Redis Stream Outbox]
-  S --> R[Relay Consumer Group + XAUTOCLAIM]
-  R --> M[RocketMQ 同步刷盘确认]
-  M --> W[Worker]
-  W --> C[MySQL 发券事实/库存/限领 本地事务]
-  C --> P[ShardingSphere 用户券投影]
-  P --> F[Redis 终态/用户 ZSet]
-  D[定时对账] --> S
-  D --> P
-  D --> F
+  U[签名用户请求] --> API[app 进程 ROLE=api :8080]
+  API --> LUA[Redis Lua 校验/库存/限领/预留]
+  LUA --> S[Redis Stream Outbox]
+  S --> R[relay 进程 ROLE=relay :8081]
+  R --> MQ[RocketMQ SYNC_FLUSH]
+  MQ --> W[worker 进程 ROLE=worker :8082]
+  B[xlsx / Redis Set / 批次 Stream] --> W
+  API --> B
+  W --> TX[控制库本地事务 库存/限领/grants]
+  TX --> P[ShardingSphere-Proxy]
+  P --> C[单 MySQL 实例 coupon_0 / coupon_1 四张用户券表]
+  W --> F[Redis 终态和用户券缓存]
+  W --> REC[定时对账 / 过期处理]
+  REC --> S
+  REC --> P
+  REC --> F
+  API --> MET[各进程 /metrics]
+  R --> MET
+  W --> MET
 ```
 
-`control.templates/grants/user_limits/batches/batch_items` 是控制面数据。模板行锁、库存扣减、限领计数和发券事实同事务提交。`grants.id` 是 `SHA256(merchant/user/template/request)`，数据库主键兜底重复消息；`user_limits` 复合主键保障用户限领记录唯一。成功事实包含券快照，作为投影重试依据。
+三个进程共享镜像，ROLE 决定启动的任务和路由。只有 API 注册业务 HTTP；Relay/Worker 的 HTTP 仅用于健康检查和指标。API 启动不依赖 MQ；后台服务等待 Nameserver、Broker、Topic。分片配置等待 Proxy 和 MySQL，所有宿主端口只绑定 loopback。`ROLE=all` 保留给单进程集成测试，不是当前 Compose 部署形态。
 
-用户券通过 Proxy 按 `user_id % 2` 路由数据库，`floor(user_id/2) % 2` 路由物理表，共两库四表；商户模板查询投影以 `merchant_id` 使用同样规则。商户模板的库存裁决仍在控制库进行。普通用户查询、更新均携带用户分片键；全局过期扫描和对账会广播到分片。
+MySQL 健康检查明确使用 TCP，不能把初始化阶段的临时 Unix socket 当成正式服务。Topic 初始化直接指定 Broker，并检查 NameServer 中确实存在 broker-a 的 Topic 路由；不能仅凭 mqadmin 的退出码判定成功，因为空集群时它可能打印错误却返回 0。初始化采用有限重试，独立全新数据卷启动已实际验证。
 
-这是本地事务加可重放投影的最终一致性模型。控制库事务提交后再写用户分片，避免将两种路由键放入未经保障的跨库 LOCAL 事务；控制库与投影间短暂延迟是可观测的。投影写入失败只重试，不退库存，否则可能把已经提交的发券事实当失败再次发券。控制面是单库，热点模板的行锁仍限制最终 TPS；用户分片解决券数据容量与按用户查询，不能消除控制面的串行库存更新成本。
+收到 SIGTERM 后 HTTP 停止接入，最多等待 15 秒排空；超时显式关闭连接。后台任务使用可取消 context、WaitGroup 和幂等 Close；关闭 MQ Consumer、等待 Stream/批次/维护/采样协程退出后关闭 Producer 和数据库连接。MQ 回调有 30 秒处理超时。Compose 给 60 秒退出宽限。崩溃或取消造成的不确定提交靠重投和 SQL 主键处理，不提前 ACK。
 
-## 状态与幂等
+## 数据与库存语义
 
-| 阶段/故障窗口 | 行为 |
+`control.templates/grants/user_limits/batches/batch_items` 在同一个 MySQL 实例的控制库。模板行锁、库存扣减、用户限领和 grants 成功事实在一个本地事务中提交。`grants.id=SHA256(merchant/user/template/request)`，唯一主键防止重复发券；用户限领复合主键和模板行锁防止同用户不同请求超限。
+
+用户券经 Proxy 按 `user_id % 2` 路由逻辑库，`floor(user_id/2) % 2` 路由表，合计两逻辑库四张表；商户模板查询投影按 merchant_id 使用相同规则。当前不是多个 MySQL 实例，也没有验证物理扩容收益。用户查询/核销携带用户分片键；全局过期、计数与对账广播。
+
+控制库先保存成功事实和券快照，再幂等写用户券投影，再更新 Redis 终态/缓存。跨控制库和用户分片使用可重放投影的最终一致性，不宣称跨库 LOCAL 原子事务。投影暂时失败只重试，不退已提交库存。控制库行锁仍是热点模板最终 TPS 的限制。
+
+静止状态验证：`初始库存 = SQL剩余 + issued事实`，`issued事实 = 用户券投影数`，`Redis剩余 = SQL剩余`。流水中验证 `Redis剩余 + 预留总数 - failed预留数 = 初始库存`。审计不是跨 Redis/MySQL 的一致快照，流转中可能短暂不一致；验收必须等 pending=0 再确认全部等式。
+
+## 故障窗口
+
+| 窗口 | 保障 |
 |---|---|
-| Lua 校验失败 | 不扣库存、不更新限领、不写 Outbox |
-| Lua 执行成功后 API 崩溃 | 预留账本和 Stream 已存在，重试同一 request_id 返回同一事件 |
-| Stream 取出后 Relay 崩溃 | 消费组保留 pending，10 秒后 XAUTOCLAIM 接管 |
-| MQ 已收到但 Relay 未 ACK | 重复投递，数据库事实主键消重 |
-| MQ 发送失败或未返回 SendOK | 不 ACK Stream，等待重试 |
-| SQL 提交后 Worker 崩溃 | 重读同一成功事实，幂等写入用户券 |
-| 用户券已写但 Worker 未确认 | 不覆盖券使用状态；重放读取真实用户券后更新缓存 |
-| 数据库业务拒绝 | 保存 failed 事实，Lua 一次性回补库存和限领计数 |
-| 数据库/Proxy/Redis 暂时不可用 | MQ retry later；不贸然补库存；对账可重新入 Stream |
-| 异常消息 | 无法解析的消息持久写入 Redis deadletters 后才确认；MQ 自身也有重试和 DLQ |
-| 对账发现库存/限领漂移 | 扫描预留事实，读取版本；Lua CAS 确保没有新抢券/终态变化才重建计数 |
-| Redis 元数据或库存键丢失 | 拒绝新受理，拒绝盲目预热；从持久备份恢复后再开放 |
+| Lua 后 API 崩溃 | 校验、扣库存、限领、预留和 Stream 同脚本；同请求返回原事件 |
+| Relay 取出后崩溃 | PEL 保留；空闲 10 秒后 XAUTOCLAIM 接管 |
+| MQ 已接收但 Relay 未 ACK | 允许重投；只在 SendOK 后 ACK，SQL 唯一事实消重 |
+| SQL 提交后 Worker 崩溃 | 重读券快照，幂等补齐投影，不重复扣库存 |
+| 投影已写后回调失败 | MQ retry later；重复投影不覆盖已核销状态 |
+| SQL 永久业务拒绝 | 保存 failed；Lua `pending→failed` 只补偿一次 |
+| DB/Proxy/Redis/MQ 短时故障 | 消费重试、不提前确认、不按超时回补库存；对账可重新写 Stream |
+| 异常消息 | 保存 deadletters 后才确认；MQ 自身也有 retry/DLQ |
+| 库存/限领计数漂移 | 预留快照配合 revision CAS，避免覆盖并发抢券或终态变化 |
+| Redis 键或完整账本丢失 | 关闭受理，不依据 SQL 剩余数盲目初始化；先恢复持久数据再核对 |
 
-Worker 校验消息内容与 Lua 保存的预留事实一致。只有数据库的终态能触发 `pending → issued/failed`，终态重复执行不改变库存。永久失败按业务规则处理，基础设施超时没有自动撤销期限。过期前受理的消息可以在活动结束后落库，券是否可用仍按券有效期判断。
+首次初始化先持久标记再暴露 Redis 库存，中间崩溃保持关闭受理。Redis AOF always、noeviction 和 Broker 同步刷盘覆盖已测试的进程重启窗口；不能抵御单机磁盘损毁。发券在活动期内受理，消息可在活动结束后落库，券仍按自身有效期限制使用。
 
-库存关系：`初始库存 = 数据库剩余 + issued grants`；静止状态下 `issued grants = 用户券投影数量`、`Redis剩余 = 数据库剩余`。流水处理中另核对 `Redis剩余 + 预留总数 - failed预留数 = 初始库存`。对账扫描期间可能仍有状态变化，`audit` 是诊断快照，压测在排空后断言全部一致。每 15 秒尝试对账和过期流转，维护锁防止多实例同时扫描；失败会记结构化日志，下轮重试。
+每 15 秒由 Worker 尝试对账和过期流转；维护租约避免同时间重复扫描。SQL 成功但缺失的投影可以补齐。不能主动删除已核销券再将其当普通缺失投影重建，核销状态应由备份恢复。Stream/预留账本保留用于审计，不使用任意 MAXLEN 丢弃未处理记录，归档需要排空、一致性和幂等保留期保障。
 
-## 核销与缓存
+核销使用状态、商户、用户、门槛、有效期条件更新；`UNIQUE(user_id,order_id)` 防止同用户订单用两张券。相同券和订单重复请求成功，其他订单拒绝。结算是报价，最终核销再次校验；订单系统负责真实归属/金额。过期券不会参与报价或成功核销。
 
-核销条件更新同时检查用户、商户、状态、有效期和门槛，成功才写订单号；`UNIQUE(user_id,order_id)` 阻止同一用户订单使用两张券。相同券和订单重试成功，其他订单不能再次核销。结算是报价，最终以条件更新为准；订单系统需要保证订单归属和金额真实。
+模板缓存包含 Bloom 位图、空值短缓存、带令牌互斥重建；用户券使用 ZSet/Pipeline 和最多 8 个计算 goroutine。缓存报价可与核销并发而暂时过时，SQL 是核销裁决。Excelize Rows 流式导入，Redis Set+Stream Lua 原子去重，后台批次使用稳定请求 ID 进入同一发券链路，batch_items 主键保障进度幂等。
 
-模板查询先检查缓存、Redis 位图 Bloom，再使用带随机令牌的互斥锁重建；解锁 Lua 校验令牌。四次哈希映射到 2^24 位，允许假阳性。创建前先加 Bloom 位，启动补全位图后设置 ready；过滤器未就绪时回源数据库，避免冷启动误判。不存在模板短缓存 5 秒，热点模板缓存 60 秒。
+## 指标口径
 
-用户券按到期时间写 ZSet，用 Pipeline 批量读券快照，固定最多 8 个 Go goroutine 计算并排序。冷缓存或条目丢失回源数据库；券状态会在发放和核销时更新，定期过期流转。缓存报价可能与正在发生的核销并发，数据库核销始终再次验证。
+指标使用独立 registry，固定 role 标签。不使用用户、商户、请求、模板或原始 URL 作为标签；未知路由和非标准方法归一化。指标抓取不现场扫描账本，后台采样失败保留旧值，并通过时间戳暴露陈旧程度。
 
-批量导入用 Excelize Rows 流式读首表，Redis Set 与批量 Stream 入队在 Lua 中去重和原子执行；后台消费者用稳定的 `batch:<batch-id>` 请求号走同一抢券链路。`batch_items` 主键 `(batch_id,user_id)` 使进度写入幂等，消费崩溃后不会重复增加统计。导入连接中断时已经排队的行仍执行，批次可能处于 importing/partial，需要按已知批次 ID 检查结果。未解析的文件尾部不属于已受理数据。
+| 指标 | 意义 |
+|---|---|
+| `flashcoupon_http_requests_total` | 请求计数：route/method/status；rate 得到 QPS |
+| `flashcoupon_http_duration_seconds` | 延迟 Histogram；聚合 bucket 可求 P95/P99 |
+| `flashcoupon_claim_responses_total` | mode/outcome=accepted,rejected,limited,error；包含请求幂等重放 |
+| `flashcoupon_delivery_attempts_total` | 消费/同步发券尝试，包含重复投递；不是唯一发券量 |
+| `flashcoupon_grants{role="worker",state="issued/failed"}` | 从 MySQL 采样的唯一终态事实 Gauge，重启和重投不重复累计 |
+| `flashcoupon_projected_coupons{role="worker"}` | 用户分片实际券数 Gauge；SQL fact 成功可能短暂先于投影 |
+| `flashcoupon_message_backlog` | outbox/batch 的 unread、PEL pending；pipeline pending 来自最近一次对账，覆盖 MQ/落库未完成部分 |
+| `flashcoupon_message_retries_total` | relay/worker/batch/ack 失败重试计数 |
+| `flashcoupon_delivery_stage_seconds` | SQL 事务、Relay SendSync、投影、缓存阶段耗时，包含等待 |
+| `flashcoupon_background_errors_total` | 对账、锁、指标采样等错误计数 |
+| `flashcoupon_reconcile_mismatches` | 最近对账快照不匹配数，流转中可瞬态出现 |
+| `flashcoupon_*last_success_timestamp_seconds` | 对账/采样最后成功时间，读取 Gauge 时同时监控新鲜度 |
 
-## 运维边界
+```promql
+sum by (route) (rate(flashcoupon_http_requests_total{role="api"}[1m]))
+histogram_quantile(0.95, sum by (le,route) (rate(flashcoupon_http_duration_seconds_bucket{role="api"}[5m])))
+histogram_quantile(0.99, sum by (le,route) (rate(flashcoupon_http_duration_seconds_bucket{role="api"}[5m])))
+time() - flashcoupon_metrics_last_success_timestamp_seconds{role="worker"}
+```
 
-- Compose 使用 Redis AOF `appendfsync always`、`noeviction` 和 RocketMQ `SYNC_FLUSH`。这些配置保护进程重启窗口，不能保证整个单机磁盘损坏后不丢数据；部署是单节点演示，不提供跨机房容灾。
-- `scripts/recovery.ps1` 真的停止 Broker，在故障期间受理，观察 PEL，停止应用并重启 Redis，然后恢复 Broker 和应用并核对发券。只作用于 flashcoupon Compose 项目。
-- Redis 完整丢失不能凭数据库剩余库存直接重建：数据库尚未看到的已受理事件也占库存。恢复 AOF/备份与消息日志后核对；若持久数据也丢失，需要业务审计决定如何处理，程序保持关闭受理。
-- 首次预热先持久标记初始化，再暴露 Redis 库存；两个步骤之间崩溃时保持关闭受理，避免把可能已有受理的活动误当全新库存。新模板若在此窗口初始化失败，需要运营确认无受理流水后恢复，不能自动清除标记。
-- 用户券库应使用备份恢复。对账补写针对尚未完成的投影；不能把主动删除已核销券当成普通投影缺失来处理，因为核销状态必须从持久备份保留。
-- Stream、预留账本、批次 Set 和发券事实保留用于审计，不使用 MAXLEN 任意裁剪。生产归档需在活动结束、消息排空、账目一致并满足业务幂等保留期之后执行。
-- 健康接口检查数据库与 Redis。MQ 故障时抢券可以继续受理，运维应监控 `/admin/audit` pending、Stream PEL/lag、RocketMQ 消费延迟/DLQ、数据库剩余与投影差异以及维护错误日志。
+唯一发券指标是持久事实/投影的 Gauge，不用 `rate()` 解释成严格的事件 TPS；压测从唯一最终发券数和明确的开始/排空窗口计算 TPS。多个 Worker 会重复采样同一份全局事实，应使用 `max` 而非求和。进程 CPU/内存由 Go process collector 暴露，压测还采样 Docker 服务和 k6 容器资源。
 
-参考实现接口：[RocketMQ Go 官方消费者](https://github.com/apache/rocketmq-client-go/blob/v2.1.2/examples/consumer/simple/main.go)、[官方生产者](https://github.com/apache/rocketmq-client-go/blob/v2.1.2/examples/producer/simple/main.go)、[ShardingSphere 5.5.2 分片规则](https://shardingsphere.apache.org/document/5.5.2/cn/user-manual/shardingsphere-jdbc/yaml-config/rules/sharding/)。
+参考：[Prometheus Histogram](https://prometheus.io/docs/practices/histograms/)、[Go promhttp](https://pkg.go.dev/github.com/prometheus/client_golang/prometheus/promhttp)。RocketMQ SDK 并发补丁及可复现实验见 [来源说明](../third_party/ROCKETMQ_PATCH.md)。

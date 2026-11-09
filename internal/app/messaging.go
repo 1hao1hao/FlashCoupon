@@ -12,18 +12,37 @@ import (
 	"log/slog"
 	"net"
 	"strings"
+	"sync"
 	"time"
 )
 
 const topic = "FlashCouponGrant"
 
 type Messaging struct {
-	P rocketmq.Producer
-	C rocketmq.PushConsumer
-	S *Service
+	P         rocketmq.Producer
+	C         rocketmq.PushConsumer
+	S         *Service
+	cancel    context.CancelFunc
+	wg        sync.WaitGroup
+	once      sync.Once
+	consumeMu sync.Mutex
+	consumeWG sync.WaitGroup
+	closing   bool
 }
 
 func (s *Service) StartMessaging(ctx context.Context) (*Messaging, error) {
+	ctx, cancel := context.WithCancel(ctx)
+	m := &Messaging{S: s, cancel: cancel}
+	ok := false
+	defer func() {
+		if !ok {
+			m.Close()
+		}
+	}()
+	if s.Config.Role == "api" {
+		ok = true
+		return m, nil
+	}
 	ns := strings.Split(s.Config.Nameserver, ",")
 	for i, addr := range ns {
 		host, port, err := net.SplitHostPort(addr)
@@ -36,7 +55,6 @@ func (s *Service) StartMessaging(ctx context.Context) (*Messaging, error) {
 		}
 		ns[i] = net.JoinHostPort(ips[0], port)
 	}
-	m := &Messaging{S: s}
 	var e error
 	if s.Config.Role == "all" || s.Config.Role == "relay" {
 		m.P, e = rocketmq.NewProducer(producer.WithGroupName("fc-relay"), producer.WithNsResolver(primitive.NewPassthroughResolver(ns)), producer.WithRetry(2))
@@ -50,7 +68,7 @@ func (s *Service) StartMessaging(ctx context.Context) (*Messaging, error) {
 			m.P.Shutdown()
 			return nil, e
 		}
-		go m.relay(ctx)
+		m.start(func() { m.relay(ctx) })
 	}
 	if s.Config.Role == "all" || s.Config.Role == "worker" {
 		m.C, e = rocketmq.NewPushConsumer(consumer.WithGroupName("fc-workers"), consumer.WithNsResolver(primitive.NewPassthroughResolver(ns)), consumer.WithConsumeFromWhere(consumer.ConsumeFromFirstOffset))
@@ -59,6 +77,12 @@ func (s *Service) StartMessaging(ctx context.Context) (*Messaging, error) {
 			return nil, e
 		}
 		e = m.C.Subscribe(topic, consumer.MessageSelector{}, func(c context.Context, msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
+			if !m.beginConsume() {
+				return consumer.ConsumeRetryLater, nil
+			}
+			defer m.consumeWG.Done()
+			c, cancel := context.WithTimeout(c, 30*time.Second)
+			defer cancel()
 			for _, msg := range msgs {
 				var ev Event
 				if e := json.Unmarshal(msg.Body, &ev); e != nil || ev.ID != eventIDValid(ev) {
@@ -68,6 +92,7 @@ func (s *Service) StartMessaging(ctx context.Context) (*Messaging, error) {
 					continue
 				}
 				if _, err := s.Deliver(c, ev, "async"); err != nil {
+					s.Metrics.Retry.WithLabelValues("worker").Inc()
 					slog.Error("worker retry", "id", ev.ID, "error", err)
 					return consumer.ConsumeRetryLater, err
 				}
@@ -86,8 +111,11 @@ func (s *Service) StartMessaging(ctx context.Context) (*Messaging, error) {
 			m.Close()
 			return nil, e
 		}
-		go s.batchWorker(ctx)
+		m.start(func() { s.batchWorker(ctx) })
+		m.start(func() { s.Maintenance(ctx) })
 	}
+	m.start(func() { s.observe(ctx) })
+	ok = true
 	return m, nil
 }
 
@@ -99,13 +127,33 @@ func eventIDValid(ev Event) string {
 	return ""
 }
 func (m *Messaging) Close() {
-	if m.C != nil {
-		m.C.Shutdown()
-	}
-	if m.P != nil {
-		m.P.Shutdown()
-	}
+	m.once.Do(func() {
+		m.consumeMu.Lock()
+		m.closing = true
+		m.consumeMu.Unlock()
+		if m.cancel != nil {
+			m.cancel()
+		}
+		if m.C != nil {
+			m.C.Shutdown()
+		}
+		m.consumeWG.Wait()
+		m.wg.Wait()
+		if m.P != nil {
+			m.P.Shutdown()
+		}
+	})
 }
+func (m *Messaging) beginConsume() bool {
+	m.consumeMu.Lock()
+	defer m.consumeMu.Unlock()
+	if m.closing {
+		return false
+	}
+	m.consumeWG.Add(1)
+	return true
+}
+func (m *Messaging) start(fn func()) { m.wg.Add(1); go func() { defer m.wg.Done(); fn() }() }
 func (m *Messaging) relay(ctx context.Context) {
 	name := "relay-" + id()
 	handle := func(msg redis.XMessage) {
@@ -118,16 +166,21 @@ func (m *Messaging) relay(ctx context.Context) {
 		}
 		sendCtx, cancel := context.WithTimeout(ctx, 8*time.Second)
 		defer cancel()
+		started := time.Now()
 		result, e := m.P.SendSync(sendCtx, primitive.NewMessage(topic, []byte(raw)))
+		m.S.Metrics.Stage.WithLabelValues("relay_send").Observe(time.Since(started).Seconds())
 		if e != nil {
 			slog.Warn("relay send pending", "id", msg.ID, "error", e)
+			m.S.Metrics.Retry.WithLabelValues("relay").Inc()
 			return
 		}
 		if result.Status != primitive.SendOK {
+			m.S.Metrics.Retry.WithLabelValues("relay").Inc()
 			slog.Warn("broker did not confirm durable send", "id", msg.ID, "status", result.Status)
 			return
 		}
 		if e = m.S.R.XAck(ctx, stream, "relay", msg.ID).Err(); e != nil {
+			m.S.Metrics.Retry.WithLabelValues("ack").Inc()
 			slog.Warn("relay ack retry", "error", e)
 		}
 	}
@@ -180,7 +233,19 @@ type Audit struct {
 }
 
 func (s *Service) Reconcile(ctx context.Context, repair bool) ([]Audit, error) {
+	return s.ReconcileFor(ctx, repair, "", "")
+}
+func (s *Service) ReconcileFor(ctx context.Context, repair bool, merchant, tid string) ([]Audit, error) {
 	ts, e := s.Store.Templates(ctx)
+	if merchant != "" || tid != "" {
+		m, err := positive(merchant)
+		if err != nil || tid == "" {
+			return nil, fmt.Errorf("merchant_id and template_id required together")
+		}
+		var t Template
+		t, e = s.Store.Template(ctx, m, tid)
+		ts = []Template{t}
+	}
 	if e != nil {
 		return nil, e
 	}
@@ -311,10 +376,25 @@ func (s *Service) Maintenance(ctx context.Context) {
 			return
 		case <-tick.C:
 			job, cancel := context.WithTimeout(ctx, 12*time.Second)
-			locked, _ := s.R.SetNX(job, "fc:maintenance", 1, 14*time.Second).Result()
+			locked, err := s.R.SetNX(job, "fc:maintenance", 1, 14*time.Second).Result()
+			if err != nil {
+				s.Metrics.Errors.WithLabelValues("maintenance_lock").Inc()
+			}
 			if locked {
-				if _, e := s.Reconcile(job, true); e != nil {
+				if audits, e := s.Reconcile(job, true); e != nil {
+					s.Metrics.Errors.WithLabelValues("reconcile").Inc()
 					slog.Error("reconcile", "error", e)
+				} else {
+					var pending, mismatch int64
+					for _, a := range audits {
+						pending += a.Pending
+						if !a.Consistent {
+							mismatch++
+						}
+					}
+					s.Metrics.Backlog.WithLabelValues("pipeline", "pending").Set(float64(pending))
+					s.Metrics.ReconcileMismatch.Set(float64(mismatch))
+					s.Metrics.ReconcileTime.SetToCurrentTime()
 				}
 				if e := s.Store.Expire(job); e != nil {
 					slog.Error("expire", "error", e)

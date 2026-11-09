@@ -254,10 +254,25 @@ func TestIntegration(t *testing.T) {
 		if _, e = s.Claim(ctx, merchant, 999, template.ID, "lost"); e == nil {
 			t.Fatal("accepted on missing inventory")
 		}
+		bid := id()
+		if _, err := s.Store.DB.ExecContext(ctx, "INSERT INTO batches(id,merchant_id,template_id,state) VALUES(?,?,?,'ready')", bid, merchant, template.ID); err != nil {
+			t.Fatal(err)
+		}
+		msg := redis.XMessage{Values: map[string]interface{}{"batch": bid, "user": "999"}}
+		if err := s.processBatch(ctx, msg); err == nil {
+			t.Fatal("missing inventory was permanently acknowledged by batch processing")
+		}
+		var processed int
+		if err := s.Store.DB.QueryRowContext(ctx, "SELECT COUNT(*) FROM batch_items WHERE batch_id=?", bid).Scan(&processed); err != nil || processed != 0 {
+			t.Fatal("transient batch error must leave no terminal progress", processed, err)
+		}
 		// Restore this untouched fixture, never an in-flight real activity.
 		s.Store.DB.ExecContext(ctx, "UPDATE templates SET redis_initialized=FALSE WHERE merchant_id=? AND id=?", merchant, template.ID)
 		if e = s.Warm(ctx, template); e != nil {
 			t.Fatal(e)
+		}
+		if err := s.processBatch(ctx, msg); err != nil {
+			t.Fatal("batch did not resume after inventory restoration", err)
 		}
 	})
 	t.Run("projection_and_inventory_repair", func(t *testing.T) {

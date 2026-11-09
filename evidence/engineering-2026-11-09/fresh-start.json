@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "fresh_data_volumes": true,
+  "user_coupon_tables": 4,
+  "roles": {
+    "app": "healthy",
+    "relay": "healthy",
+    "worker": "healthy"
+  },
+  "seconds": 37.188,
+  "main_data_untouched": true
+}
