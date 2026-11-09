@@ -1,0 +1,15 @@
+mode:
+  type: Standalone
+  repository:
+    type: JDBC
+authority:
+  users:
+    - user: root@%
+      password: flashcoupon
+  privilege:
+    type: ALL_PERMITTED
+transaction:
+  defaultType: LOCAL
+props:
+  sql-show: false
+  proxy-default-port: 3307

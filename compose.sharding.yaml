@@ -1,0 +1,23 @@
+# docker compose -f compose.yaml -f compose.sharding.yaml up -d --build
+services:
+  proxy:
+    build: ./deploy/sharding
+    environment:
+      PORT: 3307
+      JAVA_MEM_OPTS: '-Xms256m -Xmx512m'
+    ports: ['127.0.0.1:13307:3307']
+    volumes: ['./deploy/sharding/global.yaml:/opt/shardingsphere-proxy/conf/global.yaml:ro', './deploy/sharding/database-coupons.yaml:/opt/shardingsphere-proxy/conf/database-coupons.yaml:ro']
+    depends_on:
+      mysql: {condition: service_healthy}
+    healthcheck:
+      test: ['CMD-SHELL', 'bash -c "echo > /dev/tcp/127.0.0.1/3307"']
+      interval: 5s
+      retries: 60
+  app:
+    environment:
+      COUPON_DSN: root:flashcoupon@tcp(proxy:3307)/coupons?parseTime=true&loc=UTC
+    depends_on:
+      proxy: {condition: service_healthy}
+  toolbox:
+    environment:
+      COUPON_DSN: root:flashcoupon@tcp(proxy:3307)/coupons?parseTime=true&loc=UTC

@@ -1,0 +1,102 @@
+name: flashcoupon
+services:
+  mysql:
+    image: mysql:8.0.41
+    environment:
+      MYSQL_ROOT_PASSWORD: flashcoupon
+      MYSQL_ROOT_HOST: '%'
+    ports: ['127.0.0.1:13306:3306']
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./deploy/mysql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-pflashcoupon']
+      interval: 5s
+      retries: 40
+  redis:
+    image: redis:7-alpine
+    command: ['redis-server', '--appendonly', 'yes', '--appendfsync', 'always', '--maxmemory-policy', 'noeviction']
+    ports: ['127.0.0.1:16379:6379']
+    volumes: ['redis-data:/data']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      retries: 20
+  namesrv:
+    image: apache/rocketmq:5.3.1
+    command: sh mqnamesrv
+    environment:
+      JAVA_OPT_EXT: '-Xms128m -Xmx128m -Xmn64m'
+    healthcheck:
+      test: ['CMD-SHELL', 'bash -c "echo > /dev/tcp/127.0.0.1/9876"']
+      interval: 5s
+      retries: 40
+  mq-init:
+    image: apache/rocketmq:5.3.1
+    user: root
+    entrypoint: ['sh', '-c', 'chown -R 3000:3000 /home/rocketmq/store']
+    volumes: ['mq-data:/home/rocketmq/store']
+  broker:
+    image: apache/rocketmq:5.3.1
+    command: sh mqbroker -n namesrv:9876 -c /home/rocketmq/broker.conf
+    environment:
+      JAVA_OPT_EXT: '-Xms256m -Xmx256m -Xmn128m -XX:MaxDirectMemorySize=128m'
+    volumes:
+      - ./deploy/rocketmq/broker.conf:/home/rocketmq/broker.conf:ro
+      - mq-data:/home/rocketmq/store
+    depends_on:
+      namesrv: {condition: service_healthy}
+      mq-init: {condition: service_completed_successfully}
+    healthcheck:
+      test: ['CMD-SHELL', 'bash -c "echo > /dev/tcp/127.0.0.1/10911"']
+      interval: 5s
+      retries: 40
+  mq-topic:
+    image: apache/rocketmq:5.3.1
+    command: sh mqadmin updateTopic -n namesrv:9876 -c FlashCouponCluster -t FlashCouponGrant
+    depends_on:
+      broker: {condition: service_healthy}
+  app:
+    build: .
+    restart: unless-stopped
+    ports: ['127.0.0.1:8080:8080']
+    environment:
+      CONTROL_DSN: root:flashcoupon@tcp(mysql:3306)/control?parseTime=true&loc=UTC
+      COUPON_DSN: root:flashcoupon@tcp(mysql:3306)/control?parseTime=true&loc=UTC
+      REDIS_ADDR: redis:6379
+      MQ_NAMESERVER: namesrv:9876
+      ADMIN_KEY: ${ADMIN_KEY:-dev-admin-key}
+      USER_KEY: ${USER_KEY:-dev-user-key}
+      RATE_LIMIT: ${RATE_LIMIT:-5000}
+    depends_on:
+      mysql: {condition: service_healthy}
+      redis: {condition: service_healthy}
+      broker: {condition: service_healthy}
+      mq-topic: {condition: service_completed_successfully}
+  toolbox:
+    image: golang:1.24-bookworm
+    profiles: [tools]
+    working_dir: /src
+    volumes: ['.:/src', 'go-mod:/go/pkg/mod', 'go-cache:/root/.cache/go-build']
+    environment:
+      CONTROL_DSN: root:flashcoupon@tcp(mysql:3306)/control?parseTime=true&loc=UTC
+      COUPON_DSN: root:flashcoupon@tcp(mysql:3306)/control?parseTime=true&loc=UTC
+      REDIS_ADDR: redis:6379
+      MQ_NAMESERVER: namesrv:9876
+      INTEGRATION: '1'
+  k6:
+    image: grafana/k6:0.57.0
+    profiles: [tools]
+    volumes: ['./tests/k6:/scripts:ro', './reports:/reports']
+    environment:
+      BASE_URL: http://app:8080
+      ADMIN_KEY: ${ADMIN_KEY:-dev-admin-key}
+      USER_KEY: ${USER_KEY:-dev-user-key}
+volumes:
+  mysql-data:
+  redis-data:
+  mq-data:
+  go-mod:
+    name: flashcoupon-gomod
+  go-cache:
+    name: flashcoupon-gocache

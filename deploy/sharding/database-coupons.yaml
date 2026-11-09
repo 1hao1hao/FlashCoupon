@@ -1,0 +1,54 @@
+databaseName: coupons
+dataSources:
+  ds_0:
+    url: jdbc:mysql://mysql:3306/coupon_0?useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: flashcoupon
+    connectionTimeoutMilliseconds: 30000
+    maxPoolSize: 20
+  ds_1:
+    url: jdbc:mysql://mysql:3306/coupon_1?useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: flashcoupon
+    connectionTimeoutMilliseconds: 30000
+    maxPoolSize: 20
+rules:
+  - !SHARDING
+    tables:
+      coupons:
+        actualDataNodes: ds_${0..1}.coupons_${0..1}
+        databaseStrategy:
+          standard:
+            shardingColumn: user_id
+            shardingAlgorithmName: user_db
+        tableStrategy:
+          standard:
+            shardingColumn: user_id
+            shardingAlgorithmName: user_table
+      merchant_templates:
+        actualDataNodes: ds_${0..1}.merchant_templates_${0..1}
+        databaseStrategy:
+          standard:
+            shardingColumn: merchant_id
+            shardingAlgorithmName: merchant_db
+        tableStrategy:
+          standard:
+            shardingColumn: merchant_id
+            shardingAlgorithmName: merchant_table
+    shardingAlgorithms:
+      user_db:
+        type: INLINE
+        props:
+          algorithm-expression: ds_${user_id % 2}
+      user_table:
+        type: INLINE
+        props:
+          algorithm-expression: coupons_${(user_id.intdiv(2)) % 2}
+      merchant_db:
+        type: INLINE
+        props:
+          algorithm-expression: ds_${merchant_id % 2}
+      merchant_table:
+        type: INLINE
+        props:
+          algorithm-expression: merchant_templates_${(merchant_id.intdiv(2)) % 2}

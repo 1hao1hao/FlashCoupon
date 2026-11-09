@@ -1,0 +1,5 @@
+.env
+reports/*
+!reports/.gitkeep
+*.exe
+coverage.out
