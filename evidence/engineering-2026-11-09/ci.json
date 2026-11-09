@@ -1,0 +1,16 @@
+{
+  "code_commit": "f82ef30dffdb2ec4a50f67703968d1ca3234ef1f",
+  "workflow": "Go checks",
+  "run_id": 42590730946,
+  "url": "https://github.com/1hao1hao/FlashCoupon/actions/runs/42590730946",
+  "job": "checks",
+  "status": "completed",
+  "conclusion": "success",
+  "checks": {
+    "go test -count=1 ./...": "success",
+    "go test -race -count=1 ./...": "success",
+    "go vet ./...": "success",
+    "go test -race -count=1 github.com/apache/rocketmq-client-go/v2/consumer -run TestSubscriptionVersionCopyOnWrite": "success"
+  },
+  "note": "Remote CI validates the implementation commit; subsequent evidence-only commits do not change backend behavior. Real middleware and fault tests are recorded separately."
+}

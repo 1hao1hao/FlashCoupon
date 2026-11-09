@@ -78,3 +78,7 @@ Docker CPU 100% 代表一个逻辑核；内存不包含可回收缓存。以上�
 ## 首次启动验证
 
 使用 `python scripts/fresh-start.py` 在独立 Compose 项目、独立网络和全新 MySQL/Redis/MQ 数据卷启动。三角色均健康，四张用户券表存在，耗时 37.188 秒；原项目数据未修改。只清理了本次临时项目的数据卷，未使用会删除共享工具链缓存的 down -v。MySQL 健康检查走 TCP，避免初始化临时 Unix socket 被误判为就绪；Topic 初始化有有限重试。记录见 fresh-start.json。
+
+## 远端 CI 实跑
+
+工程实现提交 `f82ef30` 的 [GitHub Actions](https://github.com/1hao1hao/FlashCoupon/actions/runs/42590730946) 已完成并成功，常规测试、race、vet 和 SDK 回归均通过。此后的证据文档提交不改变后端行为。机器记录见 ci.json；真实中间件故障和性能结果仍以独立脚本实测记录为准。
