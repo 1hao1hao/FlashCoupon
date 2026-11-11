@@ -2,6 +2,8 @@
 
 多商户优惠券分发与核销后端：Go、Gin、MySQL、Redis Lua/Streams、RocketMQ、Excelize、ShardingSphere-Proxy、Docker Compose、k6。提供模板管理、限量抢券、白名单批量发放、查询、优惠结算、幂等核销、过期流转、补偿与对账。
 
+学习与复习入口：[项目架构学习和后端面试指南](docs/PROJECT_GUIDE.md)，包含架构与业务时序图、源码导航、设计取舍、实测数据和面试问答。
+
 ## 部署
 
 ```sh
