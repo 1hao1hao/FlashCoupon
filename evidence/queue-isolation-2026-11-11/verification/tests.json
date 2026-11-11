@@ -1,0 +1,38 @@
+{
+  "passed": true,
+  "commands": [
+    "go test -count=1 ./...",
+    "go test -race -count=1 -v ./...",
+    "go vet ./...",
+    "go test -race -count=1 github.com/apache/rocketmq-client-go/v2/consumer -run TestSubscriptionVersionCopyOnWrite",
+    "sh scripts/sdk-counterfactual.sh",
+    "go run ./cmd/whitelist"
+  ],
+  "test_cases": [
+    "--- PASS: TestTokenIsolation (0.00s)",
+    "--- PASS: TestOffers (0.00s)",
+    "--- PASS: TestRequestIdentity (0.00s)",
+    "--- PASS: TestIntegration (10.04s)",
+    "--- PASS: TestIntegration/concurrent_stock_and_duplicate_requests (0.63s)",
+    "--- PASS: TestIntegration/direct_settlement_redemption (0.06s)",
+    "--- PASS: TestIntegration/batch_streaming_dedup (0.15s)",
+    "--- PASS: TestIntegration/compensation_once (0.02s)",
+    "--- PASS: TestIntegration/expiry_and_cache_loss (0.02s)",
+    "--- PASS: TestIntegration/redis_inventory_loss_fails_closed (0.02s)",
+    "--- PASS: TestIntegration/projection_and_inventory_repair (5.72s)",
+    "--- PASS: TestIntegration/int64_user_identity (0.02s)",
+    "--- PASS: TestIntegration/final_audit (2.30s)",
+    "--- PASS: TestShutdownWaitsForInFlightConsumer (0.00s)",
+    "--- PASS: TestMetricsBoundedRoutesAndReplayAccounting (0.00s)",
+    "--- PASS: TestWorkerHasNoBusinessEndpoints (0.00s)",
+    "--- PASS: TestRelayAcknowledgementOrder (1.10s)",
+    "--- PASS: TestRelayAcknowledgementOrder/error (0.00s)",
+    "--- PASS: TestRelayAcknowledgementOrder/unconfirmed (0.00s)",
+    "--- PASS: TestRelayAcknowledgementOrder/confirmed-before-ack-crash (0.00s)",
+    "--- PASS: TestRelayAcknowledgementOrder/confirmed (1.09s)",
+    "--- PASS: TestOutboxCleanupLifecycle (0.26s)",
+    "--- PASS: TestStreamWorkerRecovery (11.47s)",
+    "--- PASS: TestReconcileAfterOutboxDeletion (1.29s)"
+  ],
+  "race_detected": false
+}

@@ -16,7 +16,7 @@ DC = ['docker', 'compose', '-f', 'compose.yaml', '-f', 'compose.sharding.yaml']
 BASE = os.environ.get('BASE_URL', 'http://127.0.0.1:8080')
 ADMIN = os.environ.get('ADMIN_KEY', 'dev-admin-key')
 SECRET = os.environ.get('USER_KEY', 'dev-user-key')
-EVIDENCE = ROOT / 'evidence' / 'engineering-2026-11-09'
+EVIDENCE = Path(os.environ.get('EVIDENCE_DIR', str(ROOT / 'evidence' / 'engineering-2026-11-09')))
 LOCAL = ROOT / 'reports'
 EVIDENCE.mkdir(parents=True, exist_ok=True)
 LOCAL.mkdir(exist_ok=True)

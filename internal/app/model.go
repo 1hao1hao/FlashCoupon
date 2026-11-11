@@ -12,7 +12,9 @@ import (
 )
 
 type Config struct {
+	TestDisableCleanup                                                          bool
 	ControlDSN, CouponDSN, RedisAddr, Nameserver, Addr, AdminKey, UserKey, Role string
+	TestStreamWorker                                                            bool
 	Rate                                                                        int
 }
 
@@ -28,7 +30,7 @@ func LoadConfig() Config {
 		ControlDSN: env("CONTROL_DSN", "root:flashcoupon@tcp(localhost:3306)/control?parseTime=true&loc=UTC"),
 		CouponDSN:  env("COUPON_DSN", "root:flashcoupon@tcp(localhost:3306)/control?parseTime=true&loc=UTC"),
 		RedisAddr:  env("REDIS_ADDR", "localhost:6379"), Nameserver: env("MQ_NAMESERVER", "localhost:9876"),
-		Addr: env("HTTP_ADDR", ":8080"), AdminKey: env("ADMIN_KEY", "dev-admin-key"), UserKey: env("USER_KEY", "dev-user-key"), Role: env("ROLE", "all"), Rate: r}
+		Addr: env("HTTP_ADDR", ":8080"), AdminKey: env("ADMIN_KEY", "dev-admin-key"), UserKey: env("USER_KEY", "dev-user-key"), Role: env("ROLE", "all"), TestStreamWorker: env("TEST_STREAM_WORKER", "0") == "1", TestDisableCleanup: env("TEST_DISABLE_OUTBOX_CLEANUP", "0") == "1", Rate: r}
 }
 
 type Template struct {

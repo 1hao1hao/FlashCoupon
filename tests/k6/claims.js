@@ -31,6 +31,9 @@ function token(u) {
   return payload + '.' + crypto.hmac('sha256', secret, payload, 'hex');
 }
 export function setup() {
+  if (__ENV.TEMPLATE_JSON) {
+    return {template:JSON.parse(__ENV.TEMPLATE_JSON),start:Date.now(),userBase:Math.floor(Date.now()/1000)*10000};
+  }
   const now = Math.floor(Date.now()/1000);
   const stock = Number(__ENV.STOCK || count);
   const merchant = now * 1000 + Math.floor(Math.random()*999);

@@ -8,6 +8,8 @@ flowchart LR
   API --> LUA[Redis Lua 校验/库存/限领/预留]
   LUA --> S[Redis Stream Outbox]
   S --> R[relay 进程 ROLE=relay :8081]
+  R --> CL[后台有界清理]
+  CL -->|全部组已确认才 XDEL| S
   R --> MQ[RocketMQ SYNC_FLUSH]
   MQ --> W[worker 进程 ROLE=worker :8082]
   B[xlsx / Redis Set / 批次 Stream] --> W
@@ -58,11 +60,27 @@ MySQL 健康检查明确使用 TCP，不能把初始化阶段的临时 Unix sock
 
 首次初始化先持久标记再暴露 Redis 库存，中间崩溃保持关闭受理。Redis AOF always、noeviction 和 Broker 同步刷盘覆盖已测试的进程重启窗口；不能抵御单机磁盘损毁。发券在活动期内受理，消息可在活动结束后落库，券仍按自身有效期限制使用。
 
-每 15 秒由 Worker 尝试对账和过期流转；维护租约避免同时间重复扫描。SQL 成功但缺失的投影可以补齐。不能主动删除已核销券再将其当普通缺失投影重建，核销状态应由备份恢复。Stream/预留账本保留用于审计，不使用任意 MAXLEN 丢弃未处理记录，归档需要排空、一致性和幂等保留期保障。
+每 15 秒由 Worker 尝试对账和过期流转；维护租约避免同时间重复扫描。SQL 成功但缺失的投影可以补齐。不能主动删除已核销券再将其当普通缺失投影重建，核销状态应由备份恢复。预留账本保留用于幂等、补偿和恢复；已确认的 Outbox 载荷由独立后台安全清理，规则见下节。库存账本和批次 Stream 的归档不在本次清理范围。
 
 核销使用状态、商户、用户、门槛、有效期条件更新；`UNIQUE(user_id,order_id)` 防止同用户订单用两张券。相同券和订单重复请求成功，其他订单拒绝。结算是报价，最终核销再次校验；订单系统负责真实归属/金额。过期券不会参与报价或成功核销。
 
 模板缓存包含 Bloom 位图、空值短缓存、带令牌互斥重建；用户券使用 ZSet/Pipeline 和最多 8 个计算 goroutine。缓存报价可与核销并发而暂时过时，SQL 是核销裁决。Excelize Rows 流式导入，Redis Set+Stream Lua 原子去重，后台批次使用稳定请求 ID 进入同一发券链路，batch_items 主键保障进度幂等。
+
+## Outbox 生命周期与安全清理
+
+`XADD → unread → XREADGROUP/PEL → MQ SendOK → XACK → 可清理 → XDEL`。ACK 代表 MQ 已接管消息，不代表 SQL 已发券。Redis 的 `reservations/states/users/revision` 与 SQL `grants` 是独立恢复依据，清理只触及 `fc:outbox` 的消息载荷；对账仍可用完整预留重新 XADD，不依赖旧 Stream ID。SendOK 之后、ACK 之前崩溃会重复投递，不能清理此时仍在 PEL 的消息。
+
+[cleanup.lua](../internal/app/lua/cleanup.lua) 将组游标/PEL 检查和 XDEL 放在同一 Redis 原子脚本中：每轮最多扫描 128 条，用字符串比较完整 Stream ID，只有所有当前消费组的 last-delivered-id 均不小于该 ID、且各组 PEL 都不含它才删除。没有 `relay` 组、无消费组或超过 8 组时停止删除。逐条判定允许删除已 ACK 的后续消息，不因一个旧 Pending 阻塞整段清理。它不使用 MAXLEN、按消息年龄删除或仅按“最小已读游标”推断 ACK。
+
+[outbox.go](../internal/app/outbox.go) 在 Relay 后台每 100 ms 执行一轮，带 2 秒调用期限；多个 Relay 可同时清理、读组和接管。检查与删除原子化避免清理竞态，重启只会从头继续扫描，不存在不可恢复的内存游标。API 抢券不增加清理操作；Redis 仍共享单主执行资源，有界脚本也有 CPU 成本，不能称为物理资源完全隔离。消费者组由应用管理，运维不能随意 XACK、删除组、重置组游标后要求历史重放；新建组也不能恢复已清理载荷，应从预留/事实进行业务恢复。
+
+清理有吞吐上限，其他消费组落后或 Broker 故障时消息保留，不能保证 Redis 恒定内存。即使 XLEN=0，Stream 键、消费组/消费者元数据仍占内存；XDEL 也不承诺立即等比例释放 allocator RSS。预留账本、批次 Stream、死信及 MQ 数据保留仍需要独立归档策略。对账会补投超过 15 秒的 pending，30 秒重试标记只减少频率；SQL 长期变慢时可能重复发送已在 MQ 中的任务，属于可测量的额外成本，未引入新的交接终态或更改库存语义。
+
+## 仅用于对照的 Stream Worker
+
+显式给 `ROLE=worker` 设置 `TEST_STREAM_WORKER=1`，可跳过 MQ 消费、启动 20 个有界 Stream 消费协程；使用相同 `relay` 消费组、10 秒 Pending 接管和清理规则，但只有 `Deliver(...,"async")` 完成（包括投影、缓存、终态或失败补偿）才 ACK。它复用原 `Claim`、Lua、SQL 事务与幂等，不是 `/claims/direct` 同步基线。默认 Compose 不设置此开关，主架构仍为 Relay + RocketMQ。
+
+实验模式与 Relay 必须互斥。实验脚本先排空、停两种消费者，再切换模式，不支持线上混跑或存在未完成任务时迁移；通过临时 Compose 覆盖文件设置开关，最后恢复默认服务。`TEST_DISABLE_OUTBOX_CLEANUP=1` 仅用于控制清理前后测量，默认关闭。实验配置、三轮原始数据与局限见 [双队列实验报告](QUEUE_EXPERIMENT.md)；不能因增加 RocketMQ 就预设更快。
 
 ## 指标口径
 
@@ -77,6 +95,9 @@ MySQL 健康检查明确使用 TCP，不能把初始化阶段的临时 Unix sock
 | `flashcoupon_grants{role="worker",state="issued/failed"}` | 从 MySQL 采样的唯一终态事实 Gauge，重启和重投不重复累计 |
 | `flashcoupon_projected_coupons{role="worker"}` | 用户分片实际券数 Gauge；SQL fact 成功可能短暂先于投影 |
 | `flashcoupon_message_backlog` | outbox/batch 的 unread、PEL pending；pipeline pending 来自最近一次对账，覆盖 MQ/落库未完成部分 |
+| `flashcoupon_outbox_entries` / `flashcoupon_outbox_memory_bytes` | Outbox 物理条数与 MEMORY USAGE（含组/PEL 元数据，不含库存预留账本） |
+| `flashcoupon_relay_forward_total` | confirmed/error/unconfirmed 发送尝试，包含重复，不是唯一发券数 |
+| `flashcoupon_outbox_cleanup_total` / `flashcoupon_outbox_cleanup_seconds` | scanned/deleted/blocked/error 及每轮耗时；blocked 表示缺少必需组或组数超限 |
 | `flashcoupon_message_retries_total` | relay/worker/batch/ack 失败重试计数 |
 | `flashcoupon_delivery_stage_seconds` | SQL 事务、Relay SendSync、投影、缓存阶段耗时，包含等待 |
 | `flashcoupon_background_errors_total` | 对账、锁、指标采样等错误计数 |

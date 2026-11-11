@@ -6,11 +6,17 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/redis/go-redis/v9"
 	"strconv"
 	"time"
 )
 
 type Metrics struct {
+	Forward           *prometheus.CounterVec
+	Cleanup           *prometheus.CounterVec
+	CleanupTime       prometheus.Histogram
+	OutboxEntries     prometheus.Gauge
+	OutboxBytes       prometheus.Gauge
 	Registry          *prometheus.Registry
 	HTTP              *prometheus.CounterVec
 	Latency           *prometheus.HistogramVec
@@ -31,6 +37,11 @@ func NewMetrics(role string) *Metrics {
 	r := prometheus.NewRegistry()
 	reg := prometheus.WrapRegistererWith(prometheus.Labels{"role": role}, r)
 	m := &Metrics{Registry: r,
+		Forward:           prometheus.NewCounterVec(prometheus.CounterOpts{Name: "flashcoupon_relay_forward_total", Help: "MQ send attempts by bounded outcome; confirmed includes duplicates."}, []string{"outcome"}),
+		Cleanup:           prometheus.NewCounterVec(prometheus.CounterOpts{Name: "flashcoupon_outbox_cleanup_total", Help: "Bounded cleanup scanned/deleted entries, blocked calls and errors."}, []string{"outcome"}),
+		CleanupTime:       prometheus.NewHistogram(prometheus.HistogramOpts{Name: "flashcoupon_outbox_cleanup_seconds", Help: "Cleanup round duration including Redis wait.", Buckets: prometheus.DefBuckets}),
+		OutboxEntries:     prometheus.NewGauge(prometheus.GaugeOpts{Name: "flashcoupon_outbox_entries", Help: "Physical entries including ACKed entries awaiting cleanup."}),
+		OutboxBytes:       prometheus.NewGauge(prometheus.GaugeOpts{Name: "flashcoupon_outbox_memory_bytes", Help: "Redis MEMORY USAGE of Outbox, excluding reservation ledger."}),
 		HTTP:              prometheus.NewCounterVec(prometheus.CounterOpts{Name: "flashcoupon_http_requests_total", Help: "HTTP responses by bounded route/method/status."}, []string{"route", "method", "status"}),
 		Latency:           prometheus.NewHistogramVec(prometheus.HistogramOpts{Name: "flashcoupon_http_duration_seconds", Help: "HTTP latency; use histogram_quantile for P95/P99.", Buckets: []float64{.001, .005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5, 10, 30, 60, 120}}, []string{"route", "method"}),
 		Claims:            prometheus.NewCounterVec(prometheus.CounterOpts{Name: "flashcoupon_claim_responses_total", Help: "HTTP claim responses, including idempotent replay; not unique issuance."}, []string{"mode", "outcome"}),
@@ -45,7 +56,7 @@ func NewMetrics(role string) *Metrics {
 		ReconcileTime:     prometheus.NewGauge(prometheus.GaugeOpts{Name: "flashcoupon_reconcile_last_success_timestamp_seconds", Help: "Last completed reconciliation timestamp."}),
 		SnapshotTime:      prometheus.NewGauge(prometheus.GaugeOpts{Name: "flashcoupon_metrics_last_success_timestamp_seconds", Help: "Last successful backlog/ledger collection; use to detect stale gauges."}),
 	}
-	reg.MustRegister(m.HTTP, m.Latency, m.Claims, m.Attempts, m.Retry, m.Stage, m.Ledger, m.Projected, m.Backlog, m.Errors, m.ReconcileMismatch, m.ReconcileTime, m.SnapshotTime, collectors.NewGoCollector(), collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
+	reg.MustRegister(m.Forward, m.Cleanup, m.CleanupTime, m.OutboxEntries, m.OutboxBytes, m.HTTP, m.Latency, m.Claims, m.Attempts, m.Retry, m.Stage, m.Ledger, m.Projected, m.Backlog, m.Errors, m.ReconcileMismatch, m.ReconcileTime, m.SnapshotTime, collectors.NewGoCollector(), collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
 	for _, state := range []string{"issued", "failed"} {
 		m.Ledger.WithLabelValues(state).Set(0)
 	}
@@ -109,6 +120,16 @@ func (s *Service) observe(ctx context.Context) {
 	}
 }
 func (s *Service) collect(ctx context.Context) error {
+	length, err := s.R.XLen(ctx, stream).Result()
+	if err != nil {
+		return err
+	}
+	size, err := s.R.MemoryUsage(ctx, stream).Result()
+	if err != nil && err != redis.Nil {
+		return err
+	}
+	s.Metrics.OutboxEntries.Set(float64(length))
+	s.Metrics.OutboxBytes.Set(float64(size))
 	for _, stage := range []struct{ key, group, label string }{{stream, "relay", "outbox"}, {batchStream, "batch", "batch"}} {
 		groups, err := s.R.XInfoGroups(ctx, stage.key).Result()
 		if err != nil {

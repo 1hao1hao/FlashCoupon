@@ -43,6 +43,9 @@ func NewService(c Config) (*Service, error) {
 	if c.Role != "api" && c.Role != "relay" && c.Role != "worker" && c.Role != "all" {
 		return nil, fmt.Errorf("invalid ROLE %q", c.Role)
 	}
+	if c.TestStreamWorker && c.Role != "worker" && c.Role != "all" {
+		return nil, fmt.Errorf("TEST_STREAM_WORKER requires worker role")
+	}
 	s, e := OpenStore(c)
 	if e != nil {
 		return nil, e

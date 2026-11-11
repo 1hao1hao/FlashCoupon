@@ -1,0 +1,6 @@
+{
+  "original_immutable_assertion_failed": true,
+  "original_race_detected": true,
+  "patched_regression_passed": true,
+  "patch_source": "third_party/ROCKETMQ_PATCH.md"
+}

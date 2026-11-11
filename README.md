@@ -86,3 +86,19 @@ python scripts/verify.py --faults --benchmark
 原始冗长日志仅保留在忽略的 `reports/`。必要脱敏 k6 JSON、CPU/内存样本、测试配置、故障记录及摘要提交到 [evidence](evidence/engineering-2026-11-09)。[VALIDATION.md](docs/VALIDATION.md) 由汇总脚本生成，不把受理吞吐当成最终发券吞吐。
 
 RocketMQ Go v2.1.2 存在本次真实 race 验证捕获的订阅版本并发写问题；项目固定使用附带回归测试的最小本地源码补丁，来源和改动见 [ROCKETMQ_PATCH.md](third_party/ROCKETMQ_PATCH.md)。未更换客户端、消息链路或中间件。
+
+## Outbox 安全清理与双队列对照
+
+Relay 在 MQ `SendOK` 后才 ACK；后台以每轮最多 128 条、每 100 ms 一轮的方式，原子核对所有现存消费组的已读游标与 PEL，仅删除全部确认的 Outbox 载荷。未读、待重试和确认丢失的记录保留；库存预留账本、幂等事实和对账补投依据不删除。多个 Relay 可同时清理，组异常时停止删除，不使用粗暴 MAXLEN。新增条数/内存、转发结果和清理指标，详见 [架构与生命周期](docs/ARCHITECTURE.md)。
+
+仅测试使用的 `TEST_STREAM_WORKER=1` 将 Worker 改为直接消费 Stream，复用完全相同的 Lua 和 `Deliver`；默认部署仍为 Relay + RocketMQ。实验脚本互斥运行两种消费者，最后恢复主链路；不要在真实任务未排空时切换模式。
+
+```sh
+# 先按上文构建并启动；会暂时冻结 MySQL、停止 Broker、杀后台进程，请串行执行。
+python scripts/queue_experiment.py
+# 完整重跑需另设输出目录，不覆盖旧工件；汇总已完成的实验：
+python scripts/queue_experiment.py --output evidence/my-queue-run
+python scripts/queue_experiment.py --summarize
+```
+
+[双队列实验报告](docs/QUEUE_EXPERIMENT.md) 区分受理 QPS、最终 TPS、Redis 总内存、Stream 内存和库存账本，并保留收益不明显的结果。新工件在 [queue-isolation-2026-11-11](evidence/queue-isolation-2026-11-11)，原 2026-11-09 工件保持不变。回归/故障脚本可通过 `EVIDENCE_DIR` 环境变量写入新的验证目录。

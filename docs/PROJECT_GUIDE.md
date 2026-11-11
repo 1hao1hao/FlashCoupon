@@ -2,7 +2,7 @@
 
 面向具备 Python 开发基础、刚接触 Go 后端的读者。建议先读第 1～3 节建立业务与数据流认识，再结合第 4 节定位源码，最后用第 5～7 节理解取舍和复习。
 
-核对基线：代码提交 `5d10707`；实测数据来自 [2026-11-09 工程验收工件](../evidence/engineering-2026-11-09/)，不是本次文档编写时重新压测。部署、指标细节见 [ARCHITECTURE.md](ARCHITECTURE.md)，完整结果见 [VALIDATION.md](VALIDATION.md)。本文中的“投影”指把控制库中的发券事实复制成面向用户查询和核销的数据，不是另一笔发券。
+基础验收基线：代码提交 `5d10707`；基础数据来自 [2026-11-09 工程验收工件](../evidence/engineering-2026-11-09/)。部署、指标细节见 [ARCHITECTURE.md](ARCHITECTURE.md)，基础结果见 [VALIDATION.md](VALIDATION.md)。新增 Outbox 清理及 Stream 直连对照的实现、测试与新实验见 [双队列实验报告](QUEUE_EXPERIMENT.md)，未覆盖旧工件。本文中的“投影”指把控制库中的发券事实复制成面向用户查询和核销的数据，不是另一笔发券。
 
 ## 1. 项目概览
 
@@ -172,7 +172,7 @@ sequenceDiagram
   T->>R: revision 未变才修复库存和限领计数
 ```
 
-PEL（Pending Entries List）是消费组里“取出但未确认”的消息清单；`XACK` 仅确认消费，不删除 Stream 历史。确认丢失会产生重复，数据库幂等负责让重复执行没有重复业务效果，不能称为消息只投递一次。
+PEL（Pending Entries List）是消费组里“取出但未确认”的消息清单；`XACK` 本身仅确认消费；独立后台随后仅删除所有现存消费组均已确认的 Outbox 载荷，未读与 PEL 消息保留，预留账本不删除。确认丢失会产生重复，数据库幂等负责让重复执行没有重复业务效果，不能称为消息只投递一次。
 
 永久失败指 SQL 已明确判定库存耗尽、用户超限等并提交 `failed`；暂时连不上数据库、超时或投影失败无法证明业务失败，只重试。对账依据持久事实和预留账本修复，CAS（比较后更新）要求扫描前后的 revision 一致，防止旧快照覆盖新抢券。坏消息先写 `fc:deadletters` 再确认；完整 Redis 账本丢失不属于自动重建范围。
 
@@ -261,7 +261,7 @@ SQL 核销成功但缓存更新失败时，接口可能返回 503；客户端应
 
 **为什么这样选：** 不把 Redis 扣减与 MQ 发送分开直接双写；确认顺序优先避免漏处理，接受重复，由业务层消重。Stream pending 只代表 Relay 未确认，不代表最终发券仍在处理；Relay ACK 后，事件还可能在 MQ 或数据库阶段等待。
 
-**局限：** 双队列增加运行成本、重复窗口与链路延迟；当前 Relay 逐条同步等待发送确认，并非批量高吞吐转发。Redis AOF `always` 与 Broker `SYNC_FLUSH` 支持已验证的进程恢复，不等于多副本 HA 或磁盘损坏容灾。未实现历史账本自动归档，不能任意裁剪尚需恢复或幂等的数据。
+**局限：** 双队列增加运行成本、重复窗口与链路延迟；当前 Relay 逐条同步等待发送确认，并非批量高吞吐转发。Redis AOF `always` 与 Broker `SYNC_FLUSH` 支持已验证的进程恢复，不等于多副本 HA 或磁盘损坏容灾。Outbox 每 100 ms 最多检查 128 条，原子核对各组已读游标和 PEL 后删除安全载荷；库存预留账本、批次和死信未自动归档。清理实现见 [outbox.go](../internal/app/outbox.go) 和 [cleanup.lua](../internal/app/lua/cleanup.lua)。
 
 源码：[messaging.go](../internal/app/messaging.go)：`relay/StartMessaging`；[batch.go](../internal/app/batch.go)：`batchWorker`；[broker.conf](../deploy/rocketmq/broker.conf)、[compose.yaml](../compose.yaml)。
 
@@ -380,7 +380,15 @@ CI 使用 `INTEGRATION=0`，验证无中间件测试、race、vet 和 SDK 回归
 
 5000 用户场景采样中 API 峰值 CPU 242.33% / 内存 218 MiB，Worker 57.75% / 21.23 MiB；全部测试 Proxy 采样峰值约 4.48 GiB。Docker CPU 100% 对应一逻辑核，离散峰值不一定同时出现，短测样本也不能代表长期容量。只有三轮短测，无物理多实例、HA、长稳或生产容量验证。
 
-### 6.3 复现与指标排查
+### 6.3 新增：双队列与 Stream 直连对照
+
+测试专用 `TEST_STREAM_WORKER=1` 让后台直接消费 Stream，复用相同 Lua 预扣和 `Deliver`，ACK 改在最终处理完成之后；默认仍走 Relay + RocketMQ。二者都异步，不能与前表的 HTTP 同步直发混为一谈。测试模式和 Relay 不得同时运行。
+
+[queue_experiment.py](../scripts/queue_experiment.py) 复用原 k6、审计与 Docker 工具，正常负载、模板锁阻塞、MySQL 暂停、进程崩溃、Broker 故障及清理前后按相同负载重复三轮。额外 45 秒阻塞跨越 Worker 超时和对账补投窗口，用来检验短测看不到的重试成本。分别记录 Redis used_memory、Outbox MEMORY USAGE 与目标活动账本，不能把账本保留误算为 Stream 积压。
+
+完整新结果与负结果见 [QUEUE_EXPERIMENT.md](QUEUE_EXPERIMENT.md)。需要记住：双队列可以在 SQL 消费变慢时把已转发载荷移出 Redis，但不能移走 Redis 预留账本，也不保证 HTTP 或最终 TPS 更好；Broker 故障时积压仍回到 Redis。单主 Redis 的脚本执行成本和 MQ 的运维/刷盘/重投成本都仍存在。
+
+### 6.4 复现与指标排查
 
 在仓库根目录执行，需 Docker Compose 和 Python 3.10+；脚本会停止/恢复本项目进程并创建测试数据，故障与压测应串行运行。
 
@@ -452,9 +460,9 @@ Bloom 拦截肯定不存在的模板；空值短缓存吸收误判和重复无�
 
 异步响应只等待 Redis 预留和入队，SQL 工作移到后台，并没有消失。热点模板行锁、事务、多次投影/缓存操作及 Relay 发送确认仍需完成；同负载三轮中位数为受理 266→2137 QPS，最终 265→218 TPS，正确结论是受理与削峰改善，不能宣传最终发券吞吐提升 8 倍。
 
-### 14. 生产化下一步会优先处理什么，哪些尚未验证？
+### 14. 双队列的价值如何用证据判断，下一步优先做什么？
 
-先用阶段延迟、锁等待、积压与任务新鲜度定位实际瓶颈，确保对账扫描能跟上数据增长，再评估事务成本、转发批处理、归档和物理扩展。长稳压测、多实例 HA、磁盘容灾及这些优化均未被当前工件证明；不能为提高吞吐删掉库存、幂等与最终审计约束。
+在相同 Lua/事务、负载和环境下对比直连 Stream Worker，看 SQL 受阻时已转发 Outbox 是否释放、HTTP 延迟是否变化，以及最终排空是否更快；不能仅比较接口受理。新增三轮实验见第 6.3 节。先用阶段延迟、锁等待、积压与任务新鲜度定位实际瓶颈，确保对账扫描能跟上数据增长，再评估事务成本、归档和物理扩展。长稳压测、多实例 HA、磁盘容灾均未被当前工件证明；不能为提高吞吐删掉库存、幂等与最终审计约束。
 
 ### 2～3 分钟项目介绍
 

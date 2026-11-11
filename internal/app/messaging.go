@@ -43,6 +43,20 @@ func (s *Service) StartMessaging(ctx context.Context) (*Messaging, error) {
 		ok = true
 		return m, nil
 	}
+	if s.Config.TestStreamWorker {
+		if e := m.startStreamWorker(ctx); e != nil {
+			return nil, e
+		}
+		if e := m.startWorkerTasks(ctx); e != nil {
+			return nil, e
+		}
+		if !s.Config.TestDisableCleanup {
+			m.start(func() { s.outboxCleaner(ctx) })
+		}
+		m.start(func() { s.observe(ctx) })
+		ok = true
+		return m, nil
+	}
 	ns := strings.Split(s.Config.Nameserver, ",")
 	for i, addr := range ns {
 		host, port, err := net.SplitHostPort(addr)
@@ -64,11 +78,13 @@ func (s *Service) StartMessaging(ctx context.Context) (*Messaging, error) {
 		if e = m.P.Start(); e != nil {
 			return nil, e
 		}
-		if e = s.R.XGroupCreateMkStream(ctx, stream, "relay", "0").Err(); e != nil && !strings.Contains(e.Error(), "BUSYGROUP") {
-			m.P.Shutdown()
+		if e = s.createOutboxGroup(ctx); e != nil {
 			return nil, e
 		}
 		m.start(func() { m.relay(ctx) })
+		if !s.Config.TestDisableCleanup {
+			m.start(func() { s.outboxCleaner(ctx) })
+		}
 	}
 	if s.Config.Role == "all" || s.Config.Role == "worker" {
 		m.C, e = rocketmq.NewPushConsumer(consumer.WithGroupName("fc-workers"), consumer.WithNsResolver(primitive.NewPassthroughResolver(ns)), consumer.WithConsumeFromWhere(consumer.ConsumeFromFirstOffset))
@@ -107,12 +123,9 @@ func (s *Service) StartMessaging(ctx context.Context) (*Messaging, error) {
 			m.Close()
 			return nil, e
 		}
-		if e = s.R.XGroupCreateMkStream(ctx, batchStream, "batch", "0").Err(); e != nil && !strings.Contains(e.Error(), "BUSYGROUP") {
-			m.Close()
+		if e = m.startWorkerTasks(ctx); e != nil {
 			return nil, e
 		}
-		m.start(func() { s.batchWorker(ctx) })
-		m.start(func() { s.Maintenance(ctx) })
 	}
 	m.start(func() { s.observe(ctx) })
 	ok = true
@@ -155,7 +168,6 @@ func (m *Messaging) beginConsume() bool {
 }
 func (m *Messaging) start(fn func()) { m.wg.Add(1); go func() { defer m.wg.Done(); fn() }() }
 func (m *Messaging) relay(ctx context.Context) {
-	name := "relay-" + id()
 	handle := func(msg redis.XMessage) {
 		raw, ok := msg.Values["event"].(string)
 		if !ok {
@@ -170,52 +182,24 @@ func (m *Messaging) relay(ctx context.Context) {
 		result, e := m.P.SendSync(sendCtx, primitive.NewMessage(topic, []byte(raw)))
 		m.S.Metrics.Stage.WithLabelValues("relay_send").Observe(time.Since(started).Seconds())
 		if e != nil {
+			m.S.Metrics.Forward.WithLabelValues("error").Inc()
 			slog.Warn("relay send pending", "id", msg.ID, "error", e)
 			m.S.Metrics.Retry.WithLabelValues("relay").Inc()
 			return
 		}
 		if result.Status != primitive.SendOK {
+			m.S.Metrics.Forward.WithLabelValues("unconfirmed").Inc()
 			m.S.Metrics.Retry.WithLabelValues("relay").Inc()
 			slog.Warn("broker did not confirm durable send", "id", msg.ID, "status", result.Status)
 			return
 		}
+		m.S.Metrics.Forward.WithLabelValues("confirmed").Inc()
 		if e = m.S.R.XAck(ctx, stream, "relay", msg.ID).Err(); e != nil {
 			m.S.Metrics.Retry.WithLabelValues("ack").Inc()
 			slog.Warn("relay ack retry", "error", e)
 		}
 	}
-	ticker := time.NewTicker(time.Second)
-	defer ticker.Stop()
-	for ctx.Err() == nil {
-		start := "0-0"
-		for {
-			msgs, next, e := m.S.R.XAutoClaim(ctx, &redis.XAutoClaimArgs{Stream: stream, Group: "relay", Consumer: name, MinIdle: 10 * time.Second, Start: start, Count: 100}).Result()
-			if e != nil {
-				break
-			}
-			for _, msg := range msgs {
-				handle(msg)
-			}
-			if next == "0-0" {
-				break
-			}
-			start = next
-		}
-		rows, e := m.S.R.XReadGroup(ctx, &redis.XReadGroupArgs{Group: "relay", Consumer: name, Streams: []string{stream, ">"}, Count: 100, Block: time.Second}).Result()
-		if e != nil && e != redis.Nil && ctx.Err() == nil {
-			slog.Warn("relay read", "error", e)
-			select {
-			case <-ctx.Done():
-				return
-			case <-ticker.C:
-			}
-		}
-		for _, r := range rows {
-			for _, msg := range r.Messages {
-				handle(msg)
-			}
-		}
-	}
+	m.readOutbox(ctx, 100, handle)
 }
 
 type Audit struct {

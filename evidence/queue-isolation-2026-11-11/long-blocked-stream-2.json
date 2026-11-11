@@ -1,0 +1,1119 @@
+{
+  "configuration": {
+    "iterations": 1000,
+    "vus": 100,
+    "stock": 1000,
+    "duplicate": false,
+    "contention": false,
+    "latency_budget_ms": 60000,
+    "mode": "async"
+  },
+  "test_template": {
+    "id": "6dee3bb7992a7fc7084a7be2f6f3ffb3",
+    "merchant_id": 412717980800
+  },
+  "root_group": {
+    "id": "d41d8cd98f00b204e9800998ecf8427e",
+    "groups": [
+      {
+        "id": "a8a9942382e8ffe2e56ef29e664b8229",
+        "groups": [],
+        "checks": [
+          {
+            "name": "final inventory consistent",
+            "path": "::teardown::final inventory consistent",
+            "id": "c494ca9710d1a2c2015533161adc087e",
+            "passes": 1,
+            "fails": 0
+          },
+          {
+            "name": "expected final unique issuance",
+            "path": "::teardown::expected final unique issuance",
+            "id": "74c7935b758418be33767201668a521a",
+            "passes": 1,
+            "fails": 0
+          }
+        ],
+        "name": "teardown",
+        "path": "::teardown"
+      }
+    ],
+    "checks": [
+      {
+        "name": "claim accepted or business rejected",
+        "path": "::claim accepted or business rejected",
+        "id": "75d89f7f975fa010141cc2512103ec78",
+        "passes": 1000,
+        "fails": 0
+      }
+    ],
+    "name": "",
+    "path": ""
+  },
+  "options": {
+    "summaryTrendStats": [
+      "avg",
+      "min",
+      "med",
+      "max",
+      "p(95)",
+      "p(99)"
+    ],
+    "summaryTimeUnit": "",
+    "noColor": false
+  },
+  "state": {
+    "isStdOutTTY": false,
+    "isStdErrTTY": false,
+    "testRunDurationMs": 48814.757165
+  },
+  "metrics": {
+    "vus_max": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "min": 100,
+        "max": 100,
+        "value": 100
+      }
+    },
+    "claim_latency": {
+      "contains": "time",
+      "values": {
+        "avg": 16.773104680000007,
+        "min": 8.919062,
+        "med": 16.4193815,
+        "max": 39.597983,
+        "p(95)": 22.5826611,
+        "p(99)": 24.596465860000002
+      },
+      "thresholds": {
+        "p(99)<60000": {
+          "ok": true
+        }
+      },
+      "type": "trend"
+    },
+    "http_reqs": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 1049,
+        "rate": 21.48940322399328
+      }
+    },
+    "drain_seconds": {
+      "values": {
+        "avg": 48.627,
+        "min": 48.627,
+        "med": 48.627,
+        "max": 48.627,
+        "p(95)": 48.627,
+        "p(99)": 48.627
+      },
+      "type": "trend",
+      "contains": "default"
+    },
+    "http_req_sending": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "min": 0.00239,
+        "med": 0.00969,
+        "max": 22.233244,
+        "p(95)": 0.19738379999999955,
+        "p(99)": 1.0482844399999998,
+        "avg": 0.1442143898951382
+      }
+    },
+    "data_received": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 375031,
+        "rate": 7682.738208291156
+      }
+    },
+    "http_req_connecting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 0.5040080552907532,
+        "min": 0,
+        "med": 0,
+        "max": 22.645146,
+        "p(95)": 0.14436819999999984,
+        "p(99)": 21.19394784
+      }
+    },
+    "accepted_claims": {
+      "values": {
+        "count": 1000,
+        "rate": 20.485608411814372
+      },
+      "type": "counter",
+      "contains": "default"
+    },
+    "checks": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 1,
+        "passes": 1002,
+        "fails": 0
+      },
+      "thresholds": {
+        "rate==1": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_blocked": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(95)": 1.4516439999999993,
+        "p(99)": 23.07808176,
+        "avg": 0.8944872278360345,
+        "min": 0.000508,
+        "med": 0.002373,
+        "max": 24.414042
+      }
+    },
+    "iterations": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 1000,
+        "rate": 20.485608411814372
+      }
+    },
+    "iteration_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 17.947874188,
+        "min": 9.004518,
+        "med": 16.614743,
+        "max": 44.148079,
+        "p(95)": 26.284964249999998,
+        "p(99)": 43.240058620000006
+      }
+    },
+    "vus": {
+      "contains": "default",
+      "values": {
+        "max": 0,
+        "value": 0,
+        "min": 0
+      },
+      "type": "gauge"
+    },
+    "http_req_waiting": {
+      "contains": "time",
+      "values": {
+        "avg": 16.352449681601524,
+        "min": 7.927538,
+        "med": 16.212582,
+        "max": 44.469285,
+        "p(95)": 22.27815219999999,
+        "p(99)": 23.09285404
+      },
+      "type": "trend"
+    },
+    "http_req_duration": {
+      "values": {
+        "avg": 16.554138586272654,
+        "min": 8.023359,
+        "med": 16.303356,
+        "max": 44.609586,
+        "p(95)": 22.613289799999997,
+        "p(99)": 24.693694599999997
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "http_req_receiving": {
+      "values": {
+        "min": 0.005681,
+        "med": 0.025542,
+        "max": 1.743573,
+        "p(95)": 0.12296279999999978,
+        "p(99)": 1.1705766799999977,
+        "avg": 0.05747451477597706
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "data_sent": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 368757,
+        "rate": 7554.211501115433
+      }
+    },
+    "http_req_tls_handshaking": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 0,
+        "max": 0,
+        "p(95)": 0,
+        "p(99)": 0,
+        "avg": 0,
+        "min": 0
+      }
+    },
+    "acceptance_window_seconds": {
+      "type": "trend",
+      "contains": "default",
+      "values": {
+        "avg": 0.187,
+        "min": 0.187,
+        "med": 0.187,
+        "max": 0.187,
+        "p(95)": 0.187,
+        "p(99)": 0.187
+      }
+    },
+    "http_req_failed": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0,
+        "passes": 0,
+        "fails": 1049
+      },
+      "thresholds": {
+        "rate==0": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_duration{expected_response:true}": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 16.554138586272654,
+        "min": 8.023359,
+        "med": 16.303356,
+        "max": 44.609586,
+        "p(95)": 22.613289799999997,
+        "p(99)": 24.693694599999997
+      }
+    },
+    "final_issue_tps": {
+      "type": "trend",
+      "contains": "default",
+      "values": {
+        "med": 20.485926168722088,
+        "max": 20.485926168722088,
+        "p(95)": 20.485926168722088,
+        "p(99)": 20.485926168722088,
+        "avg": 20.485926168722088,
+        "min": 20.485926168722088
+      }
+    }
+  },
+  "measurements": {
+    "accepted_http_qps": 5347.593582887701,
+    "final_issue_tps": 20.485926168722088
+  },
+  "experiment": {
+    "scenario": "long-blocked",
+    "transport": "stream",
+    "round": 2,
+    "stall_seconds": 45,
+    "before": {
+      "fixture_ledger_bytes": 288,
+      "redis_used_bytes": 48945408,
+      "pel": 0,
+      "stream_entries": 0,
+      "unread": 0,
+      "reservations": 0,
+      "stream_bytes": 141069
+    },
+    "samples": [
+      {
+        "seconds": 0.0,
+        "fixture_ledger_bytes": 288,
+        "redis_used_bytes": 48764432,
+        "pel": 0,
+        "stream_entries": 0,
+        "unread": 0,
+        "reservations": 0,
+        "stream_bytes": 141069
+      },
+      {
+        "seconds": 0.688,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 51336744,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 1.375,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 51300768,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 2.063,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 51328496,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 2.75,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 51374184,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 3.438,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 50304488,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 4.125,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48896088,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 4.813,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48940088,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 5.5,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48851528,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 6.188,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48830600,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 6.859,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48817960,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 7.547,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48702816,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 8.234,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48758688,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 8.922,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48710616,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 9.594,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48843264,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 10.281,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48691912,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 10.969,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48677064,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 11.656,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48654032,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 12.328,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48773024,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 13.031,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48621664,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 13.719,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48643328,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 14.422,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48710400,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 15.109,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48823040,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 15.797,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48597608,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 16.484,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48579624,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 17.203,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48523520,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 17.875,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48574800,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 18.563,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48446240,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 19.25,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48569680,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 19.938,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48543616,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 20.625,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48540288,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 21.297,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48464736,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 21.984,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48349680,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 22.672,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48395488,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 23.359,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48367984,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 24.047,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48396320,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 24.719,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48381400,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 25.406,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48287632,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 26.094,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48274912,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 26.781,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48250672,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 27.469,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48369176,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 28.156,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48296816,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 28.844,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48324920,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 29.547,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48331496,
+        "pel": 20,
+        "stream_entries": 1000,
+        "unread": 980,
+        "reservations": 1000,
+        "stream_bytes": 397945
+      },
+      {
+        "seconds": 30.25,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48403496,
+        "pel": 20,
+        "stream_entries": 1138,
+        "unread": 1118,
+        "reservations": 1000,
+        "stream_bytes": 430389
+      },
+      {
+        "seconds": 30.938,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48834736,
+        "pel": 20,
+        "stream_entries": 1604,
+        "unread": 1584,
+        "reservations": 1000,
+        "stream_bytes": 546121
+      },
+      {
+        "seconds": 31.625,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 49193040,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 32.297,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48942520,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 33.0,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48876496,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 33.688,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48956216,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 34.375,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48488264,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 35.047,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48480400,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 35.734,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48447392,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 36.406,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48466816,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 37.094,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48390496,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 37.781,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48344120,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 38.453,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48425760,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 39.141,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48491816,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 39.859,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48338472,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 40.547,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48403088,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 41.219,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48283488,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 41.906,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48276184,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 42.594,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48240080,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 43.297,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48294360,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 44.0,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48362304,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 44.688,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48277320,
+        "pel": 20,
+        "stream_entries": 2000,
+        "unread": 1980,
+        "reservations": 1000,
+        "stream_bytes": 643453
+      },
+      {
+        "seconds": 45.391,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48612152,
+        "pel": 19,
+        "stream_entries": 2000,
+        "unread": 1890,
+        "reservations": 1000,
+        "stream_bytes": 642665
+      },
+      {
+        "seconds": 46.094,
+        "fixture_ledger_bytes": 521464,
+        "redis_used_bytes": 48638232,
+        "pel": 18,
+        "stream_entries": 1739,
+        "unread": 1699,
+        "reservations": 1000,
+        "stream_bytes": 586677
+      },
+      {
+        "seconds": 46.797,
+        "fixture_ledger_bytes": 518264,
+        "redis_used_bytes": 48726416,
+        "pel": 18,
+        "stream_entries": 1739,
+        "unread": 1508,
+        "reservations": 1000,
+        "stream_bytes": 586921
+      },
+      {
+        "seconds": 47.516,
+        "fixture_ledger_bytes": 516664,
+        "redis_used_bytes": 48851960,
+        "pel": 18,
+        "stream_entries": 1611,
+        "unread": 1323,
+        "reservations": 1000,
+        "stream_bytes": 549633
+      },
+      {
+        "seconds": 48.234,
+        "fixture_ledger_bytes": 513464,
+        "redis_used_bytes": 48800512,
+        "pel": 19,
+        "stream_entries": 1279,
+        "unread": 1129,
+        "reservations": 1000,
+        "stream_bytes": 473685
+      },
+      {
+        "seconds": 48.953,
+        "fixture_ledger_bytes": 513464,
+        "redis_used_bytes": 49027480,
+        "pel": 20,
+        "stream_entries": 1023,
+        "unread": 842,
+        "reservations": 1000,
+        "stream_bytes": 412269
+      },
+      {
+        "seconds": 49.688,
+        "fixture_ledger_bytes": 513464,
+        "redis_used_bytes": 48874008,
+        "pel": 0,
+        "stream_entries": 127,
+        "unread": 0,
+        "reservations": 1000,
+        "stream_bytes": 178601
+      },
+      {
+        "seconds": 50.391,
+        "fixture_ledger_bytes": 513464,
+        "redis_used_bytes": 48844568,
+        "pel": 0,
+        "stream_entries": 0,
+        "unread": 0,
+        "reservations": 1000,
+        "stream_bytes": 141069
+      }
+    ],
+    "after": {
+      "fixture_ledger_bytes": 513464,
+      "redis_used_bytes": 48681616,
+      "pel": 0,
+      "stream_entries": 0,
+      "unread": 0,
+      "reservations": 1000,
+      "stream_bytes": 141069
+    },
+    "cleanup_before": {
+      "fixture_ledger_bytes": 513464,
+      "redis_used_bytes": 48818568,
+      "pel": 0,
+      "stream_entries": 0,
+      "unread": 0,
+      "reservations": 1000,
+      "stream_bytes": 141069
+    },
+    "events": [
+      {
+        "action": "recovery_requested",
+        "seconds": 45.25
+      }
+    ],
+    "sampling_errors": [],
+    "final_audit": {
+      "merchant_id": 412717980800,
+      "template_id": "6dee3bb7992a7fc7084a7be2f6f3ffb3",
+      "initial": 1000,
+      "db_remaining": 0,
+      "issued": 1000,
+      "projected": 1000,
+      "redis_remaining": 0,
+      "pending": 0,
+      "failed": 0,
+      "consistent": true
+    },
+    "unique_users": 1000,
+    "recovery_to_drain_seconds": 5.188
+  }
+}
