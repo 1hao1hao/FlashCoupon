@@ -38,6 +38,15 @@ python scripts/summarize_observability.py
 
 当前编排提供的通道为 SSH。若实验机已有 Tailscale/WireGuard，可用纯 HTTP 客户端连接私网地址，手动按同 ID 配对服务端采集；**本轮未部署或测量这两种私网**，也不开放公网数据库。
 
+独立查看远程 Jaeger 或手动运行客户端时，可在另一个 PowerShell 窗口保持隧道（不要同时运行占用相同本地端口的编排脚本）：
+
+```powershell
+ssh -N -L 19080:127.0.0.1:18080 -L 19486:127.0.0.1:18486 LAB_USER@LAB_HOST
+# 浏览器访问 http://127.0.0.1:19486；原生客户端 base-url 为 http://127.0.0.1:19080
+```
+
+通过受保护的环境配置向独立客户端提供与服务器相同的 ADMIN_KEY/USER_KEY；编排入口会经 SSH 在内存中读取，无须复制到源码或命令参数。`/health/ready` 检查数据库和 Redis，不等于 Broker 当前可用，应结合队列、重试与审计判断。
+
 保留的 27 轮健康 RTT 使用 Windows Python 3.12 的 monotonic，存在约 15.6ms 计时粒度，个别本机读数为 0，不能理解为零网络延迟。后续入口已改为高精度 perf_counter 并记录时钟分辨率；不回填或伪造原轮次的 RTT。k6 延迟与 QPS/TPS 不使用该 Python 时钟。
 
 ## 结果与指标口径
