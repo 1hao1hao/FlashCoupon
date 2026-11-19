@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "race": true,
+  "tests": [
+    "--- PASS: TestTransactionBrokerIntegration (169.80s)",
+    "--- PASS: TestTransactionBrokerIntegration/commit (60.75s)",
+    "--- PASS: TestTransactionBrokerIntegration/unknown_checkback (5.98s)",
+    "--- PASS: TestTransactionBrokerIntegration/rollback (0.03s)",
+    "--- PASS: TestTransactionBrokerIntegration/orphan_reservation_without_half_message (53.38s)",
+    "--- PASS: TestTransactionBrokerIntegration/concurrent_admission_and_delivery (48.67s)"
+  ]
+}

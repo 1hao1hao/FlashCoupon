@@ -33,10 +33,12 @@ var limitScript = redis.NewScript(limitLua)
 const stream = "fc:outbox"
 
 type Service struct {
-	Store   *Store
-	R       *redis.Client
-	Config  Config
-	Metrics *Metrics
+	Store       *Store
+	R           *redis.Client
+	Config      Config
+	Metrics     *Metrics
+	Telemetry   *Telemetry
+	Transaction *TransactionRuntime
 }
 
 func NewService(c Config) (*Service, error) {
@@ -51,9 +53,28 @@ func NewService(c Config) (*Service, error) {
 		return nil, e
 	}
 	r := redis.NewClient(&redis.Options{Addr: c.RedisAddr, PoolSize: 100, PoolTimeout: 30 * time.Second})
-	return &Service{Store: s, R: r, Config: c, Metrics: NewMetrics(c.Role)}, nil
+	telemetry, err := newTelemetry(c.Role)
+	if err != nil {
+		r.Close()
+		s.DB.Close()
+		s.Coupons.Close()
+		return nil, err
+	}
+	service := &Service{Store: s, R: r, Config: c, Metrics: NewMetrics(c.Role), Telemetry: telemetry}
+	s.observe = service.stage
+	service.registerDBMetrics()
+	return service, nil
 }
-func (s *Service) Close() { s.R.Close(); s.Store.DB.Close(); s.Store.Coupons.Close() }
+func (s *Service) Close() {
+	if s.Telemetry != nil && s.Telemetry.shutdown != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		s.Telemetry.shutdown(ctx)
+		cancel()
+	}
+	s.R.Close()
+	s.Store.DB.Close()
+	s.Store.Coupons.Close()
+}
 func bloomOffsets(key string) []int64 {
 	h := sha256.Sum256([]byte(key))
 	v := []int64{}
@@ -168,14 +189,16 @@ func (s *Service) Create(ctx context.Context, t Template) (Template, error) {
 	if e := s.Store.ProjectTemplate(ctx, t); e != nil {
 		return t, fmt.Errorf("template %s saved; projection retry via reconcile: %w", t.ID, e)
 	}
-	if t.Mode == "async" {
+	if t.Mode == "async" || t.Mode == "transaction" {
 		if e := s.Warm(ctx, t); e != nil {
 			return t, e
 		}
 	}
 	return t, nil
 }
-func (s *Service) Warm(ctx context.Context, t Template) error {
+func (s *Service) Warm(ctx context.Context, t Template) (resultErr error) {
+	ctx, end := s.stage(ctx, "recovery.warm")
+	defer func() { end(resultErr) }()
 	var initialized bool
 	if e := s.Store.DB.QueryRowContext(ctx, "SELECT redis_initialized FROM templates WHERE merchant_id=? AND id=?", t.MerchantID, t.ID).Scan(&initialized); e != nil {
 		return e
@@ -209,16 +232,27 @@ type ClaimError struct {
 
 func (e *ClaimError) Error() string { return e.Message }
 func (s *Service) Claim(ctx context.Context, m, u int64, tID, request string) (Event, error) {
+	return s.claimWithMode(ctx, m, u, tID, request, "async")
+}
+func (s *Service) claimWithMode(ctx context.Context, m, u int64, tID, request, mode string) (Event, error) {
 	ev := Event{ID: eventID(m, u, tID, request), TemplateID: tID, MerchantID: m, UserID: u}
+	ctx = faultContext(ctx, ev.ID)
 	t, e := s.Template(ctx, m, tID)
 	if e != nil {
 		return ev, e
 	}
-	if t.Mode != "async" {
+	if t.Mode != mode {
 		return ev, &ClaimError{4, "template requires direct endpoint"}
 	}
 	p := prefix(m, tID)
-	res, e := claimScript.Run(ctx, s.R, []string{p + "meta", p + "stock", p + "users", p + "reservations", p + "states", stream, p + "revision"}, ev.ID, strconv.FormatInt(u, 10), encode(ev)).Slice()
+	faultPoint(ctx, "before_lua")
+	ctx, endClaim := s.stage(ctx, "redis.claim_lua")
+	defer func() { endClaim(e) }()
+	keys := []string{p + "meta", p + "stock", p + "users", p + "reservations", p + "states", stream, p + "revision", p + "trace"}
+	if mode == "transaction" {
+		keys = append(keys, transactionLedger)
+	}
+	res, e := claimScript.Run(ctx, s.R, keys, ev.ID, strconv.FormatInt(u, 10), encode(ev), carrier(ctx), mode).Slice()
 	if e != nil {
 		return ev, e
 	}
@@ -227,9 +261,16 @@ func (s *Service) Claim(ctx context.Context, m, u int64, tID, request string) (E
 		return ev, &ClaimError{code, fmt.Sprint(res[1])}
 	}
 	e = json.Unmarshal([]byte(res[1].(string)), &ev)
+	faultPoint(ctx, "after_lua")
 	return ev, e
 }
-func (s *Service) Finalize(ctx context.Context, ev Event, state string) error {
+func (s *Service) Finalize(ctx context.Context, ev Event, state string) (err error) {
+	name := "redis.finalize"
+	if state == "failed" {
+		name = "redis.compensation"
+	}
+	ctx, end := s.stage(ctx, name)
+	defer func() { end(err) }()
 	p := prefix(ev.MerchantID, ev.TemplateID)
 	return finalizeScript.Run(ctx, s.R, []string{p + "states", p + "stock", p + "users", p + "revision"}, ev.ID, state, ev.UserID).Err()
 }
@@ -251,6 +292,9 @@ func (s *Service) CacheCoupon(ctx context.Context, c Coupon) error {
 	return e
 }
 func (s *Service) Deliver(ctx context.Context, ev Event, mode string) (state string, err error) {
+	ctx = faultContext(ctx, ev.ID)
+	ctx, endDelivery := s.stage(ctx, "worker.deliver")
+	defer func() { endDelivery(err) }()
 	defer func() {
 		outcome := state
 		if err != nil {
@@ -258,7 +302,7 @@ func (s *Service) Deliver(ctx context.Context, ev Event, mode string) (state str
 		}
 		s.Metrics.Attempts.WithLabelValues(mode, outcome).Inc()
 	}()
-	if mode == "async" {
+	if mode != "direct" {
 		raw, err := s.R.HGet(ctx, prefix(ev.MerchantID, ev.TemplateID)+"reservations", ev.ID).Result()
 		if err != nil {
 			return "", fmt.Errorf("reservation lookup: %w", err)
@@ -277,21 +321,28 @@ func (s *Service) Deliver(ctx context.Context, ev Event, mode string) (state str
 	if e != nil {
 		return "", e
 	}
+	faultPoint(ctx, "after_sql")
 	if state == "issued" {
+		faultPoint(ctx, "before_projection")
 		start = time.Now()
-		e = s.Store.ProjectCoupon(ctx, c)
+		projectCtx, endProject := s.stage(ctx, "coupon.projection")
+		e = s.Store.ProjectCoupon(projectCtx, c)
+		endProject(e)
 		s.Metrics.Stage.WithLabelValues("coupon_projection").Observe(time.Since(start).Seconds())
 		if e != nil {
 			return state, e
 		}
+		faultPoint(ctx, "after_projection")
 		start = time.Now()
-		e = s.CacheCoupon(ctx, c)
+		cacheCtx, endCache := s.stage(ctx, "coupon.cache")
+		e = s.CacheCoupon(cacheCtx, c)
+		endCache(e)
 		s.Metrics.Stage.WithLabelValues("coupon_cache").Observe(time.Since(start).Seconds())
 		if e != nil {
 			return state, e
 		}
 	}
-	if mode == "async" {
+	if mode != "direct" {
 		e = s.Finalize(ctx, ev, state)
 	}
 	return state, e

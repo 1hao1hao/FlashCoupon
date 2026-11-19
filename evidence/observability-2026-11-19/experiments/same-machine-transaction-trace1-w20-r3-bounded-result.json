@@ -1,0 +1,41 @@
+{
+  "test_id": "same-machine-transaction-trace1-w20-r3-bounded",
+  "location": "same-machine",
+  "scenario": "transaction",
+  "tracing": true,
+  "workers": 20,
+  "mode": "transaction",
+  "requests": 500,
+  "measurements": {
+    "accepted_http_qps": 1057.0824524312898,
+    "final_issue_tps": 7.4331757500074325
+  },
+  "audit": {
+    "merchant_id": 1795073748982,
+    "template_id": "a67c3656a1cf0e8c7e5fab5f825dd41d",
+    "initial": 500,
+    "db_remaining": 0,
+    "issued": 500,
+    "projected": 500,
+    "redis_remaining": 0,
+    "pending": 0,
+    "failed": 0,
+    "consistent": true
+  },
+  "client": {
+    "test_id": "same-machine-transaction-trace1-w20-r3-bounded",
+    "http_health_roundtrip_ms": [
+      15.999999828636646,
+      0.0,
+      15.00000013038516,
+      0.0,
+      0.0
+    ],
+    "median_roundtrip_ms": 0.0,
+    "network_note": "HTTP health RTT includes server and tunnel overhead; not ICMP RTT",
+    "first_trace_id": "6c312055e73ebc7bfd73cf8b61bb7543",
+    "k6_exit_code": 0
+  },
+  "fault_released_unix": [],
+  "finished_unix": 1795073819.6595287
+}

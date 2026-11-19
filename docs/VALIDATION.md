@@ -1,5 +1,7 @@
 # 工程收尾验收报告
 
+新增 2026-11-19 验收单独保存在 [observability 工件](../evidence/observability-2026-11-19/)，说明见 [可靠性矩阵](RELIABILITY_MATRIX.md) 与 [跨机对照](DISTRIBUTED_EXPERIMENT.md)；下文为原始验收结果，未用新负载覆盖历史数字。
+
 日期：2026-11-09（Asia/Shanghai）。本文件由 `python scripts/summarize.py` 从 `evidence/engineering-2026-11-09/*.json` 生成。
 
 ## 环境和复现

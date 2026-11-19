@@ -1,5 +1,7 @@
 # 架构、指标与可靠性
 
+本轮可选观测与事务消息实验见 [TRACE_GUIDE](TRACE_GUIDE.md)、[故障矩阵](RELIABILITY_MATRIX.md)、[方案对照](ARCHITECTURE_COMPARISON.md)。下图表示默认业务拓扑；可选 Jaeger 接收三个角色的 OTLP HTTP，不在业务依赖链上。事务实验使用独立 Topic 与追加式 `control.transaction_events`，默认不启用，不替换下面的 Stream 链路。
+
 ## 真实部署
 
 ```mermaid
@@ -25,6 +27,9 @@ flowchart LR
   API --> MET[各进程 /metrics]
   R --> MET
   W --> MET
+  API -. OTLP 可选 .-> J[Jaeger]
+  R -. OTLP 可选 .-> J
+  W -. OTLP 可选 .-> J
 ```
 
 三个进程共享镜像，ROLE 决定启动的任务和路由。只有 API 注册业务 HTTP；Relay/Worker 的 HTTP 仅用于健康检查和指标。API 启动不依赖 MQ；后台服务等待 Nameserver、Broker、Topic。分片配置等待 Proxy 和 MySQL，所有宿主端口只绑定 loopback。`ROLE=all` 保留给单进程集成测试，不是当前 Compose 部署形态。

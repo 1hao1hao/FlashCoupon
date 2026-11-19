@@ -9,8 +9,11 @@ import (
 	"github.com/apache/rocketmq-client-go/v2/primitive"
 	"github.com/apache/rocketmq-client-go/v2/producer"
 	"github.com/redis/go-redis/v9"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/trace"
 	"log/slog"
 	"net"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -20,6 +23,7 @@ const topic = "FlashCouponGrant"
 
 type Messaging struct {
 	P         rocketmq.Producer
+	TX        rocketmq.TransactionProducer
 	C         rocketmq.PushConsumer
 	S         *Service
 	cancel    context.CancelFunc
@@ -39,7 +43,7 @@ func (s *Service) StartMessaging(ctx context.Context) (*Messaging, error) {
 			m.Close()
 		}
 	}()
-	if s.Config.Role == "api" {
+	if s.Config.Role == "api" && env("TX_EXPERIMENT_ENABLED", "0") != "1" {
 		ok = true
 		return m, nil
 	}
@@ -69,6 +73,11 @@ func (s *Service) StartMessaging(ctx context.Context) (*Messaging, error) {
 		}
 		ns[i] = net.JoinHostPort(ips[0], port)
 	}
+	if (s.Config.Role == "api" || s.Config.Role == "all") && env("TX_EXPERIMENT_ENABLED", "0") == "1" {
+		if err := m.startTransaction(ctx, ns); err != nil {
+			return nil, err
+		}
+	}
 	var e error
 	if s.Config.Role == "all" || s.Config.Role == "relay" {
 		m.P, e = rocketmq.NewProducer(producer.WithGroupName("fc-relay"), producer.WithNsResolver(primitive.NewPassthroughResolver(ns)), producer.WithRetry(2))
@@ -87,7 +96,7 @@ func (s *Service) StartMessaging(ctx context.Context) (*Messaging, error) {
 		}
 	}
 	if s.Config.Role == "all" || s.Config.Role == "worker" {
-		m.C, e = rocketmq.NewPushConsumer(consumer.WithGroupName("fc-workers"), consumer.WithNsResolver(primitive.NewPassthroughResolver(ns)), consumer.WithConsumeFromWhere(consumer.ConsumeFromFirstOffset))
+		m.C, e = rocketmq.NewPushConsumer(consumer.WithGroupName("fc-workers"), consumer.WithNsResolver(primitive.NewPassthroughResolver(ns)), consumer.WithConsumeFromWhere(consumer.ConsumeFromFirstOffset), consumer.WithConsumeGoroutineNums(workerConcurrency()))
 		if e != nil {
 			m.Close()
 			return nil, e
@@ -100,23 +109,42 @@ func (s *Service) StartMessaging(ctx context.Context) (*Messaging, error) {
 			c, cancel := context.WithTimeout(c, 30*time.Second)
 			defer cancel()
 			for _, msg := range msgs {
+				c = s.messageContext(c, encode(propagation.MapCarrier{"traceparent": msg.GetProperty("traceparent"), "tracestate": msg.GetProperty("tracestate")}), msg.ReconsumeTimes > 0)
+				previous := trace.SpanContextFromContext(c)
+				consumeCtx, finish := s.stage(c, "mq.consume")
+				c = consumeCtx
+				if msg.ReconsumeTimes > 0 {
+					trace.SpanFromContext(c).AddLink(trace.Link{SpanContext: previous})
+				}
+				if ns, err := strconv.ParseInt(msg.GetProperty("fc_sent_ns"), 10, 64); err == nil {
+					s.queueSpan(c, "queue.rocketmq", time.Unix(0, ns))
+				}
 				var ev Event
 				if e := json.Unmarshal(msg.Body, &ev); e != nil || ev.ID != eventIDValid(ev) {
 					if err := s.R.XAdd(c, &redis.XAddArgs{Stream: "fc:deadletters", Values: map[string]any{"source": "rocketmq", "body": string(msg.Body), "reason": "invalid event"}}).Err(); err != nil {
+						finish(err)
 						return consumer.ConsumeRetryLater, err
 					}
+					finish(fmt.Errorf("invalid event"))
 					continue
 				}
+				c = faultContext(c, ev.ID)
 				if _, err := s.Deliver(c, ev, "async"); err != nil {
 					s.Metrics.Retry.WithLabelValues("worker").Inc()
 					slog.Error("worker retry", "id", ev.ID, "error", err)
+					finish(err)
 					return consumer.ConsumeRetryLater, err
 				}
+				finish(nil)
 			}
+			faultPoint(c, "before_consume_ack")
 			return consumer.ConsumeSuccess, nil
 		})
 		if e != nil {
 			m.Close()
+			return nil, e
+		}
+		if e = m.subscribeTransactions(); e != nil {
 			return nil, e
 		}
 		if e = m.C.Start(); e != nil {
@@ -152,6 +180,9 @@ func (m *Messaging) Close() {
 		}
 		m.consumeWG.Wait()
 		m.wg.Wait()
+		if m.TX != nil {
+			m.TX.Shutdown()
+		}
 		if m.P != nil {
 			m.P.Shutdown()
 		}
@@ -169,6 +200,12 @@ func (m *Messaging) beginConsume() bool {
 func (m *Messaging) start(fn func()) { m.wg.Add(1); go func() { defer m.wg.Done(); fn() }() }
 func (m *Messaging) relay(ctx context.Context) {
 	handle := func(msg redis.XMessage) {
+		var gateEvent Event
+		if body, ok := msg.Values["event"].(string); ok {
+			json.Unmarshal([]byte(body), &gateEvent)
+		}
+		ctx := faultContext(ctx, gateEvent.ID)
+		faultPoint(ctx, "after_stream_read")
 		raw, ok := msg.Values["event"].(string)
 		if !ok {
 			if m.S.R.XAdd(ctx, &redis.XAddArgs{Stream: "fc:deadletters", Values: map[string]any{"source": "stream", "id": msg.ID, "reason": "missing event"}}).Err() == nil {
@@ -176,10 +213,28 @@ func (m *Messaging) relay(ctx context.Context) {
 			}
 			return
 		}
-		sendCtx, cancel := context.WithTimeout(ctx, 8*time.Second)
+		traceRaw, _ := msg.Values["trace"].(string)
+		parent := m.S.messageContext(ctx, traceRaw, false)
+		readCtx, endRead := m.S.stage(parent, "relay.read")
+		endRead(nil)
+		if ms, err := strconv.ParseInt(strings.Split(msg.ID, "-")[0], 10, 64); err == nil {
+			m.S.queueSpan(readCtx, "queue.stream", time.UnixMilli(ms))
+		}
+		sendCtx, endSend := m.S.stage(readCtx, "mq.send")
+		var sendError error
+		defer func() { endSend(sendError) }()
+		sendCtx, cancel := context.WithTimeout(sendCtx, 8*time.Second)
 		defer cancel()
 		started := time.Now()
-		result, e := m.P.SendSync(sendCtx, primitive.NewMessage(topic, []byte(raw)))
+		message := primitive.NewMessage(topic, []byte(raw))
+		props := propagation.MapCarrier{}
+		traceContext.Inject(sendCtx, props)
+		for k, v := range props {
+			message.WithProperty(k, v)
+		}
+		message.WithProperty("fc_sent_ns", strconv.FormatInt(time.Now().UnixNano(), 10))
+		result, e := m.P.SendSync(sendCtx, message)
+		sendError = e
 		m.S.Metrics.Stage.WithLabelValues("relay_send").Observe(time.Since(started).Seconds())
 		if e != nil {
 			m.S.Metrics.Forward.WithLabelValues("error").Inc()
@@ -188,11 +243,13 @@ func (m *Messaging) relay(ctx context.Context) {
 			return
 		}
 		if result.Status != primitive.SendOK {
+			sendError = fmt.Errorf("unconfirmed send")
 			m.S.Metrics.Forward.WithLabelValues("unconfirmed").Inc()
 			m.S.Metrics.Retry.WithLabelValues("relay").Inc()
 			slog.Warn("broker did not confirm durable send", "id", msg.ID, "status", result.Status)
 			return
 		}
+		faultPoint(ctx, "after_mq_send")
 		m.S.Metrics.Forward.WithLabelValues("confirmed").Inc()
 		if e = m.S.R.XAck(ctx, stream, "relay", msg.ID).Err(); e != nil {
 			m.S.Metrics.Retry.WithLabelValues("ack").Inc()
@@ -219,7 +276,9 @@ type Audit struct {
 func (s *Service) Reconcile(ctx context.Context, repair bool) ([]Audit, error) {
 	return s.ReconcileFor(ctx, repair, "", "")
 }
-func (s *Service) ReconcileFor(ctx context.Context, repair bool, merchant, tid string) ([]Audit, error) {
+func (s *Service) ReconcileFor(ctx context.Context, repair bool, merchant, tid string) (audits []Audit, err error) {
+	ctx, finish := s.stage(ctx, "reconcile")
+	defer func() { finish(err) }()
 	ts, e := s.Store.Templates(ctx)
 	if merchant != "" || tid != "" {
 		m, err := positive(merchant)
@@ -251,7 +310,7 @@ func (s *Service) ReconcileFor(ctx context.Context, repair bool, merchant, tid s
 			return nil, e
 		}
 		a.Consistent = a.Initial == a.DBRemaining+a.Issued && a.Issued == a.Projected
-		if t.Mode == "async" {
+		if t.Mode == "async" || t.Mode == "transaction" {
 			p := prefix(t.MerchantID, t.ID)
 			a.RedisRemaining, e = s.R.Get(ctx, p+"stock").Int64()
 			if e != nil {
@@ -308,14 +367,16 @@ func (s *Service) ReconcileFor(ctx context.Context, repair bool, merchant, tid s
 					if state != "failed" {
 						users[formatInt(ev.UserID)]++
 					}
-					if repair && state == "pending" && time.Now().Unix()-ev.AcceptedAt >= 15 {
+					if repair && t.Mode != "transaction" && state == "pending" && time.Now().Unix()-ev.AcceptedAt >= 15 {
 						// Re-publish through the same outbox; DB idempotency protects committed grants.
 						ok, err := s.R.SetNX(ctx, "fc:retry:"+ev.ID, 1, 30*time.Second).Result()
 						if err != nil {
 							return nil, err
 						}
 						if ok {
-							if err = s.R.XAdd(ctx, &redis.XAddArgs{Stream: stream, Values: map[string]any{"event": entries[i+1]}}).Err(); err != nil {
+							original := restoreTrace(context.Background(), s.R.HGet(ctx, p+"trace", ev.ID).Val())
+							trace.SpanFromContext(ctx).AddLink(trace.Link{SpanContext: trace.SpanContextFromContext(original)})
+							if err = s.R.XAdd(ctx, &redis.XAddArgs{Stream: stream, Values: map[string]any{"event": entries[i+1], "trace": s.R.HGet(ctx, p+"trace", ev.ID).Val()}}).Err(); err != nil {
 								return nil, err
 							}
 						}

@@ -1,0 +1,15 @@
+{
+  "processes": {
+    "api": {
+      "status": "ready"
+    },
+    "relay": {
+      "status": "ready"
+    },
+    "worker": {
+      "status": "ready"
+    }
+  },
+  "metrics_http_status": 200,
+  "topology": "single MySQL instance; two logical databases; four user-coupon tables"
+}

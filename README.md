@@ -4,6 +4,10 @@
 
 学习与复习入口：[项目架构学习和后端面试指南](docs/PROJECT_GUIDE.md)，包含架构与业务时序图、源码导航、设计取舍、实测数据和面试问答。
 
+全部资料入口：[docs 导航](docs/README.md)。新增 [Trace 与 SQL 观测](docs/TRACE_GUIDE.md)、[故障矩阵](docs/RELIABILITY_MATRIX.md)、[Windows→Linux 实验](docs/DISTRIBUTED_EXPERIMENT.md)、[事务消息对照](docs/ARCHITECTURE_COMPARISON.md) 和 [后端简历与追问](docs/RESUME_BACKEND.md)。本轮工件单独保存在 [observability-2026-11-19](evidence/observability-2026-11-19/)，保留历史数据与负结果。
+
+可选叠加 `-f compose.observability.yaml` 启动 Jaeger 2.21.0，UI 仅绑定 `127.0.0.1:16686`；官方 OTel SDK 跨 API、Relay、Worker 传播上下文，追踪不改变 Event、预留与幂等校验。Trace 导出失败独立于发券。`compose.transaction.yaml` 为隔离实验，默认主链路不变；其 admission SQL 事实不是最终发券事实，Redis 与 SQL 也不是一个 ACID 事务。复现命令及结果口径见上述文档。
+
 ## 部署
 
 ```sh

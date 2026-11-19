@@ -1,7 +1,7 @@
 -- Single Redis primary: all validation, reservation and durable outbox append in one script.
 -- Validate types before mutation because Redis scripts do not roll back runtime errors.
-local expected={'hash','string','hash','hash','hash','stream','string'}
-for i=1,7 do
+local expected={'hash','string','hash','hash','hash','stream','string','hash','hash'}
+for i=1,#KEYS do
  local ty=redis.call('TYPE',KEYS[i]).ok
  if ty~='none' and ty~=expected[i] then return redis.error_reply('WRONGTYPE claim key '..i) end
 end
@@ -18,6 +18,7 @@ if count>=tonumber(redis.call('HGET',KEYS[1],'per_user')) then return {3,'user l
 local payload=string.gsub(ARGV[3],'"accepted_at":0','"accepted_at":'..now,1)
 redis.call('DECR',KEYS[2]); redis.call('HINCRBY',KEYS[3],ARGV[2],1)
 redis.call('HSET',KEYS[4],ARGV[1],payload); redis.call('HSET',KEYS[5],ARGV[1],'pending')
-redis.call('XADD',KEYS[6],'*','event',payload)
+if KEYS[8] then redis.call('HSET',KEYS[8],ARGV[1],ARGV[4] or '{}') end
+if ARGV[5]=='transaction' then redis.call('HSET',KEYS[9],ARGV[1],payload) else redis.call('XADD',KEYS[6],'*','event',payload,'trace',ARGV[4] or '{}') end
 redis.call('INCR',KEYS[7])
 return {0,payload}

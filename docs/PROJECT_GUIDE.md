@@ -1,5 +1,7 @@
 # FlashCoupon 项目学习与面试指南
 
+2026-11-19 新增可选 OTel/Jaeger、SQL 观测、跨机实验与隔离事务消息对照，入口见 [Trace 指南](TRACE_GUIDE.md)、[可靠性矩阵](RELIABILITY_MATRIX.md)、[实验与口径](DISTRIBUTED_EXPERIMENT.md)、[方案对照](ARCHITECTURE_COMPARISON.md)。以下原业务主线与历史实验数据保留；新增能力不改变默认发券架构，也不代表最终 TPS 提升。
+
 面向具备 Python 开发基础、刚接触 Go 后端的读者。建议先读第 1～3 节建立业务与数据流认识，再结合第 4 节定位源码，最后用第 5～7 节理解取舍和复习。
 
 基础验收基线：代码提交 `5d10707`；基础数据来自 [2026-11-09 工程验收工件](../evidence/engineering-2026-11-09/)。部署、指标细节见 [ARCHITECTURE.md](ARCHITECTURE.md)，基础结果见 [VALIDATION.md](VALIDATION.md)。新增 Outbox 清理及 Stream 直连对照的实现、测试与新实验见 [双队列实验报告](QUEUE_EXPERIMENT.md)，未覆盖旧工件。本文中的“投影”指把控制库中的发券事实复制成面向用户查询和核销的数据，不是另一笔发券。

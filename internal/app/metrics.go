@@ -85,10 +85,13 @@ func (m *Metrics) middleware() gin.HandlerFunc {
 		status := c.Writer.Status()
 		m.HTTP.WithLabelValues(route, method, strconv.Itoa(status)).Inc()
 		m.Latency.WithLabelValues(route, method).Observe(time.Since(start).Seconds())
-		if route == "/v1/claims" || route == "/v1/claims/direct" {
+		if route == "/v1/claims" || route == "/v1/claims/direct" || route == "/v1/claims/transaction" {
 			mode := "async"
 			if route == "/v1/claims/direct" {
 				mode = "direct"
+			}
+			if route == "/v1/claims/transaction" {
+				mode = "transaction"
 			}
 			outcome := "error"
 			if status == 200 || status == 202 {

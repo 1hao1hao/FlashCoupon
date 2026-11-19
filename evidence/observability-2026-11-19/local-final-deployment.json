@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "location": "local",
+  "test_id": "final-local-1795074759926357100",
+  "accepted": 5,
+  "audit": {
+    "merchant_id": 759949578900,
+    "template_id": "11f2e1ebac3d4728ed39bbe2518a7a93",
+    "initial": 5,
+    "db_remaining": 0,
+    "issued": 5,
+    "projected": 5,
+    "redis_remaining": 0,
+    "pending": 0,
+    "failed": 0,
+    "consistent": true
+  },
+  "jaeger_ui_status": 200,
+  "three_process_trace": true,
+  "global_templates": 449,
+  "global_unsettled": [],
+  "runtime_image_id": "sha256:334ed7caad983b4a3f3112f7b1a0661dfa2bbda3a0dd285919e8b77ff9431377"
+}

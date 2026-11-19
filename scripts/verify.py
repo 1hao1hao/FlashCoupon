@@ -5,6 +5,9 @@ from support import *
 def main():
     p=argparse.ArgumentParser();p.add_argument('--faults',action='store_true');p.add_argument('--benchmark',action='store_true');args=p.parse_args()
     dc('up','-d','--build','mysql','redis','broker','proxy','mq-topic')
+    # Completed one-shot containers can outlive a Broker recreation. Re-run
+    # topic initialization against the current Broker before constructing the SDK.
+    dc('run','--rm','--no-deps','mq-topic')
     dc('stop','app','relay','worker')
     checks='go test -count=1 ./... && go test -race -count=1 -v ./... && go vet ./... && go test -race -count=1 github.com/apache/rocketmq-client-go/v2/consumer -run TestSubscriptionVersionCopyOnWrite && sh scripts/sdk-counterfactual.sh && go run ./cmd/whitelist'
     try:

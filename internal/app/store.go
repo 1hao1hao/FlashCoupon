@@ -10,7 +10,10 @@ import (
 	"time"
 )
 
-type Store struct{ DB, Coupons *sql.DB }
+type Store struct {
+	DB, Coupons *sql.DB
+	observe     func(context.Context, string) (context.Context, func(error))
+}
 
 func OpenStore(c Config) (*Store, error) {
 	db, e := sql.Open("mysql", c.ControlDSN)
@@ -27,7 +30,7 @@ func OpenStore(c Config) (*Store, error) {
 		d.SetMaxIdleConns(10)
 		d.SetConnMaxLifetime(3 * time.Minute)
 	}
-	s := &Store{db, cp}
+	s := &Store{DB: db, Coupons: cp}
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 	if e = db.PingContext(ctx); e != nil {
@@ -77,14 +80,23 @@ func (s *Store) Templates(ctx context.Context) ([]Template, error) {
 
 // Grant is the authoritative local transaction. Projection failure never refunds an issued grant.
 // All contenders lock the template, then check idempotency and user limits under that lock.
-func (s *Store) Grant(ctx context.Context, ev Event, mode string) (Coupon, string, error) {
+func (s *Store) Grant(ctx context.Context, ev Event, mode string) (coupon Coupon, result string, err error) {
+	if s.observe != nil {
+		var end func(error)
+		ctx, end = s.observe(ctx, "sql.transaction")
+		defer func() { end(err) }()
+	}
 	var c Coupon
-	tx, e := s.DB.BeginTx(ctx, nil)
+	beginCtx, endBegin := s.step(ctx, "sql.begin")
+	tx, e := s.DB.BeginTx(beginCtx, nil)
+	endBegin(e)
 	if e != nil {
 		return c, "", e
 	}
 	defer tx.Rollback()
-	t, e := scanTemplate(tx.QueryRowContext(ctx, "SELECT "+templateColumns+" FROM templates WHERE merchant_id=? AND id=? FOR UPDATE", ev.MerchantID, ev.TemplateID))
+	lockCtx, endLock := s.step(ctx, "sql.lock_template")
+	t, e := scanTemplate(tx.QueryRowContext(lockCtx, "SELECT "+templateColumns+" FROM templates WHERE merchant_id=? AND id=? FOR UPDATE", ev.MerchantID, ev.TemplateID))
+	endLock(e)
 	if e != nil {
 		return c, "", e
 	}
@@ -125,19 +137,25 @@ func (s *Store) Grant(ctx context.Context, ev Event, mode string) (Coupon, strin
 		if e != nil {
 			return c, "", e
 		}
-		return c, "failed", tx.Commit()
+		return c, "failed", s.commit(ctx, tx)
 	}
 	c = Coupon{ID: ev.ID, TemplateID: t.ID, MerchantID: t.MerchantID, UserID: ev.UserID, Threshold: t.Threshold, Discount: t.Discount, ExpiresAt: t.ValidUntil, Status: "available"}
-	if _, e = tx.ExecContext(ctx, "UPDATE templates SET remaining=remaining-1 WHERE merchant_id=? AND id=? AND remaining>0", t.MerchantID, t.ID); e != nil {
+	updateCtx, updateEnd := s.step(ctx, "sql.inventory_update")
+	if _, e = tx.ExecContext(updateCtx, "UPDATE templates SET remaining=remaining-1 WHERE merchant_id=? AND id=? AND remaining>0", t.MerchantID, t.ID); e != nil {
+		updateEnd(e)
 		return c, "", e
 	}
+	updateEnd(nil)
 	if _, e = tx.ExecContext(ctx, "INSERT INTO user_limits(merchant_id,template_id,user_id,issued) VALUES(?,?,?,1) ON DUPLICATE KEY UPDATE issued=issued+1", t.MerchantID, t.ID, ev.UserID); e != nil {
 		return c, "", e
 	}
-	if _, e = tx.ExecContext(ctx, "INSERT INTO grants(id,merchant_id,template_id,user_id,state,coupon_json,accepted_at) VALUES(?,?,?,?,'issued',?,?)", ev.ID, t.MerchantID, t.ID, ev.UserID, encode(c), ev.AcceptedAt); e != nil {
+	factCtx, factEnd := s.step(ctx, "sql.fact_insert")
+	if _, e = tx.ExecContext(factCtx, "INSERT INTO grants(id,merchant_id,template_id,user_id,state,coupon_json,accepted_at) VALUES(?,?,?,?,'issued',?,?)", ev.ID, t.MerchantID, t.ID, ev.UserID, encode(c), ev.AcceptedAt); e != nil {
+		factEnd(e)
 		return c, "", e
 	}
-	return c, "issued", tx.Commit()
+	factEnd(nil)
+	return c, "issued", s.commit(ctx, tx)
 }
 func (s *Store) ProjectCoupon(ctx context.Context, c Coupon) error {
 	_, e := s.Coupons.ExecContext(ctx, "INSERT INTO coupons(user_id,id,merchant_id,template_id,threshold_amount,discount,expires_at,status) VALUES(?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id=id", c.UserID, c.ID, c.MerchantID, c.TemplateID, c.Threshold, c.Discount, c.ExpiresAt, c.Status)
@@ -204,4 +222,19 @@ func (s *Store) Redeem(ctx context.Context, u, m int64, cid, order string, amoun
 func (s *Store) Expire(ctx context.Context) error {
 	_, e := s.Coupons.ExecContext(ctx, "UPDATE coupons SET status='expired' WHERE status='available' AND expires_at<=?", time.Now().Unix())
 	return e
+}
+
+func (s *Store) step(ctx context.Context, name string) (context.Context, func(error)) {
+	if s.observe != nil {
+		return s.observe(ctx, name)
+	}
+	return ctx, func(error) {}
+}
+func (s *Store) commit(ctx context.Context, tx *sql.Tx) error {
+	_, end := s.step(ctx, "sql.commit")
+	faultPoint(ctx, "before_sql_commit")
+	err := tx.Commit()
+	faultPoint(ctx, "after_sql_commit")
+	end(err)
+	return err
 }

@@ -1,0 +1,2729 @@
+{
+  "accepted_trials": 27,
+  "issued": 13500,
+  "aggregates": [
+    {
+      "location": "cross-machine-ssh",
+      "scenario": "locked",
+      "tracing": true,
+      "workers": 20,
+      "mode": "async",
+      "rounds": 3,
+      "accepted_http_qps": 1070.663811563169,
+      "final_issue_tps": 29.349612585113874,
+      "p95_ms": 96.2175,
+      "p99_ms": 106.0253,
+      "http_error_rate": 0,
+      "drain_seconds": 16.526,
+      "http_health_rtt_ms": 15.999999828636646,
+      "max_lock_wait_edges": 210,
+      "slow_statement_delta": 511
+    },
+    {
+      "location": "cross-machine-ssh",
+      "scenario": "normal",
+      "tracing": false,
+      "workers": 20,
+      "mode": "async",
+      "rounds": 3,
+      "accepted_http_qps": 860.5851979345956,
+      "final_issue_tps": 104.4059302568386,
+      "p95_ms": 54.40589999999995,
+      "p99_ms": 99.9496,
+      "http_error_rate": 0,
+      "drain_seconds": 4.208,
+      "http_health_rtt_ms": 16.000000294297934,
+      "max_lock_wait_edges": 153,
+      "slow_statement_delta": 172
+    },
+    {
+      "location": "cross-machine-ssh",
+      "scenario": "normal",
+      "tracing": true,
+      "workers": 20,
+      "mode": "async",
+      "rounds": 3,
+      "accepted_http_qps": 847.4576271186442,
+      "final_issue_tps": 104.12328196584757,
+      "p95_ms": 57.92804499999999,
+      "p99_ms": 94.788788,
+      "http_error_rate": 0,
+      "drain_seconds": 4.212,
+      "http_health_rtt_ms": 16.000000294297934,
+      "max_lock_wait_edges": 153,
+      "slow_statement_delta": 218
+    },
+    {
+      "location": "same-machine",
+      "scenario": "concurrency",
+      "tracing": true,
+      "workers": 1,
+      "mode": "async",
+      "rounds": 3,
+      "accepted_http_qps": 2202.643171806167,
+      "final_issue_tps": 94.44654325651682,
+      "p95_ms": 20.345589999999966,
+      "p99_ms": 48.3591,
+      "http_error_rate": 0,
+      "drain_seconds": 5.068,
+      "http_health_rtt_ms": 0.0,
+      "max_lock_wait_edges": 0,
+      "slow_statement_delta": 0
+    },
+    {
+      "location": "same-machine",
+      "scenario": "concurrency",
+      "tracing": true,
+      "workers": 40,
+      "mode": "async",
+      "rounds": 3,
+      "accepted_http_qps": 1724.1379310344828,
+      "final_issue_tps": 211.68501270110076,
+      "p95_ms": 25.43050999999996,
+      "p99_ms": 59.851784999999985,
+      "http_error_rate": 0,
+      "drain_seconds": 2.072,
+      "http_health_rtt_ms": 0.0,
+      "max_lock_wait_edges": 0,
+      "slow_statement_delta": 0
+    },
+    {
+      "location": "same-machine",
+      "scenario": "locked",
+      "tracing": true,
+      "workers": 20,
+      "mode": "async",
+      "rounds": 3,
+      "accepted_http_qps": 2272.7272727272725,
+      "final_issue_tps": 34.74876641879214,
+      "p95_ms": 35.117959999999925,
+      "p99_ms": 37.6313,
+      "http_error_rate": 0,
+      "drain_seconds": 14.17,
+      "http_health_rtt_ms": 0.0,
+      "max_lock_wait_edges": 210,
+      "slow_statement_delta": 500
+    },
+    {
+      "location": "same-machine",
+      "scenario": "normal",
+      "tracing": false,
+      "workers": 20,
+      "mode": "async",
+      "rounds": 3,
+      "accepted_http_qps": 1724.1379310344828,
+      "final_issue_tps": 211.86440677966104,
+      "p95_ms": 40.1226,
+      "p99_ms": 62.234933999999996,
+      "http_error_rate": 0,
+      "drain_seconds": 2.07,
+      "http_health_rtt_ms": 2.186099998652935,
+      "max_lock_wait_edges": 36,
+      "slow_statement_delta": 7
+    },
+    {
+      "location": "same-machine",
+      "scenario": "normal",
+      "tracing": true,
+      "workers": 20,
+      "mode": "async",
+      "rounds": 3,
+      "accepted_http_qps": 1742.1602787456447,
+      "final_issue_tps": 213.12872975277065,
+      "p95_ms": 41.0017,
+      "p99_ms": 64.26728899999999,
+      "http_error_rate": 0,
+      "drain_seconds": 2.07,
+      "http_health_rtt_ms": 2.0411000587046146,
+      "max_lock_wait_edges": 136,
+      "slow_statement_delta": 113
+    },
+    {
+      "location": "same-machine",
+      "scenario": "transaction",
+      "tracing": true,
+      "workers": 20,
+      "mode": "transaction",
+      "rounds": 3,
+      "accepted_http_qps": 1057.0824524312898,
+      "final_issue_tps": 7.4331757500074325,
+      "p95_ms": 32.486385,
+      "p99_ms": 34.27536,
+      "http_error_rate": 0,
+      "drain_seconds": 66.793,
+      "http_health_rtt_ms": 0.0,
+      "max_lock_wait_edges": 0,
+      "slow_statement_delta": 184
+    }
+  ],
+  "trials": [
+    {
+      "test_id": "cross-machine-ssh-locked-trace1-w20-r1-backlog256",
+      "accepted_http_qps": 1082.2510822510822,
+      "final_issue_tps": 29.432540616906053,
+      "p95_ms": 96.2175,
+      "p99_ms": 109.6416,
+      "http_error_rate": 0,
+      "drain_seconds": 16.526,
+      "http_health_rtt_ms": 15.999999828636646,
+      "max_lock_wait_edges": 210,
+      "slow_statement_delta": 511,
+      "server_samples": 7,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.006408882352941177,
+        "api/http.auth": 0.015330247999999982,
+        "api/http.rate_limit": 9.034101877999973,
+        "api/http.request": 19.364404839458423,
+        "api/reconcile": 22.9179418235294,
+        "api/redis.claim_lua": 4.7339653540000075,
+        "relay/mq.send": 3.2404779649446427,
+        "relay/queue.stream": 613.4780108653167,
+        "relay/relay.read": 0.0013935147601475994,
+        "relay/relay_send": 1.2188034667896674,
+        "worker/coupon.cache": 5.628498066420664,
+        "worker/coupon.projection": 5.724836568265678,
+        "worker/coupon_cache": 5.6452613431734235,
+        "worker/coupon_projection": 5.74081321586716,
+        "worker/grant_transaction": 587.6372972509224,
+        "worker/mq.consume": 603.3225709686345,
+        "worker/queue.rocketmq": 11868.748694092252,
+        "worker/redis.finalize": 2.6775001881918827,
+        "worker/sql.begin": 0.21756651660516615,
+        "worker/sql.commit": 4.842205812,
+        "worker/sql.fact_insert": 0.6027349239999997,
+        "worker/sql.inventory_update": 0.6057496339999998,
+        "worker/sql.lock_template": 580.3461964760158,
+        "worker/sql.transaction": 587.6248751107013,
+        "worker/worker.deliver": 603.2779724464943,
+        "worker/reconcile": 1010.9138429999999
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-observe-app-1": {
+          "cpu_percent": 73.41,
+          "memory_bytes": 26717716.48
+        },
+        "flashcoupon-observe-worker-1": {
+          "cpu_percent": 60.94,
+          "memory_bytes": 27000832.0
+        },
+        "flashcoupon-observe-relay-1": {
+          "cpu_percent": 10.99,
+          "memory_bytes": 21611151.36
+        },
+        "flashcoupon-observe-broker-1": {
+          "cpu_percent": 49.21,
+          "memory_bytes": 582169395.2
+        },
+        "flashcoupon-observe-proxy-1": {
+          "cpu_percent": 88.07,
+          "memory_bytes": 1018481868.8
+        },
+        "flashcoupon-observe-jaeger-1": {
+          "cpu_percent": 1.33,
+          "memory_bytes": 43631247.36
+        },
+        "flashcoupon-observe-namesrv-1": {
+          "cpu_percent": 3.96,
+          "memory_bytes": 199229440.0
+        },
+        "flashcoupon-observe-mysql-1": {
+          "cpu_percent": 77.83,
+          "memory_bytes": 490523852.8
+        },
+        "flashcoupon-observe-redis-1": {
+          "cpu_percent": 24.12,
+          "memory_bytes": 17668505.6
+        }
+      },
+      "control_statement_delta": 1088,
+      "control_statement_time_seconds_delta": 15.258488166,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "cross-machine-ssh-locked-trace1-w20-r2-backlog256",
+      "accepted_http_qps": 941.6195856873823,
+      "final_issue_tps": 29.334115576415368,
+      "p95_ms": 99.869,
+      "p99_ms": 106.0253,
+      "http_error_rate": 0,
+      "drain_seconds": 16.514,
+      "http_health_rtt_ms": 15.999999828636646,
+      "max_lock_wait_edges": 210,
+      "slow_statement_delta": 501,
+      "server_samples": 7,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.006361222222222222,
+        "api/http.auth": 0.013341815999999986,
+        "api/http.rate_limit": 9.962648867999981,
+        "api/http.request": 22.096236021235487,
+        "api/reconcile": 23.16597183333333,
+        "api/redis.claim_lua": 6.139260827999985,
+        "relay/mq.send": 3.0461679160000177,
+        "relay/queue.stream": 678.3591453080003,
+        "relay/relay.read": 0.0011381680000000036,
+        "relay/relay_send": 1.1405182660000017,
+        "worker/coupon.cache": 3.9825027619999958,
+        "worker/coupon.projection": 5.498815176000001,
+        "worker/coupon_cache": 3.999211568000002,
+        "worker/coupon_projection": 5.514440331999985,
+        "worker/grant_transaction": 622.0813225720002,
+        "worker/mq.consume": 634.4764841060025,
+        "worker/queue.rocketmq": 12643.345626830007,
+        "worker/reconcile": 255.90847399999996,
+        "worker/redis.finalize": 2.2426937880000013,
+        "worker/sql.begin": 0.21299093800000063,
+        "worker/sql.commit": 4.346778847999996,
+        "worker/sql.fact_insert": 0.5687959739999986,
+        "worker/sql.inventory_update": 0.6153093360000013,
+        "worker/sql.lock_template": 614.724155573997,
+        "worker/sql.transaction": 622.0702163659995,
+        "worker/worker.deliver": 634.4336270399979
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-observe-app-1": {
+          "cpu_percent": 29.65,
+          "memory_bytes": 26948403.2
+        },
+        "flashcoupon-observe-worker-1": {
+          "cpu_percent": 60.8,
+          "memory_bytes": 32191283.2
+        },
+        "flashcoupon-observe-relay-1": {
+          "cpu_percent": 27.82,
+          "memory_bytes": 22135439.36
+        },
+        "flashcoupon-observe-broker-1": {
+          "cpu_percent": 135.73,
+          "memory_bytes": 592969728.0
+        },
+        "flashcoupon-observe-proxy-1": {
+          "cpu_percent": 136.45,
+          "memory_bytes": 1037985382.4
+        },
+        "flashcoupon-observe-jaeger-1": {
+          "cpu_percent": 6.27,
+          "memory_bytes": 50174361.6
+        },
+        "flashcoupon-observe-namesrv-1": {
+          "cpu_percent": 4.03,
+          "memory_bytes": 199229440.0
+        },
+        "flashcoupon-observe-mysql-1": {
+          "cpu_percent": 80.05,
+          "memory_bytes": 492516147.2
+        },
+        "flashcoupon-observe-redis-1": {
+          "cpu_percent": 19.91,
+          "memory_bytes": 18129879.04
+        }
+      },
+      "control_statement_delta": 1005,
+      "control_statement_time_seconds_delta": 14.96862289,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "cross-machine-ssh-locked-trace1-w20-r3-backlog256",
+      "accepted_http_qps": 1070.663811563169,
+      "final_issue_tps": 29.349612585113874,
+      "p95_ms": 47.4202,
+      "p99_ms": 73.68646199999998,
+      "http_error_rate": 0,
+      "drain_seconds": 16.569,
+      "http_health_rtt_ms": 15.999999828636646,
+      "max_lock_wait_edges": 210,
+      "slow_statement_delta": 514,
+      "server_samples": 6,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.006546125,
+        "api/http.auth": 0.01722455000000004,
+        "api/http.rate_limit": 8.011367556000037,
+        "api/http.request": 19.818667959302225,
+        "api/reconcile": 25.871033937499995,
+        "api/redis.claim_lua": 5.537609428000001,
+        "relay/mq.send": 3.7758287080292083,
+        "relay/queue.stream": 735.8634299288321,
+        "relay/relay.read": 0.0013635237226277365,
+        "relay/relay_send": 1.479000822992705,
+        "worker/coupon.cache": 4.144483894523324,
+        "worker/coupon.projection": 6.034697906693729,
+        "worker/coupon_cache": 4.161654681541579,
+        "worker/coupon_projection": 6.051260853955387,
+        "worker/grant_transaction": 641.1902398724696,
+        "worker/mq.consume": 655.984670111561,
+        "worker/queue.rocketmq": 12460.606046664698,
+        "worker/redis.finalize": 2.482978827586209,
+        "worker/sql.begin": 0.23214166471734854,
+        "worker/sql.commit": 4.691559997975696,
+        "worker/sql.fact_insert": 0.6143214383838386,
+        "worker/sql.inventory_update": 0.5954866282828284,
+        "worker/sql.lock_template": 632.3301687858584,
+        "worker/sql.transaction": 641.1778966578936,
+        "worker/worker.deliver": 655.9406131805284
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-observe-worker-1": {
+          "cpu_percent": 57.66,
+          "memory_bytes": 29454499.84
+        },
+        "flashcoupon-observe-app-1": {
+          "cpu_percent": 42.49,
+          "memory_bytes": 29748101.12
+        },
+        "flashcoupon-observe-relay-1": {
+          "cpu_percent": 27.62,
+          "memory_bytes": 17238589.44
+        },
+        "flashcoupon-observe-broker-1": {
+          "cpu_percent": 54.98,
+          "memory_bytes": 595800883.2
+        },
+        "flashcoupon-observe-proxy-1": {
+          "cpu_percent": 60.71,
+          "memory_bytes": 1079110533.12
+        },
+        "flashcoupon-observe-jaeger-1": {
+          "cpu_percent": 1.55,
+          "memory_bytes": 65389199.36
+        },
+        "flashcoupon-observe-namesrv-1": {
+          "cpu_percent": 4.22,
+          "memory_bytes": 199439155.2
+        },
+        "flashcoupon-observe-mysql-1": {
+          "cpu_percent": 74.38,
+          "memory_bytes": 505308774.4
+        },
+        "flashcoupon-observe-redis-1": {
+          "cpu_percent": 32.36,
+          "memory_bytes": 21695037.44
+        }
+      },
+      "control_statement_delta": 1099,
+      "control_statement_time_seconds_delta": 15.22945519,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "cross-machine-ssh-normal-trace0-w20-r1-backlog256",
+      "accepted_http_qps": 722.5433526011561,
+      "final_issue_tps": 101.31712259371835,
+      "p95_ms": 80.008605,
+      "p99_ms": 99.9496,
+      "http_error_rate": 0,
+      "drain_seconds": 4.243,
+      "http_health_rtt_ms": 30.999999959021807,
+      "max_lock_wait_edges": 153,
+      "slow_statement_delta": 172,
+      "server_samples": 3,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.006423500000000001,
+        "api/http.auth": 0.01628637604456829,
+        "api/http.rate_limit": 15.609796130319129,
+        "api/http.request": 33.42887503061224,
+        "api/reconcile": 37.6865435,
+        "api/redis.claim_lua": 9.694382862337672,
+        "relay/mq.send": 6.007307225672868,
+        "relay/queue.stream": 1469.511059890042,
+        "relay/relay.read": 0.001435238589211618,
+        "relay/relay_send": 1.8675487240663904,
+        "worker/coupon.cache": 6.0983370840163875,
+        "worker/coupon.projection": 7.790836112936353,
+        "worker/coupon_cache": 6.102855897540981,
+        "worker/coupon_projection": 7.795327921971275,
+        "worker/grant_transaction": 136.72085007613168,
+        "worker/mq.consume": 156.6852853149284,
+        "worker/queue.rocketmq": 571.0871926265556,
+        "worker/reconcile": 217.69702099999998,
+        "worker/redis.finalize": 3.8535283803681173,
+        "worker/sql.begin": 0.22700891115702468,
+        "worker/sql.commit": 5.765241755144034,
+        "worker/sql.fact_insert": 0.6094288371133985,
+        "worker/sql.inventory_update": 0.6027637113402058,
+        "worker/sql.lock_template": 128.2054734907214,
+        "worker/sql.transaction": 136.71633301646045,
+        "worker/worker.deliver": 156.6584894764823
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-observe-app-1": {
+          "cpu_percent": 10.9,
+          "memory_bytes": 25889341.44
+        },
+        "flashcoupon-observe-relay-1": {
+          "cpu_percent": 18.03,
+          "memory_bytes": 20143144.96
+        },
+        "flashcoupon-observe-worker-1": {
+          "cpu_percent": 59.2,
+          "memory_bytes": 27567063.04
+        },
+        "flashcoupon-observe-broker-1": {
+          "cpu_percent": 50.81,
+          "memory_bytes": 589299712.0
+        },
+        "flashcoupon-observe-proxy-1": {
+          "cpu_percent": 57.41,
+          "memory_bytes": 1012609843.2
+        },
+        "flashcoupon-observe-jaeger-1": {
+          "cpu_percent": 0.1,
+          "memory_bytes": 30293360.64
+        },
+        "flashcoupon-observe-namesrv-1": {
+          "cpu_percent": 0.23,
+          "memory_bytes": 192623411.2
+        },
+        "flashcoupon-observe-mysql-1": {
+          "cpu_percent": 59.32,
+          "memory_bytes": 485385830.4
+        },
+        "flashcoupon-observe-redis-1": {
+          "cpu_percent": 14.76,
+          "memory_bytes": 16714301.44
+        }
+      },
+      "control_statement_delta": 365,
+      "control_statement_time_seconds_delta": 0.868713296,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "cross-machine-ssh-normal-trace0-w20-r2-backlog256",
+      "accepted_http_qps": 900.9009009009009,
+      "final_issue_tps": 105.08617065994115,
+      "p95_ms": 53.04161999999998,
+      "p99_ms": 109.243279,
+      "http_error_rate": 0,
+      "drain_seconds": 4.203,
+      "http_health_rtt_ms": 15.999999828636646,
+      "max_lock_wait_edges": 171,
+      "slow_statement_delta": 98,
+      "server_samples": 3,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.005909666666666668,
+        "api/http.auth": 0.01272691153846153,
+        "api/http.rate_limit": 8.780211173431727,
+        "api/http.request": 21.052202049469983,
+        "api/redis.claim_lua": 6.176103422382671,
+        "relay/mq.send": 4.775140227956986,
+        "relay/queue.stream": 1164.3740161896553,
+        "relay/relay.read": 0.0014341465517241376,
+        "relay/relay_send": 1.6421372607758626,
+        "worker/coupon.cache": 4.577271260683757,
+        "worker/coupon.projection": 5.81084523126338,
+        "worker/coupon_cache": 4.581655472222226,
+        "worker/coupon_projection": 5.815215460385443,
+        "worker/grant_transaction": 127.12731033476399,
+        "worker/mq.consume": 142.49893457051277,
+        "worker/queue.rocketmq": 531.0802266522678,
+        "worker/redis.finalize": 3.2963739551282063,
+        "worker/sql.begin": 0.2510327478448274,
+        "worker/sql.commit": 4.924543609442058,
+        "worker/sql.fact_insert": 0.5821404613733899,
+        "worker/sql.inventory_update": 0.5968740881720433,
+        "worker/sql.lock_template": 119.48027372688183,
+        "worker/sql.transaction": 127.12284447210301,
+        "worker/worker.deliver": 142.47103182264962,
+        "api/reconcile": 22.766527000000007
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-observe-worker-1": {
+          "cpu_percent": 59.88,
+          "memory_bytes": 21191720.96
+        },
+        "flashcoupon-observe-relay-1": {
+          "cpu_percent": 14.2,
+          "memory_bytes": 16441671.68
+        },
+        "flashcoupon-observe-app-1": {
+          "cpu_percent": 3.11,
+          "memory_bytes": 21212692.48
+        },
+        "flashcoupon-observe-broker-1": {
+          "cpu_percent": 45.83,
+          "memory_bytes": 586153984.0
+        },
+        "flashcoupon-observe-proxy-1": {
+          "cpu_percent": 39.55,
+          "memory_bytes": 1079110533.12
+        },
+        "flashcoupon-observe-jaeger-1": {
+          "cpu_percent": 0.08,
+          "memory_bytes": 63082332.16
+        },
+        "flashcoupon-observe-namesrv-1": {
+          "cpu_percent": 2.39,
+          "memory_bytes": 199334297.6
+        },
+        "flashcoupon-observe-mysql-1": {
+          "cpu_percent": 71.67,
+          "memory_bytes": 497339596.8
+        },
+        "flashcoupon-observe-redis-1": {
+          "cpu_percent": 15.46,
+          "memory_bytes": 19587399.68
+        }
+      },
+      "control_statement_delta": 186,
+      "control_statement_time_seconds_delta": 0.466646848,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "cross-machine-ssh-normal-trace0-w20-r3-backlog256",
+      "accepted_http_qps": 860.5851979345956,
+      "final_issue_tps": 104.4059302568386,
+      "p95_ms": 54.40589999999995,
+      "p99_ms": 62.71465099999999,
+      "http_error_rate": 0,
+      "drain_seconds": 4.208,
+      "http_health_rtt_ms": 16.000000294297934,
+      "max_lock_wait_edges": 153,
+      "slow_statement_delta": 207,
+      "server_samples": 3,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.005657000000000001,
+        "api/http.auth": 0.014331689655172427,
+        "api/http.rate_limit": 9.224252885608895,
+        "api/http.request": 22.024139451178435,
+        "api/reconcile": 34.07713366666667,
+        "api/redis.claim_lua": 7.190873419243988,
+        "relay/mq.send": 5.490514976241913,
+        "relay/queue.stream": 1276.994483181816,
+        "relay/relay.read": 0.0015339415584415548,
+        "relay/relay_send": 1.763270625541126,
+        "worker/coupon.cache": 5.028127324786326,
+        "worker/coupon.projection": 5.909395237687371,
+        "worker/coupon_cache": 5.0323111452991505,
+        "worker/coupon_projection": 5.914372492505364,
+        "worker/grant_transaction": 126.03909773605163,
+        "worker/mq.consume": 142.71114952564096,
+        "worker/queue.rocketmq": 462.67279752813823,
+        "worker/redis.finalize": 3.41928566025641,
+        "worker/sql.begin": 0.23143501511879053,
+        "worker/sql.commit": 5.045708579399145,
+        "worker/sql.fact_insert": 0.5518002322580634,
+        "worker/sql.inventory_update": 0.5945832150537642,
+        "worker/sql.lock_template": 118.3466617139783,
+        "worker/sql.transaction": 126.0346941995705,
+        "worker/worker.deliver": 142.682876760684
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-observe-worker-1": {
+          "cpu_percent": 52.76,
+          "memory_bytes": 27378319.36
+        },
+        "flashcoupon-observe-relay-1": {
+          "cpu_percent": 9.79,
+          "memory_bytes": 16378757.12
+        },
+        "flashcoupon-observe-app-1": {
+          "cpu_percent": 6.85,
+          "memory_bytes": 38912655.36
+        },
+        "flashcoupon-observe-broker-1": {
+          "cpu_percent": 38.25,
+          "memory_bytes": 586153984.0
+        },
+        "flashcoupon-observe-proxy-1": {
+          "cpu_percent": 26.39,
+          "memory_bytes": 1079110533.12
+        },
+        "flashcoupon-observe-jaeger-1": {
+          "cpu_percent": 0.1,
+          "memory_bytes": 63082332.16
+        },
+        "flashcoupon-observe-namesrv-1": {
+          "cpu_percent": 0.25,
+          "memory_bytes": 199334297.6
+        },
+        "flashcoupon-observe-mysql-1": {
+          "cpu_percent": 70.73,
+          "memory_bytes": 497863884.8
+        },
+        "flashcoupon-observe-redis-1": {
+          "cpu_percent": 16.0,
+          "memory_bytes": 20562575.36
+        }
+      },
+      "control_statement_delta": 404,
+      "control_statement_time_seconds_delta": 0.921465892,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "cross-machine-ssh-normal-trace1-w20-r1-backlog256",
+      "accepted_http_qps": 936.3295880149813,
+      "final_issue_tps": 106.42826734780756,
+      "p95_ms": 59.2385649999994,
+      "p99_ms": 94.788788,
+      "http_error_rate": 0,
+      "drain_seconds": 4.164,
+      "http_health_rtt_ms": 16.000000294297934,
+      "max_lock_wait_edges": 171,
+      "slow_statement_delta": 148,
+      "server_samples": 3,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.004935666666666666,
+        "api/http.auth": 0.013332706140350838,
+        "api/http.rate_limit": 9.911982962655616,
+        "api/http.request": 22.625889730038,
+        "api/redis.claim_lua": 6.579962319066137,
+        "relay/mq.send": 5.164648748917743,
+        "relay/queue.stream": 1270.1346243557477,
+        "relay/relay.read": 0.001440401301518437,
+        "relay/relay_send": 1.8603446247288513,
+        "worker/coupon.cache": 5.2117832750533015,
+        "worker/coupon.projection": 6.353362582089555,
+        "worker/coupon_cache": 5.228908654584222,
+        "worker/coupon_projection": 6.370046046908318,
+        "worker/grant_transaction": 130.98456642948724,
+        "worker/mq.consume": 147.67205921108737,
+        "worker/queue.rocketmq": 547.1448405086957,
+        "worker/redis.finalize": 3.009238543710023,
+        "worker/sql.begin": 0.24223668831168835,
+        "worker/sql.commit": 5.058705117521368,
+        "worker/sql.fact_insert": 0.5181573618843681,
+        "worker/sql.inventory_update": 0.5789808565310495,
+        "worker/sql.lock_template": 123.26728331477523,
+        "worker/sql.transaction": 130.97266244871793,
+        "worker/worker.deliver": 147.6296361279317,
+        "api/reconcile": 19.445033000000002
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-observe-app-1": {
+          "cpu_percent": 8.38,
+          "memory_bytes": 26623344.64
+        },
+        "flashcoupon-observe-worker-1": {
+          "cpu_percent": 54.02,
+          "memory_bytes": 23068672.0
+        },
+        "flashcoupon-observe-relay-1": {
+          "cpu_percent": 14.6,
+          "memory_bytes": 18926796.8
+        },
+        "flashcoupon-observe-broker-1": {
+          "cpu_percent": 62.5,
+          "memory_bytes": 585944268.8
+        },
+        "flashcoupon-observe-proxy-1": {
+          "cpu_percent": 95.43,
+          "memory_bytes": 1013658419.2
+        },
+        "flashcoupon-observe-jaeger-1": {
+          "cpu_percent": 1.18,
+          "memory_bytes": 35001466.88
+        },
+        "flashcoupon-observe-namesrv-1": {
+          "cpu_percent": 4.05,
+          "memory_bytes": 192728268.8
+        },
+        "flashcoupon-observe-mysql-1": {
+          "cpu_percent": 61.74,
+          "memory_bytes": 486224691.2
+        },
+        "flashcoupon-observe-redis-1": {
+          "cpu_percent": 13.48,
+          "memory_bytes": 16745758.72
+        }
+      },
+      "control_statement_delta": 284,
+      "control_statement_time_seconds_delta": 0.606280045,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "cross-machine-ssh-normal-trace1-w20-r2-backlog256",
+      "accepted_http_qps": 847.4576271186442,
+      "final_issue_tps": 104.12328196584757,
+      "p95_ms": 57.69002499999999,
+      "p99_ms": 67.948494,
+      "http_error_rate": 0,
+      "drain_seconds": 4.212,
+      "http_health_rtt_ms": 15.999999828636646,
+      "max_lock_wait_edges": 153,
+      "slow_statement_delta": 218,
+      "server_samples": 3,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.005448166666666662,
+        "api/http.auth": 0.018746054393305407,
+        "api/http.rate_limit": 12.858415760162641,
+        "api/http.request": 26.698243823308385,
+        "api/reconcile": 33.09536483333334,
+        "api/redis.claim_lua": 6.932454057692361,
+        "relay/mq.send": 5.13491572245761,
+        "relay/queue.stream": 1209.1334847834344,
+        "relay/relay.read": 0.001461749469214452,
+        "relay/relay_send": 1.7298256220806887,
+        "worker/coupon.cache": 5.1500796421052515,
+        "worker/coupon.projection": 6.567072246835447,
+        "worker/coupon_cache": 5.16717821684208,
+        "worker/coupon_projection": 6.583790852320664,
+        "worker/grant_transaction": 138.48388880972496,
+        "worker/mq.consume": 155.50379259789847,
+        "worker/queue.rocketmq": 634.6207993312396,
+        "worker/redis.finalize": 3.246634642105261,
+        "worker/sql.begin": 0.22616541860465145,
+        "worker/sql.commit": 5.650867357293873,
+        "worker/sql.fact_insert": 0.6025001606765364,
+        "worker/sql.inventory_update": 0.5764155919661746,
+        "worker/sql.lock_template": 129.89639077167303,
+        "worker/sql.transaction": 138.4705495073993,
+        "worker/worker.deliver": 155.46272714105174
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-observe-app-1": {
+          "cpu_percent": 12.39,
+          "memory_bytes": 27598520.32
+        },
+        "flashcoupon-observe-worker-1": {
+          "cpu_percent": 67.12,
+          "memory_bytes": 28238151.68
+        },
+        "flashcoupon-observe-relay-1": {
+          "cpu_percent": 22.59,
+          "memory_bytes": 22659727.36
+        },
+        "flashcoupon-observe-broker-1": {
+          "cpu_percent": 46.76,
+          "memory_bytes": 585839411.2
+        },
+        "flashcoupon-observe-proxy-1": {
+          "cpu_percent": 200.17,
+          "memory_bytes": 1051721728.0
+        },
+        "flashcoupon-observe-jaeger-1": {
+          "cpu_percent": 1.14,
+          "memory_bytes": 56696504.32
+        },
+        "flashcoupon-observe-namesrv-1": {
+          "cpu_percent": 4.0,
+          "memory_bytes": 199229440.0
+        },
+        "flashcoupon-observe-mysql-1": {
+          "cpu_percent": 65.17,
+          "memory_bytes": 495137587.2
+        },
+        "flashcoupon-observe-redis-1": {
+          "cpu_percent": 14.19,
+          "memory_bytes": 19136512.0
+        }
+      },
+      "control_statement_delta": 423,
+      "control_statement_time_seconds_delta": 1.432069459,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "cross-machine-ssh-normal-trace1-w20-r3-backlog256",
+      "accepted_http_qps": 784.9293563579278,
+      "final_issue_tps": 101.7087062652563,
+      "p95_ms": 57.92804499999999,
+      "p99_ms": 121.61204199999996,
+      "http_error_rate": 0,
+      "drain_seconds": 4.279,
+      "http_health_rtt_ms": 30.999999959021807,
+      "max_lock_wait_edges": 153,
+      "slow_statement_delta": 263,
+      "server_samples": 3,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.007806166666666666,
+        "api/http.auth": 0.015585670411985022,
+        "api/http.rate_limit": 11.785050773722615,
+        "api/http.request": 27.975498112956817,
+        "api/redis.claim_lua": 7.998321959322038,
+        "relay/mq.send": 5.707152974683549,
+        "relay/queue.stream": 1317.8086992642707,
+        "relay/relay.read": 0.001630699788583511,
+        "relay/relay_send": 1.7973075158562375,
+        "worker/coupon.cache": 4.884876657563028,
+        "worker/coupon.projection": 6.654060722105257,
+        "worker/coupon_cache": 4.901290695378155,
+        "worker/coupon_projection": 6.670657326315789,
+        "worker/grant_transaction": 152.71421432842095,
+        "worker/mq.consume": 169.70004372117396,
+        "worker/queue.rocketmq": 714.2710549746297,
+        "worker/redis.finalize": 3.5563789454926624,
+        "worker/sql.begin": 0.2435053565400843,
+        "worker/sql.commit": 5.895509498947372,
+        "worker/sql.fact_insert": 0.6461461936842099,
+        "worker/sql.inventory_update": 0.5794122215189874,
+        "worker/sql.lock_template": 143.79069782278484,
+        "worker/sql.transaction": 152.70253870947369,
+        "worker/worker.deliver": 169.65817182180282,
+        "api/reconcile": 35.52694599999999
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-observe-worker-1": {
+          "cpu_percent": 65.6,
+          "memory_bytes": 21967667.2
+        },
+        "flashcoupon-observe-app-1": {
+          "cpu_percent": 31.16,
+          "memory_bytes": 28238151.68
+        },
+        "flashcoupon-observe-relay-1": {
+          "cpu_percent": 16.01,
+          "memory_bytes": 16504586.24
+        },
+        "flashcoupon-observe-broker-1": {
+          "cpu_percent": 40.87,
+          "memory_bytes": 586573414.4
+        },
+        "flashcoupon-observe-proxy-1": {
+          "cpu_percent": 49.6,
+          "memory_bytes": 1080184274.944
+        },
+        "flashcoupon-observe-jaeger-1": {
+          "cpu_percent": 1.67,
+          "memory_bytes": 63103303.68
+        },
+        "flashcoupon-observe-namesrv-1": {
+          "cpu_percent": 4.27,
+          "memory_bytes": 199334297.6
+        },
+        "flashcoupon-observe-mysql-1": {
+          "cpu_percent": 68.56,
+          "memory_bytes": 502477619.2
+        },
+        "flashcoupon-observe-redis-1": {
+          "cpu_percent": 19.0,
+          "memory_bytes": 21380464.64
+        }
+      },
+      "control_statement_delta": 514,
+      "control_statement_time_seconds_delta": 1.484153574,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "same-machine-concurrency-trace1-w1-r1",
+      "final_issue_tps": 94.05568096313017,
+      "accepted_http_qps": 2016.1290322580646,
+      "p95_ms": 50.98819,
+      "p99_ms": 62.161742,
+      "http_error_rate": 0,
+      "drain_seconds": 5.068,
+      "http_health_rtt_ms": 0.0,
+      "max_lock_wait_edges": 0,
+      "slow_statement_delta": 0,
+      "server_samples": 4,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.0022755714285714284,
+        "api/http.auth": 0.006309171497584547,
+        "api/http.rate_limit": 4.792328941860461,
+        "api/http.request": 10.7861845717489,
+        "api/redis.claim_lua": 2.9703684783599096,
+        "relay/mq.send": 1.8774668877551024,
+        "relay/queue.stream": 441.2179719734153,
+        "relay/relay.read": 0.0004295153374233128,
+        "relay/relay_send": 0.8241740777096119,
+        "worker/coupon.cache": 1.6244490403225815,
+        "worker/coupon.projection": 2.2588015322580652,
+        "worker/coupon_cache": 1.6385513064516117,
+        "worker/coupon_projection": 2.271312866935484,
+        "worker/grant_transaction": 3.436683254032256,
+        "worker/mq.consume": 8.600474991935489,
+        "worker/queue.rocketmq": 1756.3337171757562,
+        "worker/redis.finalize": 0.9992268548387098,
+        "worker/sql.begin": 0.11988197171717165,
+        "worker/sql.commit": 1.7973941834677394,
+        "worker/sql.fact_insert": 0.27340687298387084,
+        "worker/sql.inventory_update": 0.25773170766129033,
+        "worker/sql.lock_template": 0.29438841414141403,
+        "worker/sql.transaction": 3.432548616935484,
+        "worker/worker.deliver": 8.588330685483875,
+        "api/reconcile": 9.96903775
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-app-1": {
+          "cpu_percent": 0.73,
+          "memory_bytes": 20814233.6
+        },
+        "flashcoupon-worker-1": {
+          "cpu_percent": 24.9,
+          "memory_bytes": 18276679.68
+        },
+        "flashcoupon-relay-1": {
+          "cpu_percent": 5.82,
+          "memory_bytes": 15948840.96
+        },
+        "flashcoupon-broker-1": {
+          "cpu_percent": 16.24,
+          "memory_bytes": 601253478.4
+        },
+        "flashcoupon-jaeger-1": {
+          "cpu_percent": 0.51,
+          "memory_bytes": 26046627.84
+        },
+        "flashcoupon-mysql-1": {
+          "cpu_percent": 27.87,
+          "memory_bytes": 753926144.0
+        },
+        "flashcoupon-proxy-1": {
+          "cpu_percent": 12.67,
+          "memory_bytes": 4974645870.592
+        },
+        "flashcoupon-redis-1": {
+          "cpu_percent": 5.16,
+          "memory_bytes": 64822968.32
+        },
+        "flashcoupon-namesrv-1": {
+          "cpu_percent": 1.94,
+          "memory_bytes": 280913510.4
+        }
+      },
+      "control_statement_delta": 632,
+      "control_statement_time_seconds_delta": 0.550024638,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "same-machine-concurrency-trace1-w1-r2",
+      "accepted_http_qps": 2202.643171806167,
+      "final_issue_tps": 94.44654325651682,
+      "p95_ms": 20.345589999999966,
+      "p99_ms": 48.3591,
+      "http_error_rate": 0,
+      "drain_seconds": 5.067,
+      "http_health_rtt_ms": 0.0,
+      "max_lock_wait_edges": 0,
+      "slow_statement_delta": 0,
+      "server_samples": 4,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.003236428571428571,
+        "api/http.auth": 0.005188542416452451,
+        "api/http.rate_limit": 4.753932047381547,
+        "api/http.request": 10.851331244131455,
+        "api/redis.claim_lua": 3.0806743054892594,
+        "relay/mq.send": 1.8388079979466112,
+        "relay/queue.stream": 428.45929007201653,
+        "relay/relay.read": 0.00041798559670781874,
+        "relay/relay_send": 0.7587569917695471,
+        "worker/coupon.cache": 1.623901240963857,
+        "worker/coupon.projection": 2.3053230201207238,
+        "worker/coupon_cache": 1.638654423694778,
+        "worker/coupon_projection": 2.3181842072434593,
+        "worker/grant_transaction": 3.465556589537224,
+        "worker/mq.consume": 8.697092261044183,
+        "worker/queue.rocketmq": 1801.5628535050294,
+        "worker/redis.finalize": 1.005237873493976,
+        "worker/sql.begin": 0.12293420925553336,
+        "worker/sql.commit": 1.8300249637826982,
+        "worker/sql.fact_insert": 0.2686611046277665,
+        "worker/sql.inventory_update": 0.25823065392354116,
+        "worker/sql.lock_template": 0.2967262595573439,
+        "worker/sql.transaction": 3.4612429919517127,
+        "worker/worker.deliver": 8.685335791164658,
+        "api/reconcile": 9.976251499999998
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-worker-1": {
+          "cpu_percent": 25.44,
+          "memory_bytes": 18675138.56
+        },
+        "flashcoupon-app-1": {
+          "cpu_percent": 1.21,
+          "memory_bytes": 21307064.32
+        },
+        "flashcoupon-relay-1": {
+          "cpu_percent": 2.65,
+          "memory_bytes": 16766730.24
+        },
+        "flashcoupon-broker-1": {
+          "cpu_percent": 9.91,
+          "memory_bytes": 636590489.6
+        },
+        "flashcoupon-jaeger-1": {
+          "cpu_percent": 2.36,
+          "memory_bytes": 48706355.2
+        },
+        "flashcoupon-mysql-1": {
+          "cpu_percent": 31.48,
+          "memory_bytes": 784859136.0
+        },
+        "flashcoupon-proxy-1": {
+          "cpu_percent": 11.78,
+          "memory_bytes": 4972498386.944
+        },
+        "flashcoupon-redis-1": {
+          "cpu_percent": 5.77,
+          "memory_bytes": 68776099.84
+        },
+        "flashcoupon-namesrv-1": {
+          "cpu_percent": 0.16,
+          "memory_bytes": 280074649.6
+        }
+      },
+      "control_statement_delta": 590,
+      "control_statement_time_seconds_delta": 0.532989229,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "same-machine-concurrency-trace1-w1-r3",
+      "accepted_http_qps": 2272.7272727272725,
+      "final_issue_tps": 94.4822373393802,
+      "p95_ms": 14.792199999999985,
+      "p99_ms": 16.6494,
+      "http_error_rate": 0,
+      "drain_seconds": 5.072,
+      "http_health_rtt_ms": 0.0,
+      "max_lock_wait_edges": 0,
+      "slow_statement_delta": 0,
+      "server_samples": 4,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.002040428571428571,
+        "api/http.auth": 0.005165456140350869,
+        "api/http.rate_limit": 5.0932186341463375,
+        "api/http.request": 11.58284476971607,
+        "api/reconcile": 10.64823671428571,
+        "api/redis.claim_lua": 3.2431609774193553,
+        "relay/mq.send": 1.8838502478991586,
+        "relay/queue.stream": 472.47997831932815,
+        "relay/relay.read": 0.00044418487394958097,
+        "relay/relay_send": 0.8033224075630258,
+        "worker/coupon.cache": 1.6847146475247536,
+        "worker/coupon.projection": 2.3389760019801997,
+        "worker/coupon_cache": 1.699804837623763,
+        "worker/coupon_projection": 2.3519128613861393,
+        "worker/grant_transaction": 3.500074506930691,
+        "worker/mq.consume": 8.786104971774177,
+        "worker/queue.rocketmq": 1842.8093097131305,
+        "worker/redis.finalize": 1.0096095485148495,
+        "worker/sql.begin": 0.12167486507936506,
+        "worker/sql.commit": 1.8618898831683137,
+        "worker/sql.fact_insert": 0.27037727579365095,
+        "worker/sql.inventory_update": 0.2525021329365084,
+        "worker/sql.lock_template": 0.29983824206349224,
+        "worker/sql.transaction": 3.495658132673268,
+        "worker/worker.deliver": 8.80479127920791
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-worker-1": {
+          "cpu_percent": 23.96,
+          "memory_bytes": 19933429.76
+        },
+        "flashcoupon-app-1": {
+          "cpu_percent": 6.13,
+          "memory_bytes": 21999124.48
+        },
+        "flashcoupon-relay-1": {
+          "cpu_percent": 9.82,
+          "memory_bytes": 16703815.68
+        },
+        "flashcoupon-broker-1": {
+          "cpu_percent": 22.49,
+          "memory_bytes": 637009920.0
+        },
+        "flashcoupon-jaeger-1": {
+          "cpu_percent": 0.54,
+          "memory_bytes": 50667192.32
+        },
+        "flashcoupon-mysql-1": {
+          "cpu_percent": 139.65,
+          "memory_bytes": 785593139.2
+        },
+        "flashcoupon-proxy-1": {
+          "cpu_percent": 15.25,
+          "memory_bytes": 4974645870.592
+        },
+        "flashcoupon-redis-1": {
+          "cpu_percent": 7.52,
+          "memory_bytes": 67968696.32
+        },
+        "flashcoupon-namesrv-1": {
+          "cpu_percent": 2.0,
+          "memory_bytes": 280494080.0
+        }
+      },
+      "control_statement_delta": 787,
+      "control_statement_time_seconds_delta": 0.669166892,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0,
+        "api/transaction_republish": 0.0
+      }
+    },
+    {
+      "test_id": "same-machine-concurrency-trace1-w40-r1",
+      "accepted_http_qps": 1724.1379310344828,
+      "final_issue_tps": 211.68501270110076,
+      "p95_ms": 25.43050999999996,
+      "p99_ms": 67.4435,
+      "http_error_rate": 0,
+      "drain_seconds": 2.072,
+      "http_health_rtt_ms": 0.0,
+      "max_lock_wait_edges": 0,
+      "slow_statement_delta": 0,
+      "server_samples": 2,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.0037227500000000004,
+        "api/http.auth": 0.006172219839142091,
+        "api/http.rate_limit": 6.305162696335087,
+        "api/http.request": 14.331832798525808,
+        "api/redis.claim_lua": 3.9963897096774197,
+        "relay/mq.send": 2.927155388429753,
+        "relay/queue.stream": 690.9394050807455,
+        "relay/relay.read": 0.0005518033126293991,
+        "relay/relay_send": 0.998672701863353,
+        "worker/coupon.cache": 2.6768030924024635,
+        "worker/coupon.projection": 2.8592597720739237,
+        "worker/coupon_cache": 2.6884919671457896,
+        "worker/coupon_projection": 2.8723014640657114,
+        "worker/grant_transaction": 117.49569654526749,
+        "worker/mq.consume": 126.37792321311476,
+        "worker/queue.rocketmq": 117.10826578215757,
+        "worker/redis.finalize": 2.0161511680327884,
+        "worker/sql.begin": 0.19672813871635603,
+        "worker/sql.commit": 2.4670763683127555,
+        "worker/sql.fact_insert": 0.29521360412371184,
+        "worker/sql.inventory_update": 0.28600958762886564,
+        "worker/sql.lock_template": 113.66940217525777,
+        "worker/sql.transaction": 117.49071286831271,
+        "worker/worker.deliver": 126.3642102889344
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-relay-1": {
+          "cpu_percent": 3.17,
+          "memory_bytes": 15309209.6
+        },
+        "flashcoupon-app-1": {
+          "cpu_percent": 2.73,
+          "memory_bytes": 28500295.68
+        },
+        "flashcoupon-worker-1": {
+          "cpu_percent": 37.2,
+          "memory_bytes": 21548236.8
+        },
+        "flashcoupon-broker-1": {
+          "cpu_percent": 12.07,
+          "memory_bytes": 601148620.8
+        },
+        "flashcoupon-jaeger-1": {
+          "cpu_percent": 0.43,
+          "memory_bytes": 29286727.68
+        },
+        "flashcoupon-mysql-1": {
+          "cpu_percent": 39.63,
+          "memory_bytes": 757176729.6
+        },
+        "flashcoupon-proxy-1": {
+          "cpu_percent": 19.2,
+          "memory_bytes": 4973572128.768
+        },
+        "flashcoupon-redis-1": {
+          "cpu_percent": 5.74,
+          "memory_bytes": 64162365.44
+        },
+        "flashcoupon-namesrv-1": {
+          "cpu_percent": 0.12,
+          "memory_bytes": 279550361.6
+        }
+      },
+      "control_statement_delta": 2,
+      "control_statement_time_seconds_delta": 0.018110998,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "same-machine-concurrency-trace1-w40-r2",
+      "accepted_http_qps": 1510.5740181268882,
+      "final_issue_tps": 207.72746157041962,
+      "p95_ms": 48.0716,
+      "p99_ms": 59.0638,
+      "http_error_rate": 0,
+      "drain_seconds": 2.076,
+      "http_health_rtt_ms": 0.0,
+      "max_lock_wait_edges": 666,
+      "slow_statement_delta": 36,
+      "server_samples": 3,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.0025382500000000006,
+        "api/http.auth": 0.0064328107526881746,
+        "api/http.rate_limit": 7.616478787941791,
+        "api/http.request": 17.23047482565131,
+        "api/redis.claim_lua": 4.30478482020202,
+        "relay/queue.stream": 659.2974862705411,
+        "relay/relay.read": 0.0005246853707414832,
+        "relay/relay_send": 0.9113015891783569,
+        "worker/queue.rocketmq": 141.7369416472946,
+        "worker/sql.begin": 0.18527677755511027,
+        "worker/sql.inventory_update": 0.28539273146292615,
+        "worker/sql.lock_template": 114.71691813026045,
+        "api/reconcile": 9.366957999999995
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-app-1": {
+          "cpu_percent": 1.06,
+          "memory_bytes": 20594032.64
+        },
+        "flashcoupon-relay-1": {
+          "cpu_percent": 8.21,
+          "memory_bytes": 15623782.4
+        },
+        "flashcoupon-worker-1": {
+          "cpu_percent": 52.9,
+          "memory_bytes": 21002977.28
+        },
+        "flashcoupon-broker-1": {
+          "cpu_percent": 25.13,
+          "memory_bytes": 636275916.8
+        },
+        "flashcoupon-jaeger-1": {
+          "cpu_percent": 0.83,
+          "memory_bytes": 41827696.64
+        },
+        "flashcoupon-mysql-1": {
+          "cpu_percent": 57.8,
+          "memory_bytes": 783076556.8
+        },
+        "flashcoupon-proxy-1": {
+          "cpu_percent": 24.3,
+          "memory_bytes": 4974645870.592
+        },
+        "flashcoupon-redis-1": {
+          "cpu_percent": 9.28,
+          "memory_bytes": 68094525.44
+        },
+        "flashcoupon-namesrv-1": {
+          "cpu_percent": 1.94,
+          "memory_bytes": 280494080.0
+        }
+      },
+      "control_statement_delta": 40,
+      "control_statement_time_seconds_delta": 0.094709388,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "same-machine-concurrency-trace1-w40-r3",
+      "accepted_http_qps": 1773.0496453900712,
+      "final_issue_tps": 212.6754572522331,
+      "p95_ms": 25.078179999999932,
+      "p99_ms": 59.851784999999985,
+      "http_error_rate": 0,
+      "drain_seconds": 2.069,
+      "http_health_rtt_ms": 0.0,
+      "max_lock_wait_edges": 0,
+      "slow_statement_delta": 0,
+      "server_samples": 3,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.0027370000000000003,
+        "api/http.auth": 0.005163863501483678,
+        "api/http.rate_limit": 5.699853945244955,
+        "api/http.request": 13.557145644021753,
+        "api/redis.claim_lua": 3.7782037170329685,
+        "relay/mq.send": 2.6965220647181654,
+        "relay/queue.stream": 643.196359525104,
+        "relay/relay.read": 0.00045409623430962365,
+        "relay/relay_send": 0.9000859039665972,
+        "worker/coupon.cache": 2.5761940041237095,
+        "worker/coupon.projection": 2.831305450413227,
+        "worker/coupon_cache": 2.5880815237113377,
+        "worker/coupon_projection": 2.843337685950415,
+        "worker/grant_transaction": 124.01103437190089,
+        "worker/mq.consume": 132.6900609484536,
+        "worker/queue.rocketmq": 152.06433006903762,
+        "worker/redis.finalize": 1.877811065979381,
+        "worker/sql.begin": 0.17564397912317342,
+        "worker/sql.commit": 2.4585410929752043,
+        "worker/sql.fact_insert": 0.2962539855072464,
+        "worker/sql.inventory_update": 0.2857626935817807,
+        "worker/sql.lock_template": 120.20620628157349,
+        "worker/sql.transaction": 124.00638759090906,
+        "worker/worker.deliver": 132.67749389690724,
+        "api/reconcile": 10.371123999999995
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-app-1": {
+          "cpu_percent": 0.62,
+          "memory_bytes": 20908605.44
+        },
+        "flashcoupon-relay-1": {
+          "cpu_percent": 7.28,
+          "memory_bytes": 16326328.32
+        },
+        "flashcoupon-worker-1": {
+          "cpu_percent": 53.54,
+          "memory_bytes": 21369978.88
+        },
+        "flashcoupon-broker-1": {
+          "cpu_percent": 23.42,
+          "memory_bytes": 638163353.6
+        },
+        "flashcoupon-jaeger-1": {
+          "cpu_percent": 0.81,
+          "memory_bytes": 59055800.32
+        },
+        "flashcoupon-mysql-1": {
+          "cpu_percent": 54.2,
+          "memory_bytes": 787690291.2
+        },
+        "flashcoupon-proxy-1": {
+          "cpu_percent": 24.32,
+          "memory_bytes": 4974645870.592
+        },
+        "flashcoupon-redis-1": {
+          "cpu_percent": 7.48,
+          "memory_bytes": 69195530.24
+        },
+        "flashcoupon-namesrv-1": {
+          "cpu_percent": 0.18,
+          "memory_bytes": 280389222.4
+        }
+      },
+      "control_statement_delta": 3,
+      "control_statement_time_seconds_delta": 0.022056045,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "same-machine-locked-trace1-w20-r1",
+      "final_issue_tps": 34.76809679438148,
+      "accepted_http_qps": 2272.7272727272725,
+      "p95_ms": 35.117959999999925,
+      "p99_ms": 41.359,
+      "http_error_rate": 0,
+      "drain_seconds": 14.161,
+      "http_health_rtt_ms": 0.0,
+      "max_lock_wait_edges": 210,
+      "slow_statement_delta": 461,
+      "server_samples": 9,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.0031430625000000013,
+        "api/http.auth": 0.004448982000000004,
+        "api/http.rate_limit": 4.3361832819999915,
+        "api/http.request": 11.107119457364385,
+        "api/reconcile": 9.268851375,
+        "api/redis.claim_lua": 2.825706603999997,
+        "relay/mq.send": 1.5947856680000054,
+        "relay/queue.stream": 358.9519496900009,
+        "relay/relay.read": 0.0004069900000000003,
+        "relay/relay_send": 0.699816682,
+        "worker/coupon.cache": 1.7395970539999999,
+        "worker/coupon.projection": 2.6464669240000074,
+        "worker/coupon_cache": 1.7493779480000016,
+        "worker/coupon_projection": 2.6572829179999955,
+        "worker/grant_transaction": 540.7195605119992,
+        "worker/mq.consume": 546.6225792200001,
+        "worker/queue.rocketmq": 11853.774500682,
+        "worker/reconcile": 4574.2063229999985,
+        "worker/redis.finalize": 1.1968291839999996,
+        "worker/sql.begin": 0.13700343800000014,
+        "worker/sql.commit": 2.1924983479999915,
+        "worker/sql.fact_insert": 0.2799115679999993,
+        "worker/sql.inventory_update": 0.26495255400000034,
+        "worker/sql.lock_template": 537.1034989999988,
+        "worker/sql.transaction": 540.715406212001,
+        "worker/worker.deliver": 546.609309998
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-app-1": {
+          "cpu_percent": 25.88,
+          "memory_bytes": 21957181.44
+        },
+        "flashcoupon-worker-1": {
+          "cpu_percent": 36.58,
+          "memory_bytes": 22250782.72
+        },
+        "flashcoupon-relay-1": {
+          "cpu_percent": 3.21,
+          "memory_bytes": 16798187.52
+        },
+        "flashcoupon-broker-1": {
+          "cpu_percent": 8.38,
+          "memory_bytes": 591711436.8
+        },
+        "flashcoupon-jaeger-1": {
+          "cpu_percent": 0.52,
+          "memory_bytes": 42467328.0
+        },
+        "flashcoupon-mysql-1": {
+          "cpu_percent": 139.09,
+          "memory_bytes": 738616934.4
+        },
+        "flashcoupon-proxy-1": {
+          "cpu_percent": 16.47,
+          "memory_bytes": 4976793354.24
+        },
+        "flashcoupon-redis-1": {
+          "cpu_percent": 13.05,
+          "memory_bytes": 66490204.16
+        },
+        "flashcoupon-namesrv-1": {
+          "cpu_percent": 2.25,
+          "memory_bytes": 285317529.6
+        }
+      },
+      "control_statement_delta": 1001,
+      "control_statement_time_seconds_delta": 13.368934706,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "same-machine-locked-trace1-w20-r2",
+      "accepted_http_qps": 2358.490566037736,
+      "final_issue_tps": 34.74876641879214,
+      "p95_ms": 32.769674999999864,
+      "p99_ms": 35.906777,
+      "http_error_rate": 0,
+      "drain_seconds": 14.177,
+      "http_health_rtt_ms": 0.0,
+      "max_lock_wait_edges": 210,
+      "slow_statement_delta": 500,
+      "server_samples": 9,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.0034888750000000015,
+        "api/http.auth": 0.0053508199999999905,
+        "api/http.rate_limit": 4.13219115799998,
+        "api/http.request": 10.858830720930278,
+        "api/reconcile": 10.304640062499992,
+        "api/redis.claim_lua": 2.880127446000018,
+        "relay/mq.send": 1.6482915279999926,
+        "relay/queue.stream": 378.9771770819988,
+        "relay/relay.read": 0.00039553800000000257,
+        "relay/relay_send": 0.7380859259999994,
+        "worker/coupon.cache": 1.8736446520000039,
+        "worker/coupon.projection": 2.80285762,
+        "worker/coupon_cache": 1.8845452560000053,
+        "worker/coupon_projection": 2.8153923280000006,
+        "worker/grant_transaction": 546.4190954999989,
+        "worker/mq.consume": 552.6168803599971,
+        "worker/queue.rocketmq": 11925.557630843992,
+        "worker/reconcile": 4582.203210000003,
+        "worker/redis.finalize": 1.2313773600000029,
+        "worker/sql.begin": 0.13336629999999966,
+        "worker/sql.commit": 2.3346977640000066,
+        "worker/sql.fact_insert": 0.31418068799999865,
+        "worker/sql.inventory_update": 0.29013442399999934,
+        "worker/sql.lock_template": 542.5366204060028,
+        "worker/sql.transaction": 546.4142153580016,
+        "worker/worker.deliver": 552.601162798
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-app-1": {
+          "cpu_percent": 10.2,
+          "memory_bytes": 22932357.12
+        },
+        "flashcoupon-worker-1": {
+          "cpu_percent": 54.57,
+          "memory_bytes": 23215472.64
+        },
+        "flashcoupon-relay-1": {
+          "cpu_percent": 11.27,
+          "memory_bytes": 17291018.24
+        },
+        "flashcoupon-broker-1": {
+          "cpu_percent": 25.41,
+          "memory_bytes": 591396864.0
+        },
+        "flashcoupon-jaeger-1": {
+          "cpu_percent": 2.5,
+          "memory_bytes": 50331648.0
+        },
+        "flashcoupon-mysql-1": {
+          "cpu_percent": 139.4,
+          "memory_bytes": 742391808.0
+        },
+        "flashcoupon-proxy-1": {
+          "cpu_percent": 27.51,
+          "memory_bytes": 4973572128.768
+        },
+        "flashcoupon-redis-1": {
+          "cpu_percent": 30.99,
+          "memory_bytes": 66353889.28
+        },
+        "flashcoupon-namesrv-1": {
+          "cpu_percent": 1.87,
+          "memory_bytes": 280389222.4
+        }
+      },
+      "control_statement_delta": 1003,
+      "control_statement_time_seconds_delta": 13.457879887,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "same-machine-locked-trace1-w20-r3",
+      "accepted_http_qps": 2252.252252252252,
+      "final_issue_tps": 34.74152306837132,
+      "p95_ms": 35.9361,
+      "p99_ms": 37.6313,
+      "http_error_rate": 0,
+      "drain_seconds": 14.17,
+      "http_health_rtt_ms": 0.0,
+      "max_lock_wait_edges": 210,
+      "slow_statement_delta": 500,
+      "server_samples": 9,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.002859062500000002,
+        "api/http.auth": 0.004113745999999991,
+        "api/http.rate_limit": 4.394599109999982,
+        "api/http.request": 11.384923067829485,
+        "api/reconcile": 10.082801812500003,
+        "api/redis.claim_lua": 2.865314395999988,
+        "relay/mq.send": 1.8940400700000026,
+        "relay/queue.stream": 427.5476469199991,
+        "relay/relay.read": 0.0004652799999999987,
+        "relay/relay_send": 0.7909312480000028,
+        "worker/coupon.cache": 1.9795516420000112,
+        "worker/coupon.projection": 2.888898444000011,
+        "worker/coupon_cache": 1.990263277999998,
+        "worker/coupon_projection": 2.8996371320000165,
+        "worker/grant_transaction": 547.9315397619994,
+        "worker/mq.consume": 554.5244882600009,
+        "worker/queue.rocketmq": 11861.246487213983,
+        "worker/reconcile": 4932.256534000004,
+        "worker/redis.finalize": 1.3397943319999976,
+        "worker/sql.begin": 0.1252198539999998,
+        "worker/sql.commit": 2.497983880000013,
+        "worker/sql.fact_insert": 0.3023444199999996,
+        "worker/sql.inventory_update": 0.2828785180000014,
+        "worker/sql.lock_template": 543.9183891360003,
+        "worker/sql.transaction": 547.9263781560023,
+        "worker/worker.deliver": 554.5105936260009
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-app-1": {
+          "cpu_percent": 27.15,
+          "memory_bytes": 29097984.0
+        },
+        "flashcoupon-worker-1": {
+          "cpu_percent": 40.67,
+          "memory_bytes": 23372759.04
+        },
+        "flashcoupon-relay-1": {
+          "cpu_percent": 4.02,
+          "memory_bytes": 17311989.76
+        },
+        "flashcoupon-broker-1": {
+          "cpu_percent": 14.19,
+          "memory_bytes": 592445440.0
+        },
+        "flashcoupon-jaeger-1": {
+          "cpu_percent": 0.41,
+          "memory_bytes": 52596572.16
+        },
+        "flashcoupon-mysql-1": {
+          "cpu_percent": 161.84,
+          "memory_bytes": 745327820.8
+        },
+        "flashcoupon-proxy-1": {
+          "cpu_percent": 24.48,
+          "memory_bytes": 4973572128.768
+        },
+        "flashcoupon-redis-1": {
+          "cpu_percent": 17.93,
+          "memory_bytes": 68251811.84
+        },
+        "flashcoupon-namesrv-1": {
+          "cpu_percent": 1.95,
+          "memory_bytes": 279655219.2
+        }
+      },
+      "control_statement_delta": 1003,
+      "control_statement_time_seconds_delta": 14.267531374,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "same-machine-normal-trace0-w20-r1-final",
+      "accepted_http_qps": 1597.444089456869,
+      "final_issue_tps": 209.9076406381192,
+      "p95_ms": 40.1226,
+      "p99_ms": 66.95314999999998,
+      "http_error_rate": 0,
+      "drain_seconds": 2.069,
+      "http_health_rtt_ms": 2.1680002100765705,
+      "max_lock_wait_edges": 36,
+      "slow_statement_delta": 7,
+      "server_samples": 3,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.0032754999999999993,
+        "api/http.auth": 0.006190535452322741,
+        "api/http.rate_limit": 6.1938498968824875,
+        "api/http.request": 14.402506060948083,
+        "api/redis.claim_lua": 4.0068285193621875,
+        "relay/mq.send": 3.1674155790554424,
+        "relay/queue.stream": 755.0962952921817,
+        "relay/relay.read": 0.0004430370370370372,
+        "relay/relay_send": 1.2885471190965099,
+        "worker/coupon.cache": 2.7200998793456037,
+        "worker/coupon.projection": 2.8913249139344277,
+        "worker/coupon_cache": 2.7218271165644166,
+        "worker/coupon_projection": 2.893068893442621,
+        "worker/grant_transaction": 58.10854714754093,
+        "worker/mq.consume": 67.16232341224494,
+        "worker/queue.rocketmq": 124.56551821810707,
+        "worker/redis.finalize": 1.922783195918367,
+        "worker/sql.begin": 0.14426654115226334,
+        "worker/sql.commit": 2.4841549262295066,
+        "worker/sql.fact_insert": 0.2955172895277209,
+        "worker/sql.inventory_update": 0.2865464106776181,
+        "worker/sql.lock_template": 54.225656767967166,
+        "worker/sql.transaction": 58.106662079918,
+        "worker/worker.deliver": 67.15558861428573,
+        "api/reconcile": 9.150887999999997
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-app-1": {
+          "cpu_percent": 0.67,
+          "memory_bytes": 21118320.64
+        },
+        "flashcoupon-worker-1": {
+          "cpu_percent": 50.08,
+          "memory_bytes": 19367198.72
+        },
+        "flashcoupon-relay-1": {
+          "cpu_percent": 6.75,
+          "memory_bytes": 14900264.96
+        },
+        "flashcoupon-broker-1": {
+          "cpu_percent": 52.35,
+          "memory_bytes": 564658176.0
+        },
+        "flashcoupon-jaeger-1": {
+          "cpu_percent": 0.08,
+          "memory_bytes": 15938355.2
+        },
+        "flashcoupon-mysql-1": {
+          "cpu_percent": 53.25,
+          "memory_bytes": 837917081.6
+        },
+        "flashcoupon-proxy-1": {
+          "cpu_percent": 26.17,
+          "memory_bytes": 4981088321.536
+        },
+        "flashcoupon-redis-1": {
+          "cpu_percent": 7.96,
+          "memory_bytes": 76546048.0
+        },
+        "flashcoupon-namesrv-1": {
+          "cpu_percent": 0.2,
+          "memory_bytes": 280703795.2
+        }
+      },
+      "control_statement_delta": 12,
+      "control_statement_time_seconds_delta": 0.042400188,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "same-machine-normal-trace0-w20-r2-final",
+      "accepted_http_qps": 1724.1379310344828,
+      "final_issue_tps": 211.86440677966104,
+      "p95_ms": 51.035235,
+      "p99_ms": 62.234933999999996,
+      "http_error_rate": 0,
+      "drain_seconds": 2.07,
+      "http_health_rtt_ms": 2.260299865156412,
+      "max_lock_wait_edges": 0,
+      "slow_statement_delta": 0,
+      "server_samples": 3,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.00366325,
+        "api/http.auth": 0.005719567164179103,
+        "api/http.rate_limit": 7.5737162769857544,
+        "api/http.request": 15.412537177290845,
+        "api/redis.claim_lua": 3.774142718875502,
+        "relay/mq.send": 2.8421671044176704,
+        "relay/queue.stream": 646.5673688651915,
+        "relay/relay.read": 0.0006092776659959768,
+        "relay/relay_send": 0.99825133935743,
+        "worker/coupon.cache": 2.5879893353413683,
+        "worker/coupon.projection": 2.828166626506027,
+        "worker/coupon_cache": 2.589809202811243,
+        "worker/coupon_projection": 2.829795945783137,
+        "worker/grant_transaction": 60.20000522289154,
+        "worker/mq.consume": 69.10445760240968,
+        "worker/queue.rocketmq": 177.63568088128767,
+        "worker/redis.finalize": 1.88794222690763,
+        "worker/sql.begin": 0.14736359839357413,
+        "worker/sql.commit": 2.429973608433736,
+        "worker/sql.fact_insert": 0.2821281244979923,
+        "worker/sql.inventory_update": 0.27065770682730944,
+        "worker/sql.lock_template": 56.31823257831324,
+        "worker/sql.transaction": 60.198248626506015,
+        "worker/worker.deliver": 69.0980458473896,
+        "api/reconcile": 10.135730999999994
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-app-1": {
+          "cpu_percent": 0.74,
+          "memory_bytes": 19723714.56
+        },
+        "flashcoupon-worker-1": {
+          "cpu_percent": 48.81,
+          "memory_bytes": 29454499.84
+        },
+        "flashcoupon-relay-1": {
+          "cpu_percent": 4.62,
+          "memory_bytes": 16116613.12
+        },
+        "flashcoupon-broker-1": {
+          "cpu_percent": 20.27,
+          "memory_bytes": 583217971.2
+        },
+        "flashcoupon-jaeger-1": {
+          "cpu_percent": 0.08,
+          "memory_bytes": 28898754.56
+        },
+        "flashcoupon-mysql-1": {
+          "cpu_percent": 53.52,
+          "memory_bytes": 839699660.8
+        },
+        "flashcoupon-proxy-1": {
+          "cpu_percent": 25.8,
+          "memory_bytes": 4981088321.536
+        },
+        "flashcoupon-redis-1": {
+          "cpu_percent": 8.79,
+          "memory_bytes": 78737571.84
+        },
+        "flashcoupon-namesrv-1": {
+          "cpu_percent": 1.98,
+          "memory_bytes": 279340646.4
+        }
+      },
+      "control_statement_delta": 3,
+      "control_statement_time_seconds_delta": 0.019290391,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "same-machine-normal-trace0-w20-r3-final",
+      "accepted_http_qps": 2066.115702479339,
+      "final_issue_tps": 215.70319240724763,
+      "p95_ms": 16.60116999999999,
+      "p99_ms": 17.8601,
+      "http_error_rate": 0,
+      "drain_seconds": 2.076,
+      "http_health_rtt_ms": 2.186099998652935,
+      "max_lock_wait_edges": 153,
+      "slow_statement_delta": 116,
+      "server_samples": 3,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.0035812500000000007,
+        "api/http.auth": 0.004928539432176664,
+        "api/http.rate_limit": 5.576546416927885,
+        "api/http.request": 12.840956882183912,
+        "api/reconcile": 20.502690750000003,
+        "api/redis.claim_lua": 3.6003546627907017,
+        "relay/mq.send": 2.884903535269703,
+        "relay/queue.stream": 678.2298980478157,
+        "relay/relay.read": 0.000563929313929313,
+        "relay/relay_send": 1.0397012661122658,
+        "worker/coupon.cache": 2.631388229979465,
+        "worker/coupon.projection": 2.8432540432098743,
+        "worker/coupon_cache": 2.633077065708425,
+        "worker/coupon_projection": 2.84496164814815,
+        "worker/grant_transaction": 62.74882923251027,
+        "worker/mq.consume": 71.52239315983614,
+        "worker/queue.rocketmq": 187.0424223000004,
+        "worker/redis.finalize": 1.9145428831967288,
+        "worker/sql.begin": 0.12784607068607057,
+        "worker/sql.commit": 2.420827874485594,
+        "worker/sql.fact_insert": 0.28331797525773206,
+        "worker/sql.inventory_update": 0.2831117855670109,
+        "worker/sql.lock_template": 58.972424835051484,
+        "worker/sql.transaction": 62.74705203703698,
+        "worker/worker.deliver": 71.51601858606534
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-app-1": {
+          "cpu_percent": 3.23,
+          "memory_bytes": 21432893.44
+        },
+        "flashcoupon-worker-1": {
+          "cpu_percent": 50.66,
+          "memory_bytes": 19660800.0
+        },
+        "flashcoupon-relay-1": {
+          "cpu_percent": 8.19,
+          "memory_bytes": 15676211.2
+        },
+        "flashcoupon-broker-1": {
+          "cpu_percent": 43.74,
+          "memory_bytes": 584056832.0
+        },
+        "flashcoupon-jaeger-1": {
+          "cpu_percent": 0.07,
+          "memory_bytes": 28122808.32
+        },
+        "flashcoupon-mysql-1": {
+          "cpu_percent": 56.99,
+          "memory_bytes": 841272524.8
+        },
+        "flashcoupon-proxy-1": {
+          "cpu_percent": 24.95,
+          "memory_bytes": 4980014579.712
+        },
+        "flashcoupon-redis-1": {
+          "cpu_percent": 8.18,
+          "memory_bytes": 80981524.48
+        },
+        "flashcoupon-namesrv-1": {
+          "cpu_percent": 1.76,
+          "memory_bytes": 279864934.4
+        }
+      },
+      "control_statement_delta": 219,
+      "control_statement_time_seconds_delta": 0.260277151,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "same-machine-normal-trace1-w20-r1-final",
+      "accepted_http_qps": 1742.1602787456447,
+      "final_issue_tps": 212.04410517387615,
+      "p95_ms": 47.69870499999982,
+      "p99_ms": 64.9029,
+      "http_error_rate": 0,
+      "drain_seconds": 2.071,
+      "http_health_rtt_ms": 1.9065998494625092,
+      "max_lock_wait_edges": 136,
+      "slow_statement_delta": 113,
+      "server_samples": 3,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.0026910000000000002,
+        "api/http.auth": 0.007090624060150381,
+        "api/http.rate_limit": 5.767360867321869,
+        "api/http.request": 13.251683770833333,
+        "api/redis.claim_lua": 3.662836292056077,
+        "relay/mq.send": 3.0206077665289235,
+        "relay/queue.stream": 693.6921227722564,
+        "relay/relay.read": 0.0005967474120082811,
+        "relay/relay_send": 1.1541861652892567,
+        "worker/coupon.cache": 2.697886548254618,
+        "worker/coupon.projection": 2.8573975637860154,
+        "worker/coupon_cache": 2.7094937659137552,
+        "worker/coupon_projection": 2.8697681851851855,
+        "worker/grant_transaction": 60.24633297113408,
+        "worker/mq.consume": 69.22727455532787,
+        "worker/queue.rocketmq": 155.1298494865424,
+        "worker/redis.finalize": 2.010897819672132,
+        "worker/sql.begin": 0.15531368115942037,
+        "worker/sql.commit": 2.4475825030927854,
+        "worker/sql.fact_insert": 0.2946729092783509,
+        "worker/sql.inventory_update": 0.28192741322314074,
+        "worker/sql.lock_template": 56.383509652892535,
+        "worker/sql.transaction": 60.24158164329894,
+        "worker/worker.deliver": 69.21436009836066,
+        "api/reconcile": 9.356642499999998
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-app-1": {
+          "cpu_percent": 0.84,
+          "memory_bytes": 21411921.92
+        },
+        "flashcoupon-relay-1": {
+          "cpu_percent": 9.86,
+          "memory_bytes": 16064184.32
+        },
+        "flashcoupon-worker-1": {
+          "cpu_percent": 54.44,
+          "memory_bytes": 19262341.12
+        },
+        "flashcoupon-broker-1": {
+          "cpu_percent": 78.07,
+          "memory_bytes": 567908761.6
+        },
+        "flashcoupon-jaeger-1": {
+          "cpu_percent": 0.81,
+          "memory_bytes": 25669140.48
+        },
+        "flashcoupon-mysql-1": {
+          "cpu_percent": 54.38,
+          "memory_bytes": 838231654.4
+        },
+        "flashcoupon-proxy-1": {
+          "cpu_percent": 26.87,
+          "memory_bytes": 4984309547.008
+        },
+        "flashcoupon-redis-1": {
+          "cpu_percent": 8.2,
+          "memory_bytes": 78234255.36
+        },
+        "flashcoupon-namesrv-1": {
+          "cpu_percent": 1.99,
+          "memory_bytes": 284793241.6
+        }
+      },
+      "control_statement_delta": 214,
+      "control_statement_time_seconds_delta": 0.254552206,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "same-machine-normal-trace1-w20-r2-final",
+      "accepted_http_qps": 1953.125,
+      "final_issue_tps": 214.96130696474634,
+      "p95_ms": 16.630464999999997,
+      "p99_ms": 18.697618999999996,
+      "http_error_rate": 0,
+      "drain_seconds": 2.07,
+      "http_health_rtt_ms": 2.0411000587046146,
+      "max_lock_wait_edges": 0,
+      "slow_statement_delta": 0,
+      "server_samples": 2,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.0025015,
+        "api/http.auth": 0.005682850498338879,
+        "api/http.rate_limit": 5.81972728616352,
+        "api/http.request": 13.53610166867468,
+        "api/reconcile": 18.820005000000002,
+        "api/redis.claim_lua": 3.794320384146342,
+        "relay/mq.send": 2.824968053941902,
+        "relay/queue.stream": 697.8174728586265,
+        "relay/relay.read": 0.0005486112266112258,
+        "relay/relay_send": 0.9983568565488572,
+        "worker/coupon.cache": 2.5385502804123723,
+        "worker/coupon.projection": 2.8115181466942154,
+        "worker/coupon_cache": 2.549689540206184,
+        "worker/coupon_projection": 2.822649008264469,
+        "worker/grant_transaction": 61.53637754865411,
+        "worker/mq.consume": 70.12481894032928,
+        "worker/queue.rocketmq": 179.06847890416697,
+        "worker/redis.finalize": 1.9400985699588464,
+        "worker/sql.begin": 0.12240297089397104,
+        "worker/sql.commit": 2.459401991735539,
+        "worker/sql.fact_insert": 0.28931554658385006,
+        "worker/sql.inventory_update": 0.2731836708074539,
+        "worker/sql.lock_template": 57.621834219461675,
+        "worker/sql.transaction": 61.53199877018641,
+        "worker/worker.deliver": 70.1131960226338
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-app-1": {
+          "cpu_percent": 0.79,
+          "memory_bytes": 21841838.08
+        },
+        "flashcoupon-relay-1": {
+          "cpu_percent": 5.2,
+          "memory_bytes": 16127098.88
+        },
+        "flashcoupon-worker-1": {
+          "cpu_percent": 52.78,
+          "memory_bytes": 21023948.8
+        },
+        "flashcoupon-broker-1": {
+          "cpu_percent": 13.83,
+          "memory_bytes": 568433049.6
+        },
+        "flashcoupon-jaeger-1": {
+          "cpu_percent": 1.74,
+          "memory_bytes": 30555504.64
+        },
+        "flashcoupon-mysql-1": {
+          "cpu_percent": 38.58,
+          "memory_bytes": 838965657.6
+        },
+        "flashcoupon-proxy-1": {
+          "cpu_percent": 16.39,
+          "memory_bytes": 4984309547.008
+        },
+        "flashcoupon-redis-1": {
+          "cpu_percent": 7.9,
+          "memory_bytes": 79041658.88
+        },
+        "flashcoupon-namesrv-1": {
+          "cpu_percent": 2.06,
+          "memory_bytes": 284373811.2
+        }
+      },
+      "control_statement_delta": 1,
+      "control_statement_time_seconds_delta": 0.000395233,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "same-machine-normal-trace1-w20-r3-final",
+      "accepted_http_qps": 1736.1111111111113,
+      "final_issue_tps": 213.12872975277065,
+      "p95_ms": 41.0017,
+      "p99_ms": 64.26728899999999,
+      "http_error_rate": 0,
+      "drain_seconds": 2.058,
+      "http_health_rtt_ms": 2.225699834525585,
+      "max_lock_wait_edges": 153,
+      "slow_statement_delta": 113,
+      "server_samples": 3,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.0032604999999999995,
+        "api/http.auth": 0.008106483370288247,
+        "api/http.rate_limit": 6.337974383947934,
+        "api/http.request": 14.520704191752564,
+        "api/redis.claim_lua": 3.794794717255717,
+        "relay/mq.send": 2.838444206967215,
+        "relay/queue.stream": 652.5927101108829,
+        "relay/relay.read": 0.00047529979466119095,
+        "relay/relay_send": 0.9827018480492806,
+        "worker/coupon.cache": 2.6066111099796316,
+        "worker/coupon.projection": 2.798883281632653,
+        "worker/coupon_cache": 2.6180252545824825,
+        "worker/coupon_projection": 2.8104079795918366,
+        "worker/grant_transaction": 60.007630071574646,
+        "worker/mq.consume": 68.78483061914466,
+        "worker/queue.rocketmq": 175.01083045379875,
+        "worker/redis.finalize": 1.9373736028513224,
+        "worker/sql.begin": 0.13810469815195076,
+        "worker/sql.commit": 2.444268554192229,
+        "worker/sql.fact_insert": 0.28758422699386477,
+        "worker/sql.inventory_update": 0.28222732515337406,
+        "worker/sql.lock_template": 56.16799140163939,
+        "worker/sql.transaction": 60.00283693456037,
+        "worker/worker.deliver": 68.77239298778002,
+        "api/reconcile": 10.578536000000003
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-relay-1": {
+          "cpu_percent": 9.94,
+          "memory_bytes": 15969812.48
+        },
+        "flashcoupon-worker-1": {
+          "cpu_percent": 52.46,
+          "memory_bytes": 19304284.16
+        },
+        "flashcoupon-app-1": {
+          "cpu_percent": 0.95,
+          "memory_bytes": 21411921.92
+        },
+        "flashcoupon-broker-1": {
+          "cpu_percent": 54.78,
+          "memory_bytes": 588565708.8
+        },
+        "flashcoupon-jaeger-1": {
+          "cpu_percent": 0.77,
+          "memory_bytes": 40202403.84
+        },
+        "flashcoupon-mysql-1": {
+          "cpu_percent": 51.79,
+          "memory_bytes": 841377382.4
+        },
+        "flashcoupon-proxy-1": {
+          "cpu_percent": 23.15,
+          "memory_bytes": 4980014579.712
+        },
+        "flashcoupon-redis-1": {
+          "cpu_percent": 7.68,
+          "memory_bytes": 79932948.48
+        },
+        "flashcoupon-namesrv-1": {
+          "cpu_percent": 0.2,
+          "memory_bytes": 280074649.6
+        }
+      },
+      "control_statement_delta": 213,
+      "control_statement_time_seconds_delta": 0.273201263,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "same-machine-transaction-trace1-w20-r1-bounded",
+      "accepted_http_qps": 912.4087591240875,
+      "final_issue_tps": 7.419058076386621,
+      "p95_ms": 51.931445,
+      "p99_ms": 61.17751299999999,
+      "http_error_rate": 0,
+      "drain_seconds": 66.846,
+      "http_health_rtt_ms": 15.999999828636646,
+      "max_lock_wait_edges": 0,
+      "slow_statement_delta": 217,
+      "server_samples": 33,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.0053585797101449294,
+        "api/http.auth": 0.012536038297872344,
+        "api/http.rate_limit": 8.096005985801218,
+        "api/http.request": 32.13344346221441,
+        "api/reconcile": 46.91446766666665,
+        "api/sql.transaction_admission": 0.5744483546099372,
+        "worker/coupon.cache": 2.5663052288659784,
+        "worker/coupon.projection": 2.8894662061855665,
+        "worker/coupon_cache": 2.5799529917525765,
+        "worker/coupon_projection": 2.9038386123711364,
+        "worker/grant_transaction": 44.59382909072158,
+        "worker/redis.finalize": 1.640280505154642,
+        "worker/sql.begin": 0.17659875051546406,
+        "worker/sql.commit": 2.7091755076530593,
+        "worker/sql.fact_insert": 0.3510319030612251,
+        "worker/sql.inventory_update": 0.3577864336734696,
+        "worker/sql.lock_template": 40.809150092783455,
+        "worker/sql.transaction": 44.58578571958757,
+        "worker/worker.deliver": 52.43785347010294,
+        "api/transaction.recover": 1.4828972499999997,
+        "worker/recovery.projection": 6.336043568458797,
+        "worker/reconcile": 5594.726921333334
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-relay-1": {
+          "cpu_percent": 4.29,
+          "memory_bytes": 16263413.76
+        },
+        "flashcoupon-worker-1": {
+          "cpu_percent": 43.68,
+          "memory_bytes": 21464350.72
+        },
+        "flashcoupon-app-1": {
+          "cpu_percent": 29.34,
+          "memory_bytes": 25060966.4
+        },
+        "flashcoupon-broker-1": {
+          "cpu_percent": 29.05,
+          "memory_bytes": 652843417.6
+        },
+        "flashcoupon-jaeger-1": {
+          "cpu_percent": 3.23,
+          "memory_bytes": 65965916.16
+        },
+        "flashcoupon-mysql-1": {
+          "cpu_percent": 259.34,
+          "memory_bytes": 820091289.6
+        },
+        "flashcoupon-proxy-1": {
+          "cpu_percent": 26.93,
+          "memory_bytes": 4983235805.184
+        },
+        "flashcoupon-redis-1": {
+          "cpu_percent": 21.41,
+          "memory_bytes": 75644272.64
+        },
+        "flashcoupon-namesrv-1": {
+          "cpu_percent": 2.71,
+          "memory_bytes": 285002956.8
+        }
+      },
+      "control_statement_delta": 1336,
+      "control_statement_time_seconds_delta": 1.39444609,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0,
+        "api/transaction_checkback": 1301.0,
+        "api/transaction_republish": 140.0
+      }
+    },
+    {
+      "test_id": "same-machine-transaction-trace1-w20-r2-bounded",
+      "final_issue_tps": 9.242998428690267,
+      "accepted_http_qps": 1111.111111111111,
+      "p95_ms": 30.1105,
+      "p99_ms": 31.673899999999996,
+      "http_error_rate": 0,
+      "drain_seconds": 53.645,
+      "http_health_rtt_ms": 0.0,
+      "max_lock_wait_edges": 55,
+      "slow_statement_delta": 148,
+      "server_samples": 29,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.00521294545454545,
+        "api/http.auth": 0.007037906323185036,
+        "api/http.rate_limit": 6.711010904109605,
+        "api/http.request": 23.513660166015722,
+        "api/mq.transaction_local": 11.790047002237129,
+        "api/mq.transaction_send": 14.160302113082063,
+        "api/reconcile": 10.380132109090932,
+        "api/redis.claim_lua": 3.713137995454539,
+        "api/sql.transaction_admission": 3.753634257551671,
+        "api/transaction.recover": 1.1882947692307664,
+        "worker/coupon.cache": 2.594805122356491,
+        "worker/coupon.projection": 2.5589933857791256,
+        "worker/coupon_cache": 2.605977454682783,
+        "worker/coupon_projection": 2.5702357413010604,
+        "worker/grant_transaction": 43.1882994136363,
+        "worker/reconcile": 5328.948152999999,
+        "worker/recovery.projection": 5.979711630154636,
+        "worker/redis.finalize": 1.6444518009049784,
+        "worker/sql.begin": 0.1530615298621743,
+        "worker/sql.commit": 2.6586910481927744,
+        "worker/sql.fact_insert": 0.3087532736418513,
+        "worker/sql.inventory_update": 0.3037200804828972,
+        "worker/sql.lock_template": 39.88119328679834,
+        "worker/sql.transaction": 43.18143632878785,
+        "worker/worker.deliver": 51.15793065460012
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-relay-1": {
+          "cpu_percent": 3.07,
+          "memory_bytes": 16924016.64
+        },
+        "flashcoupon-worker-1": {
+          "cpu_percent": 27.68,
+          "memory_bytes": 22869442.56
+        },
+        "flashcoupon-app-1": {
+          "cpu_percent": 32.36,
+          "memory_bytes": 36312186.88
+        },
+        "flashcoupon-broker-1": {
+          "cpu_percent": 17.45,
+          "memory_bytes": 658191155.2
+        },
+        "flashcoupon-jaeger-1": {
+          "cpu_percent": 0.64,
+          "memory_bytes": 70736936.96
+        },
+        "flashcoupon-mysql-1": {
+          "cpu_percent": 143.05,
+          "memory_bytes": 823761305.6
+        },
+        "flashcoupon-proxy-1": {
+          "cpu_percent": 14.75,
+          "memory_bytes": 4981088321.536
+        },
+        "flashcoupon-redis-1": {
+          "cpu_percent": 34.17,
+          "memory_bytes": 76839649.28
+        },
+        "flashcoupon-namesrv-1": {
+          "cpu_percent": 1.86,
+          "memory_bytes": 281123225.6
+        }
+      },
+      "control_statement_delta": 1329,
+      "control_statement_time_seconds_delta": 1.105873005,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/transaction_checkback": 1426.0,
+        "api/transaction_republish": 182.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    },
+    {
+      "test_id": "same-machine-transaction-trace1-w20-r3-bounded",
+      "accepted_http_qps": 1057.0824524312898,
+      "final_issue_tps": 7.4331757500074325,
+      "p95_ms": 32.486385,
+      "p99_ms": 34.27536,
+      "http_error_rate": 0,
+      "drain_seconds": 66.793,
+      "http_health_rtt_ms": 0.0,
+      "max_lock_wait_edges": 0,
+      "slow_statement_delta": 184,
+      "server_samples": 35,
+      "collector_errors": [],
+      "stage_mean_ms": {
+        "api/http.admin_auth": 0.004214632352941174,
+        "api/http.auth": 0.0062977893401015205,
+        "api/http.rate_limit": 6.98647078921566,
+        "api/http.request": 24.181106651731234,
+        "api/mq.transaction_local": 11.929751687943345,
+        "api/mq.transaction_send": 14.911267205673726,
+        "api/reconcile": 10.298800176470596,
+        "api/redis.claim_lua": 3.704355985714305,
+        "api/sql.transaction_admission": 3.9139286921707788,
+        "api/transaction.recover": 1.1745311294964087,
+        "worker/coupon.cache": 2.5576670015479883,
+        "worker/coupon.projection": 2.6049001798449667,
+        "worker/coupon_cache": 2.5697095944272417,
+        "worker/coupon_projection": 2.615032341085268,
+        "worker/grant_transaction": 46.84282471118028,
+        "worker/reconcile": 5333.146123599997,
+        "worker/recovery.projection": 5.991778658611829,
+        "worker/redis.finalize": 1.665868327666155,
+        "worker/sql.begin": 0.16257404437400944,
+        "worker/sql.commit": 2.6330431513292445,
+        "worker/sql.fact_insert": 0.31776995910020345,
+        "worker/sql.inventory_update": 0.30853661963190204,
+        "worker/sql.lock_template": 43.45185290824271,
+        "worker/sql.transaction": 46.83331574999986,
+        "worker/worker.deliver": 54.80459063833084
+      },
+      "sampled_resource_peaks": {
+        "flashcoupon-relay-1": {
+          "cpu_percent": 3.2,
+          "memory_bytes": 27860664.32
+        },
+        "flashcoupon-worker-1": {
+          "cpu_percent": 41.42,
+          "memory_bytes": 29999759.36
+        },
+        "flashcoupon-app-1": {
+          "cpu_percent": 24.57,
+          "memory_bytes": 25920798.72
+        },
+        "flashcoupon-broker-1": {
+          "cpu_percent": 16.36,
+          "memory_bytes": 654206566.4
+        },
+        "flashcoupon-jaeger-1": {
+          "cpu_percent": 3.48,
+          "memory_bytes": 82627788.8
+        },
+        "flashcoupon-mysql-1": {
+          "cpu_percent": 143.41,
+          "memory_bytes": 828479897.6
+        },
+        "flashcoupon-proxy-1": {
+          "cpu_percent": 19.71,
+          "memory_bytes": 4983235805.184
+        },
+        "flashcoupon-redis-1": {
+          "cpu_percent": 31.87,
+          "memory_bytes": 79073116.16
+        },
+        "flashcoupon-namesrv-1": {
+          "cpu_percent": 1.95,
+          "memory_bytes": 285107814.4
+        }
+      },
+      "control_statement_delta": 1361,
+      "control_statement_time_seconds_delta": 1.192525607,
+      "sampled_retry_counter_delta": {
+        "api/ack": 0.0,
+        "api/batch": 0.0,
+        "api/relay": 0.0,
+        "api/transaction_checkback": 1393.0,
+        "api/transaction_republish": 139.0,
+        "api/worker": 0.0,
+        "relay/ack": 0.0,
+        "relay/batch": 0.0,
+        "relay/relay": 0.0,
+        "relay/worker": 0.0,
+        "worker/ack": 0.0,
+        "worker/batch": 0.0,
+        "worker/relay": 0.0,
+        "worker/worker": 0.0
+      }
+    }
+  ],
+  "limitations": [
+    "500 requests/30 VUs per trial; short-run warm-up/sampling noise",
+    "HTTP health RTT includes server/tunnel; different host hardware prevents network-only attribution",
+    "Stage timing is client duration; SQL digest and slow counts are shared test-instance aggregates",
+    "P95/P99 are k6 claim_latency; TPS includes final audit polling, not peak DB commit rate"
+  ]
+}

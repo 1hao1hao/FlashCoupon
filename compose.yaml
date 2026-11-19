@@ -116,6 +116,7 @@ services:
     volumes: ['./tests/k6:/scripts:ro', './reports:/reports']
     environment:
       BASE_URL: http://app:8080
+      REPORT_DIR: /reports
       ADMIN_KEY: ${ADMIN_KEY:-dev-admin-key}
       USER_KEY: ${USER_KEY:-dev-user-key}
 volumes:

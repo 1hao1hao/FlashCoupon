@@ -1,0 +1,41 @@
+{
+  "test_id": "same-machine-normal-trace1-w20-r2",
+  "location": "same-machine",
+  "scenario": "normal",
+  "tracing": true,
+  "workers": 20,
+  "mode": "async",
+  "requests": 500,
+  "measurements": {
+    "accepted_http_qps": 1984.126984126984,
+    "final_issue_tps": 215.51724137931035
+  },
+  "audit": {
+    "merchant_id": 1795072000069,
+    "template_id": "70878947471a1dea469f66e3326b816a",
+    "initial": 500,
+    "db_remaining": 0,
+    "issued": 500,
+    "projected": 500,
+    "redis_remaining": 0,
+    "pending": 0,
+    "failed": 0,
+    "consistent": true
+  },
+  "client": {
+    "test_id": "same-machine-normal-trace1-w20-r2",
+    "http_health_roundtrip_ms": [
+      15.999999828636646,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "median_roundtrip_ms": 0.0,
+    "network_note": "HTTP health RTT includes server and tunnel overhead; not ICMP RTT",
+    "first_trace_id": "bd3841f2941c828cb7510c04d117a79e",
+    "k6_exit_code": 0
+  },
+  "fault_released_unix": [],
+  "finished_unix": 1795072007.1895595
+}

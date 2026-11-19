@@ -1,0 +1,22 @@
+{
+  "location": "linux-server",
+  "hardware": "Linux 6.1.0-52-amd64 x86_64 GNU/Linux\n40\n               total        used        free      shared  buff/cache   available\n\u5185\u5b58\uff1a   134641115136 26765336576 72386097152    43790336 36619825152 107875778560\n28.3.1\nflashcoupon-runtime:local ee6c92f925cc\nflashcoupon-proxy:latest b266df8378a4\nredis:7-alpine e7b0b929eb5b\njaegertracing/jaeger:2.21.0 51f7cf346781\napache/rocketmq:5.3.1 0a6c08fe5390\nmysql:8.0.41 1c83f38450c3\n",
+  "input_sha256": {
+    "compose.yaml": "f92a608a96ba07585118b973400962ec23e26a6f7d03a288fc61c535b564288e",
+    "compose.sharding.yaml": "89dd319bb817fd1a6a164456592fce75053a285ff845a9b672b52d6dfd3df783",
+    "compose.observability.yaml": "c132ae8bcf38d8f8ecdfbc7b8e7e0131634af506961bff88734d00ad4d5cd3a5",
+    "compose.transaction.yaml": "4e371a3555b1db6c8b8179c14fdf32054be942c73081392f6af22065c2a96d6d",
+    "tests/k6/claims.js": "31b4bb0d69554ab5ebe1e1dfd93e1dcd9df91f98bdcd43916ec217e39f2a7689",
+    "scripts/distributed_experiment.py": "6e9c2b6d0aeeaf13d029f07ba5ba21f1e10fe2f36e023e1a2ef821f4e1aa1314",
+    "scripts/server_collect.py": "a7db6c74435008570e6e27a2dfee5318f8bc420d8af0d968b384f7be9776473f",
+    "scripts/remote_client.py": "f15023932dbe8a4f7fb6cd3d5f9cfdcd45c61e99b1d60339c9732f32b452edf2"
+  },
+  "load": {
+    "requests": 500,
+    "vus": 30,
+    "stock": 500,
+    "per_user": 1,
+    "rounds": 3
+  },
+  "notes": "Input hashes describe final reproducible harness; initial normal/locked trials preceded diagnostic logging and teardownTimeout extension, without changing successful request semantics."
+}

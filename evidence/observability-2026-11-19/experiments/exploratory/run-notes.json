@@ -1,0 +1,40 @@
+{
+  "notes": [
+    "Initial cross-machine trials failed because SSH forwarding backlog=5 refused simultaneous TCP connections; backlog is now 256. Raw failures retained outside successful aggregates.",
+    "Initial transaction run had one unaccepted request and exceeded the original 60s k6 teardown window; no final JSON was produced. Failure diagnosis unavailable for that initial response; later diagnostics are retained only in ignored local logs.",
+    "Serial TX trial r1 completed 500/500 with audit consistency in 81.462s; r2 interrupted during diagnosis. Old scanner visited one hash page per 15s, making recovery sensitive to historical ledger size. Recovery now visits up to 16 pages within a 12s job, preserving durable evidence and idempotent re-publication.",
+    "Interrupted extended trial and serial r2 were not counted as successful; no inference of server data loss from the harness interruption.",
+    "Earlier successful same-machine normal trials are retained here; selected main normal aggregates use the final image and -final test IDs. Other selected groups remain their original measured rounds; shared persisted state and different phase timing are documented limitations."
+  ],
+  "audit": {
+    "templates": 387,
+    "unsettled": [
+      {
+        "merchant_id": 1795073050328,
+        "template_id": "e3b71d365a7d225a8f0227cc37a79a9a",
+        "initial": 500,
+        "db_remaining": 36,
+        "issued": 464,
+        "projected": 464,
+        "redis_remaining": 0,
+        "pending": 36,
+        "failed": 0,
+        "consistent": true
+      },
+      {
+        "merchant_id": 1795073615959,
+        "template_id": "9cf360dd9ab9d47facd328755184fb64",
+        "initial": 500,
+        "db_remaining": 45,
+        "issued": 470,
+        "projected": 470,
+        "redis_remaining": 0,
+        "pending": 30,
+        "failed": 0,
+        "consistent": false
+      }
+    ],
+    "note": "Snapshot taken during an active trial, not final acceptance. Final snapshot is in local-final-deployment.json."
+  },
+  "final_global_audit_reference": "../../local-final-deployment.json"
+}

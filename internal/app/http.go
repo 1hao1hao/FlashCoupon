@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -78,6 +79,7 @@ func positive(raw string) (int64, error) {
 func (s *Service) Router() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
+	r.Use(s.traceHTTP())
 	r.Use(s.Metrics.middleware())
 	r.Use(gin.Recovery())
 	r.Use(func(c *gin.Context) { c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 20<<20); c.Next() })
@@ -102,10 +104,13 @@ func (s *Service) Router() *gin.Engine {
 		return r
 	}
 	admin := r.Group("/admin", func(c *gin.Context) {
+		_, endAdmin := s.stage(c.Request.Context(), "http.admin_auth")
 		if subtle.ConstantTimeCompare([]byte(c.GetHeader("X-Admin-Key")), []byte(s.Config.AdminKey)) != 1 {
+			endAdmin(fmt.Errorf("unauthorized"))
 			c.AbortWithStatus(401)
 			return
 		}
+		endAdmin(nil)
 		c.Next()
 	})
 	admin.POST("/templates", func(c *gin.Context) {
@@ -217,12 +222,17 @@ func (s *Service) Router() *gin.Engine {
 	})
 	api := r.Group("/v1", func(c *gin.Context) {
 		token := strings.TrimPrefix(c.GetHeader("Authorization"), "Bearer ")
+		_, endAuth := s.stage(c.Request.Context(), "http.auth")
 		u, e := VerifyToken(token, s.Config.UserKey)
+		endAuth(e)
 		if e != nil {
 			c.AbortWithStatusJSON(401, gin.H{"error": e.Error()})
 			return
 		}
 		c.Set("user", u)
+		_, endLimit := s.stage(c.Request.Context(), "http.rate_limit")
+		finishLimit := sync.OnceFunc(func() { endLimit(nil) })
+		defer finishLimit()
 		globalKey := "fc:global-rate:" + formatInt(time.Now().Unix())
 		if n, err := limitScript.Run(c.Request.Context(), s.R, []string{globalKey}, s.Config.Rate).Int(); err != nil {
 			fail(c, err)
@@ -243,6 +253,7 @@ func (s *Service) Router() *gin.Engine {
 			c.AbortWithStatusJSON(429, gin.H{"error": "rate limit"})
 			return
 		}
+		finishLimit()
 		c.Next()
 	})
 	api.GET("/templates/:merchant/:id", func(c *gin.Context) {
@@ -308,6 +319,26 @@ func (s *Service) Router() *gin.Engine {
 		}
 	}
 	api.POST("/claims", claim(false))
+	if env("TX_EXPERIMENT_ENABLED", "0") == "1" {
+		api.POST("/claims/transaction", func(c *gin.Context) {
+			var req struct {
+				MerchantID int64  `json:"merchant_id"`
+				TemplateID string `json:"template_id"`
+				RequestID  string `json:"request_id"`
+			}
+			if err := c.ShouldBindJSON(&req); err != nil || req.MerchantID <= 0 || len(req.TemplateID) == 0 || len(req.TemplateID) > 64 || len(req.RequestID) == 0 || len(req.RequestID) > 96 {
+				bad(c, "invalid claim")
+				return
+			}
+			ev, err := s.TransactionClaim(c.Request.Context(), req.MerchantID, c.GetInt64("user"), req.TemplateID, req.RequestID)
+			if err != nil {
+				fail(c, err)
+				return
+			}
+			c.JSON(202, gin.H{"event": ev, "status": "accepted"})
+		})
+	}
+
 	api.POST("/claims/direct", claim(true))
 	api.GET("/claims/:id", func(c *gin.Context) {
 		var state, reason string

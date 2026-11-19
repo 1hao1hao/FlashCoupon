@@ -1,0 +1,31 @@
+{
+  "point": "unread_duplicate_out_of_order",
+  "before": {
+    "merchant_id": 161453658800,
+    "template_id": "ed2cd1624d2f6ffc2da45b2d21e282cc",
+    "initial": 5,
+    "db_remaining": 5,
+    "issued": 0,
+    "projected": 0,
+    "redis_remaining": 0,
+    "pending": 5,
+    "failed": 0,
+    "consistent": true
+  },
+  "final": {
+    "audit": {
+      "merchant_id": 161453658800,
+      "template_id": "ed2cd1624d2f6ffc2da45b2d21e282cc",
+      "initial": 5,
+      "db_remaining": 0,
+      "issued": 5,
+      "projected": 5,
+      "redis_remaining": 0,
+      "pending": 0,
+      "failed": 0,
+      "consistent": true
+    },
+    "unique_users": 5,
+    "max_per_user": 1
+  }
+}

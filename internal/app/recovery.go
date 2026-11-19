@@ -15,7 +15,9 @@ local users=cjson.decode(ARGV[3]); redis.call('SET',KEYS[2],ARGV[2]); redis.call
 for u,n in pairs(users) do redis.call('HSET',KEYS[3],u,n) end
 redis.call('INCR',KEYS[1]); return 1`)
 
-func (s *Service) RepairProjection(ctx context.Context, t Template) error {
+func (s *Service) RepairProjection(ctx context.Context, t Template) (resultErr error) {
+	ctx, end := s.stage(ctx, "recovery.projection")
+	defer func() { end(resultErr) }()
 	projected, err := s.Store.Coupons.QueryContext(ctx, "SELECT id FROM coupons WHERE merchant_id=? AND template_id=?", t.MerchantID, t.ID)
 	if err != nil {
 		return err
@@ -68,7 +70,7 @@ func (s *Service) SetStatus(ctx context.Context, m int64, tid, status string) er
 		return e
 	}
 	p := prefix(m, tid)
-	if t.Mode == "async" && status == "paused" {
+	if (t.Mode == "async" || t.Mode == "transaction") && status == "paused" {
 		if s.R.Exists(ctx, p+"meta").Val() == 0 {
 			return fmt.Errorf("inventory not initialized")
 		}
@@ -79,7 +81,7 @@ func (s *Service) SetStatus(ctx context.Context, m int64, tid, status string) er
 	if _, e = s.Store.DB.ExecContext(ctx, "UPDATE templates SET status=? WHERE merchant_id=? AND id=?", status, m, tid); e != nil {
 		return e
 	}
-	if t.Mode == "async" && status == "active" {
+	if (t.Mode == "async" || t.Mode == "transaction") && status == "active" {
 		if s.R.Exists(ctx, p+"meta", p+"stock").Val() != 2 {
 			return fmt.Errorf("inventory not initialized")
 		}

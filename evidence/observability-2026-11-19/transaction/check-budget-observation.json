@@ -1,0 +1,8 @@
+{
+  "broker_version": "5.3.1",
+  "observation": "Broker log contains transaction half-message check-budget exhaustion; payload/logs excluded",
+  "exhausted_half_messages": 183,
+  "check_max": 15,
+  "scope": "Retained shared local experiment stack; not an isolated per-trial rate",
+  "recovery_basis": "Redis accepted reservation retained; producer background TX re-publication and final global audit"
+}

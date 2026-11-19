@@ -1,0 +1,22 @@
+{
+  "location": "windows-docker-desktop",
+  "hardware": "Windows-11-10.0.26200-SP0\nCPUs=28 memory=16654200832 server=29.8.1 OS=Docker Desktop\nk6.exe v0.57.0 (commit/50afd82c18, go1.23.6, windows/amd64)\n",
+  "input_sha256": {
+    "compose.yaml": "f92a608a96ba07585118b973400962ec23e26a6f7d03a288fc61c535b564288e",
+    "compose.sharding.yaml": "89dd319bb817fd1a6a164456592fce75053a285ff845a9b672b52d6dfd3df783",
+    "compose.observability.yaml": "c132ae8bcf38d8f8ecdfbc7b8e7e0131634af506961bff88734d00ad4d5cd3a5",
+    "compose.transaction.yaml": "4e371a3555b1db6c8b8179c14fdf32054be942c73081392f6af22065c2a96d6d",
+    "tests/k6/claims.js": "31b4bb0d69554ab5ebe1e1dfd93e1dcd9df91f98bdcd43916ec217e39f2a7689",
+    "scripts/distributed_experiment.py": "44058639bbe434136799367d2eb0fca5b5caf97d6966574aaffdd77972761c89",
+    "scripts/server_collect.py": "0b39e8dacc32e37cecd4174f6fe04663be2987522393bc92afa98ec7e3dbfcee",
+    "scripts/remote_client.py": "f7c1b31765da10ef8418a09ea267ab2ed62276c52a7a560c4bbadb186d6307b4"
+  },
+  "load": {
+    "requests": 500,
+    "vus": 30,
+    "stock": 500,
+    "per_user": 1,
+    "rounds": 3
+  },
+  "notes": "Input hashes describe final reproducible harness; initial normal/locked trials preceded diagnostic logging and teardownTimeout extension, without changing successful request semantics."
+}

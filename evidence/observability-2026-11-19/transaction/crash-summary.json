@@ -1,0 +1,70 @@
+{
+  "passed": true,
+  "scenarios": 2,
+  "results": [
+    {
+      "point": "tx_after_reservation",
+      "before": {
+        "merchant_id": 515846493600,
+        "template_id": "34e51c1907be44f886f0ff63746d5734",
+        "initial": 1,
+        "db_remaining": 1,
+        "issued": 0,
+        "projected": 0,
+        "redis_remaining": 0,
+        "pending": 1,
+        "failed": 0,
+        "consistent": true
+      },
+      "admission_facts_before_crash": 0,
+      "final": {
+        "merchant_id": 515846493600,
+        "template_id": "34e51c1907be44f886f0ff63746d5734",
+        "initial": 1,
+        "db_remaining": 0,
+        "issued": 1,
+        "projected": 1,
+        "redis_remaining": 0,
+        "pending": 0,
+        "failed": 0,
+        "consistent": true
+      },
+      "recovered_without_client_replay": true,
+      "post_recovery_replay_status": 202,
+      "unique_grant_facts": 1,
+      "unique_admission_facts": 1
+    },
+    {
+      "point": "tx_after_local_commit",
+      "before": {
+        "merchant_id": 534373325500,
+        "template_id": "b86504def521a7f6be558ebc959d58d2",
+        "initial": 1,
+        "db_remaining": 1,
+        "issued": 0,
+        "projected": 0,
+        "redis_remaining": 0,
+        "pending": 1,
+        "failed": 0,
+        "consistent": true
+      },
+      "admission_facts_before_crash": 1,
+      "final": {
+        "merchant_id": 534373325500,
+        "template_id": "b86504def521a7f6be558ebc959d58d2",
+        "initial": 1,
+        "db_remaining": 0,
+        "issued": 1,
+        "projected": 1,
+        "redis_remaining": 0,
+        "pending": 0,
+        "failed": 0,
+        "consistent": true
+      },
+      "recovered_without_client_replay": true,
+      "post_recovery_replay_status": 202,
+      "unique_grant_facts": 1,
+      "unique_admission_facts": 1
+    }
+  ]
+}

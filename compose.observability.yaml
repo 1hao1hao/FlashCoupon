@@ -1,0 +1,17 @@
+services:
+  jaeger:
+    image: jaegertracing/jaeger:2.21.0
+    restart: unless-stopped
+    ports: ['127.0.0.1:16686:16686']
+    # OTLP 4318 remains internal. UI reaches the server only over SSH tunnel.
+  app:
+    environment: &tracing
+      TRACING_ENABLED: ${TRACING_ENABLED:-1}
+      TRACE_SAMPLE_RATIO: ${TRACE_SAMPLE_RATIO:-0.1}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+  relay:
+    environment: *tracing
+  worker:
+    environment:
+      <<: *tracing
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-20}

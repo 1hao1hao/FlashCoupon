@@ -1,0 +1,41 @@
+{
+  "test_id": "cross-machine-ssh-normal-trace1-w20-r2-backlog256",
+  "location": "cross-machine-ssh",
+  "scenario": "normal",
+  "tracing": true,
+  "workers": 20,
+  "mode": "async",
+  "requests": 500,
+  "measurements": {
+    "accepted_http_qps": 847.4576271186442,
+    "final_issue_tps": 104.12328196584757
+  },
+  "audit": {
+    "merchant_id": 1795072617533,
+    "template_id": "6fef827d43c8b41a8508587a829d1519",
+    "initial": 500,
+    "db_remaining": 0,
+    "issued": 500,
+    "projected": 500,
+    "redis_remaining": 0,
+    "pending": 0,
+    "failed": 0,
+    "consistent": true
+  },
+  "client": {
+    "test_id": "cross-machine-ssh-normal-trace1-w20-r2-backlog256",
+    "http_health_roundtrip_ms": [
+      15.999999828636646,
+      61.99999991804361,
+      16.000000294297934,
+      15.999999828636646,
+      15.00000013038516
+    ],
+    "median_roundtrip_ms": 15.999999828636646,
+    "network_note": "HTTP health RTT includes server and tunnel overhead; not ICMP RTT",
+    "first_trace_id": "2e616617049ca9b308c9a540189b5ead",
+    "k6_exit_code": 0
+  },
+  "fault_released_unix": [],
+  "finished_unix": 1795072629.007283
+}

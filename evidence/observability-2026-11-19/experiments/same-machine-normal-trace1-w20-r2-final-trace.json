@@ -1,0 +1,358 @@
+{
+  "result": {
+    "resourceSpans": [
+      {
+        "resource": {
+          "attributes": [
+            {
+              "key": "service.name",
+              "value": {
+                "stringValue": "flashcoupon-api"
+              }
+            }
+          ]
+        },
+        "scopeSpans": [
+          {
+            "scope": {
+              "name": "flashcoupon"
+            },
+            "spans": [
+              {
+                "traceId": "c1156639736c95ebb2adf1195adb190f",
+                "spanId": "463e03effe455502",
+                "parentSpanId": "bc693f4774919b64",
+                "flags": 256,
+                "name": "http.auth",
+                "kind": 1,
+                "startTimeUnixNano": "1795074624689536246",
+                "endTimeUnixNano": "1795074624689539921",
+                "status": {}
+              },
+              {
+                "traceId": "c1156639736c95ebb2adf1195adb190f",
+                "spanId": "0a5aedfc4003ac13",
+                "parentSpanId": "bc693f4774919b64",
+                "flags": 256,
+                "name": "http.rate_limit",
+                "kind": 1,
+                "startTimeUnixNano": "1795074624689574781",
+                "endTimeUnixNano": "1795074624694580471",
+                "status": {}
+              },
+              {
+                "traceId": "c1156639736c95ebb2adf1195adb190f",
+                "spanId": "a4b6874ec81a1bfa",
+                "parentSpanId": "bc693f4774919b64",
+                "flags": 256,
+                "name": "redis.claim_lua",
+                "kind": 1,
+                "startTimeUnixNano": "1795074624697252942",
+                "endTimeUnixNano": "1795074624700236071",
+                "status": {}
+              },
+              {
+                "traceId": "c1156639736c95ebb2adf1195adb190f",
+                "spanId": "bc693f4774919b64",
+                "parentSpanId": "0123456789abcdef",
+                "flags": 768,
+                "name": "POST /v1/claims",
+                "kind": 1,
+                "startTimeUnixNano": "1795074624689533912",
+                "endTimeUnixNano": "1795074624700249656",
+                "attributes": [
+                  {
+                    "key": "http.route",
+                    "value": {
+                      "stringValue": "/v1/claims"
+                    }
+                  },
+                  {
+                    "key": "http.status_code",
+                    "value": {
+                      "intValue": "202"
+                    }
+                  },
+                  {
+                    "key": "@jaeger@warnings",
+                    "value": {
+                      "arrayValue": {
+                        "values": [
+                          {
+                            "stringValue": "parent span ID=0123456789abcdef is not in the trace; skipping clock skew adjustment"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "status": {}
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "resource": {
+          "attributes": [
+            {
+              "key": "service.name",
+              "value": {
+                "stringValue": "flashcoupon-worker"
+              }
+            }
+          ]
+        },
+        "scopeSpans": [
+          {
+            "scope": {
+              "name": "flashcoupon"
+            },
+            "spans": [
+              {
+                "traceId": "c1156639736c95ebb2adf1195adb190f",
+                "spanId": "2822504d9a046ce3",
+                "parentSpanId": "f5bfa0b0e1604815",
+                "flags": 256,
+                "name": "queue.rocketmq",
+                "kind": 1,
+                "startTimeUnixNano": "1795074624797290046",
+                "endTimeUnixNano": "1795074624800070886",
+                "attributes": [
+                  {
+                    "key": "queue.wait_ms",
+                    "value": {
+                      "doubleValue": 2.78084
+                    }
+                  },
+                  {
+                    "key": "@jaeger@warnings",
+                    "value": {
+                      "arrayValue": {
+                        "values": [
+                          {
+                            "stringValue": "clock skew adjustment disabled; not applying calculated delta of 17.281336ms"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "status": {}
+              },
+              {
+                "traceId": "c1156639736c95ebb2adf1195adb190f",
+                "spanId": "33a2e52008102c89",
+                "parentSpanId": "25cc0b74d5c80cc9",
+                "flags": 256,
+                "name": "sql.begin",
+                "kind": 1,
+                "startTimeUnixNano": "1795074624802500459",
+                "endTimeUnixNano": "1795074624802638236",
+                "status": {}
+              },
+              {
+                "traceId": "c1156639736c95ebb2adf1195adb190f",
+                "spanId": "88bb6251d7cfa4d4",
+                "parentSpanId": "25cc0b74d5c80cc9",
+                "flags": 256,
+                "name": "sql.lock_template",
+                "kind": 1,
+                "startTimeUnixNano": "1795074624802639638",
+                "endTimeUnixNano": "1795074624815657193",
+                "status": {}
+              },
+              {
+                "traceId": "c1156639736c95ebb2adf1195adb190f",
+                "spanId": "638391d55cfacd64",
+                "parentSpanId": "25cc0b74d5c80cc9",
+                "flags": 256,
+                "name": "sql.inventory_update",
+                "kind": 1,
+                "startTimeUnixNano": "1795074624816626802",
+                "endTimeUnixNano": "1795074624817035990",
+                "status": {}
+              },
+              {
+                "traceId": "c1156639736c95ebb2adf1195adb190f",
+                "spanId": "e060280b7da10d4c",
+                "parentSpanId": "25cc0b74d5c80cc9",
+                "flags": 256,
+                "name": "sql.fact_insert",
+                "kind": 1,
+                "startTimeUnixNano": "1795074624817314287",
+                "endTimeUnixNano": "1795074624817626652",
+                "status": {}
+              },
+              {
+                "traceId": "c1156639736c95ebb2adf1195adb190f",
+                "spanId": "24644fc3594dae23",
+                "parentSpanId": "25cc0b74d5c80cc9",
+                "flags": 256,
+                "name": "sql.commit",
+                "kind": 1,
+                "startTimeUnixNano": "1795074624817629874",
+                "endTimeUnixNano": "1795074624819792230",
+                "status": {}
+              },
+              {
+                "traceId": "c1156639736c95ebb2adf1195adb190f",
+                "spanId": "25cc0b74d5c80cc9",
+                "parentSpanId": "578c1502dfdbe6ef",
+                "flags": 256,
+                "name": "sql.transaction",
+                "kind": 1,
+                "startTimeUnixNano": "1795074624802499203",
+                "endTimeUnixNano": "1795074624819818102",
+                "status": {}
+              },
+              {
+                "traceId": "c1156639736c95ebb2adf1195adb190f",
+                "spanId": "f00dbfa1f34cab5c",
+                "parentSpanId": "578c1502dfdbe6ef",
+                "flags": 256,
+                "name": "coupon.projection",
+                "kind": 1,
+                "startTimeUnixNano": "1795074624819823965",
+                "endTimeUnixNano": "1795074624824149462",
+                "status": {}
+              },
+              {
+                "traceId": "c1156639736c95ebb2adf1195adb190f",
+                "spanId": "cf2369c14ee66758",
+                "parentSpanId": "578c1502dfdbe6ef",
+                "flags": 256,
+                "name": "coupon.cache",
+                "kind": 1,
+                "startTimeUnixNano": "1795074624824158226",
+                "endTimeUnixNano": "1795074624829399293",
+                "status": {}
+              },
+              {
+                "traceId": "c1156639736c95ebb2adf1195adb190f",
+                "spanId": "4d22dc6d6698dbce",
+                "parentSpanId": "578c1502dfdbe6ef",
+                "flags": 256,
+                "name": "redis.finalize",
+                "kind": 1,
+                "startTimeUnixNano": "1795074624829413255",
+                "endTimeUnixNano": "1795074624831841471",
+                "status": {}
+              },
+              {
+                "traceId": "c1156639736c95ebb2adf1195adb190f",
+                "spanId": "578c1502dfdbe6ef",
+                "parentSpanId": "f5bfa0b0e1604815",
+                "flags": 256,
+                "name": "worker.deliver",
+                "kind": 1,
+                "startTimeUnixNano": "1795074624800079917",
+                "endTimeUnixNano": "1795074624831852105",
+                "status": {}
+              },
+              {
+                "traceId": "c1156639736c95ebb2adf1195adb190f",
+                "spanId": "f5bfa0b0e1604815",
+                "parentSpanId": "b838b047660d6cdf",
+                "flags": 768,
+                "name": "mq.consume",
+                "kind": 1,
+                "startTimeUnixNano": "1795074624800069828",
+                "endTimeUnixNano": "1795074624831853776",
+                "status": {}
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "resource": {
+          "attributes": [
+            {
+              "key": "service.name",
+              "value": {
+                "stringValue": "flashcoupon-relay"
+              }
+            }
+          ]
+        },
+        "scopeSpans": [
+          {
+            "scope": {
+              "name": "flashcoupon"
+            },
+            "spans": [
+              {
+                "traceId": "c1156639736c95ebb2adf1195adb190f",
+                "spanId": "9d9014afba2f1516",
+                "parentSpanId": "a4b6874ec81a1bfa",
+                "flags": 768,
+                "name": "relay.read",
+                "kind": 1,
+                "startTimeUnixNano": "1795074624797275126",
+                "endTimeUnixNano": "1795074624797276804",
+                "attributes": [
+                  {
+                    "key": "@jaeger@warnings",
+                    "value": {
+                      "arrayValue": {
+                        "values": [
+                          {
+                            "stringValue": "clock skew adjustment disabled; not applying calculated delta of -98.531459ms"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "status": {}
+              },
+              {
+                "traceId": "c1156639736c95ebb2adf1195adb190f",
+                "spanId": "b964986fc7666258",
+                "parentSpanId": "9d9014afba2f1516",
+                "flags": 256,
+                "name": "queue.stream",
+                "kind": 1,
+                "startTimeUnixNano": "1795074624698000000",
+                "endTimeUnixNano": "1795074624797279692",
+                "attributes": [
+                  {
+                    "key": "queue.wait_ms",
+                    "value": {
+                      "doubleValue": 99.279692
+                    }
+                  },
+                  {
+                    "key": "@jaeger@warnings",
+                    "value": {
+                      "arrayValue": {
+                        "values": [
+                          {
+                            "stringValue": "clock skew adjustment disabled; not applying calculated delta of 99.275126ms"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "status": {}
+              },
+              {
+                "traceId": "c1156639736c95ebb2adf1195adb190f",
+                "spanId": "b838b047660d6cdf",
+                "parentSpanId": "9d9014afba2f1516",
+                "flags": 256,
+                "name": "mq.send",
+                "kind": 1,
+                "startTimeUnixNano": "1795074624797283176",
+                "endTimeUnixNano": "1795074624800592613",
+                "status": {}
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

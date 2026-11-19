@@ -1,0 +1,21 @@
+services:
+  broker:
+    volumes:
+      - ./deploy/rocketmq/broker-transaction.conf:/home/rocketmq/broker.conf:ro
+  tx-topic:
+    image: apache/rocketmq:5.3.1
+    command: ['sh', '-c', 'sh mqadmin updateTopic -n namesrv:9876 -b broker:10911 -t FlashCouponTransactionGrant && sh mqadmin topicRoute -n namesrv:9876 -t FlashCouponTransactionGrant']
+    depends_on:
+      broker: {condition: service_healthy}
+  app:
+    environment:
+      TX_EXPERIMENT_ENABLED: '1'
+      TX_TEST_UNKNOWN: ${TX_TEST_UNKNOWN:-0}
+      TX_TEST_ROLLBACK: ${TX_TEST_ROLLBACK:-0}
+    depends_on:
+      tx-topic: {condition: service_completed_successfully}
+  worker:
+    environment:
+      TX_EXPERIMENT_ENABLED: '1'
+    depends_on:
+      tx-topic: {condition: service_completed_successfully}

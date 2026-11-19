@@ -56,7 +56,7 @@ func (t Template) Validate() error {
 	if t.EndsAt <= t.StartsAt || t.ValidUntil < t.EndsAt || t.EndsAt <= time.Now().Unix() {
 		return fmt.Errorf("invalid activity/validity time")
 	}
-	if t.Mode != "async" && t.Mode != "direct" {
+	if t.Mode != "async" && t.Mode != "direct" && !(t.Mode == "transaction" && env("TX_EXPERIMENT_ENABLED", "0") == "1") {
 		return fmt.Errorf("mode must be async or direct")
 	}
 	return nil
