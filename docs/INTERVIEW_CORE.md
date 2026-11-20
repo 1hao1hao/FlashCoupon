@@ -89,16 +89,25 @@ Relay 取到消息只说明开始交接，立刻 ACK（确认消费）会在转�
 
 ### 3. 最终一致性与故障恢复
 
-小明的 SQL 事务已经成功，用户券投影却失败了：此时不能再扣一次库存，也不能宣布没发过。Worker 重试时先读到原 grants 事实，再重写缺失投影；如果投影成功、Redis 更新失败，就继续幂等执行后续步骤。代码不是保存“执行到第几步”的通用工作流，而是重跑时识别已提交事实、允许后续步骤安全重复；可以口述为“按已完成状态补齐未完成步骤的阶段性恢复”。
+先分清两处状态：Lua 受理后把 **Redis 业务状态设为 pending**；SQL 发券事实提交为 `grants=issued` 后，Worker 还要完成用户券投影、缓存和终态更新，Redis 才转 `issued`。若 SQL 明确业务拒绝并提交 `grants=failed`，Worker 随即补偿预扣库存和用户次数，并把 Redis 转 `failed`。因此，业务 pending 不代表 SQL 一定没发券，也不同于 Stream PEL Pending。
 
-反过来，若 SQL 明确拒绝并提交 failed，Redis 占的名额没有变成成功券，才需要补偿：退回预扣库存、归还预占用户次数，且只退一次。**超时只说明结果不确定，SQL 可能已经提交，不能一超时就退库存。** 对账是周期性比较控制库存/事实、用户券投影和 Redis 预留账本，发现缺投影就补、旧 pending 就补投、计数漂移就受版本保护地修复。它与实时重试互补，不是任意数据损坏的恢复器。
+**正常消息的执行时序：** MQ 回调设置 30 秒处理上下文 → 调用 `Deliver` → SQL 发券事务 → 成功则写投影、更新缓存 → `Finalize` 更新 Redis 终态。`Deliver` 返回非空 `error`，回调就返回 `ConsumeRetryLater`，由 MQ 重试；处理完成、没有错误，才返回 `ConsumeSuccess`。明确业务拒绝在补偿成功后也算“这条消息已处理完成”。
 
-| 机制 | 解决的问题 | 边界 |
-|---|---|---|
-| 重试 | 同一次操作暂时失败或结果不确定，再执行 | 必须有幂等，不能产生新一张券 |
-| 恢复 | 中断后从已有持久事实继续完成业务 | 本项目靠重放与幂等，没有通用阶段调度引擎 |
-| 补偿 | 明确业务失败后撤销 Redis 预留效果 | 不撤销已提交成功事实，不替代重试 |
-| 对账 | 跨系统状态可能不一致，周期检查并修差异 | 缺少完整账本或核销历史时不能凭空恢复 |
+这里要区分两种中断：SQL、投影或 Redis 操作报错，是程序主动返回重试；**Worker 崩溃则来不及返回结果**，未完成消费确认的消息由 MQ 恢复投递，可能再次执行。重放会读取已有 grants，幂等补投影和后续步骤，不重新发一张券。30 秒只是上下文期限，不是失败判定或重试次数上限：例如 SQL 已 COMMIT，但提交响应丢失，Worker 看到的是错误或超时，实际事务可能已成功，必须重试核对事实，不能直接退库存。
+
+`grants=failed` 表示库存耗尽、超过限领等**永久业务拒绝已落库**，不是“数据库连接失败”。连接错误本身不会成为 failed 的业务原因；提交报错时先按结果不确定处理。确认业务拒绝后，`Deliver` 当次就调用补偿，不等待对账；补偿失败仍返回 error。`finalize.lua` 检查已有终态，只对尚未终结的预留回补，防止重投导致重复退库存。
+
+**旧 pending 为什么还存在？** 事件可能仍在 Stream/MQ 排队或重试，也可能 SQL 已成功但投影、缓存或终态没完成，或 SQL 已拒绝但补偿未完成。Worker 每 15 秒尝试对账，取得维护租约后执行：对受理满 15 秒仍 pending 的普通异步事件，先设置 30 秒去重标记，成功才重新 `XADD` 到 Stream，再走 Relay→MQ→Worker；同时按 grants 券快照修复缺失投影。**MQ 重试**针对消费回调失败；**对账补投**从 Redis 预留账本发现未终结事件，重新入箱。30 秒标记用于抑制补投频率，不是 MQ 重试间隔，也不保证每轮扫描或恢复都能完成；缺少可靠账本时不能凭空补发。
+
+| 故障场景 | 发现者 | 触发动作 | 结果 |
+|---|---|---|---|
+| SQL 执行/提交报错，结果未确认 | Deliver / MQ 回调 | 返回 error → ConsumeRetryLater | 重试核对 grants，不盲目补偿 |
+| SQL 已成功，投影或缓存报错 | Deliver / MQ 回调 | 返回 error → MQ 重试 | 复用成功事实，幂等补齐后续步骤 |
+| Worker 崩溃，消费尚未确认 | MQ | 恢复投递 | 允许重复执行，由业务幂等消重 |
+| grants=failed 已确认 | Deliver | 当次调用 Finalize 补偿 | 补偿成功转 failed；报错则重试 |
+| 预留长期保持业务 pending / 缺投影 | Worker 对账任务 | 去重后补投 Stream / 按快照补投影 | 再由原链路处理，不等于直接宣布发券成功 |
+
+源码导航：[messaging.go](../internal/app/messaging.go) 的 MQ 回调、`Maintenance/ReconcileFor`；[cache.go](../internal/app/cache.go) 的 `Deliver/Finalize`；[store.go](../internal/app/store.go) 的 `Grant/ProjectCoupon`；[recovery.go](../internal/app/recovery.go) 的 `RepairProjection`；[finalize.lua](../internal/app/lua/finalize.lua) 的终态检查与一次性补偿。
 
 ## D. 机制与职责总览
 
