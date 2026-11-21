@@ -1,0 +1,20 @@
+{
+  "final": {
+    "audit": {
+      "merchant_id": 110077454500,
+      "template_id": "f5fc026e35943274bb7cbfcea9d8c832",
+      "initial": 1,
+      "db_remaining": 0,
+      "issued": 1,
+      "projected": 1,
+      "redis_remaining": 0,
+      "pending": 0,
+      "failed": 0,
+      "consistent": true
+    },
+    "unique_users": 1,
+    "max_per_user": 1
+  },
+  "scenario": "one_sentinel_down",
+  "passed": true
+}

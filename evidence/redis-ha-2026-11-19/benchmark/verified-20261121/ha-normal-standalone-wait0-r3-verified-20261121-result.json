@@ -1,0 +1,22 @@
+{
+  "test_id": "ha-normal-standalone-wait0-r3-verified-20261121",
+  "scenario": "normal",
+  "mode": "standalone",
+  "wait": 0,
+  "measurements": {
+    "accepted_http_qps": 915.7509157509157,
+    "final_issue_tps": 104.47137484329295
+  },
+  "audit": {
+    "merchant_id": 1795232343400,
+    "template_id": "ae0fe1dc6c362e4ce526bd0b5c0c270c",
+    "initial": 500,
+    "db_remaining": 0,
+    "issued": 500,
+    "projected": 500,
+    "redis_remaining": 0,
+    "pending": 0,
+    "failed": 0,
+    "consistent": true
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "included_in_statistics": false,
+  "test_id": "ha-failover-1-wait1-r3-resilience-20261121",
+  "reason": "SSH transport became inactive during injection; final k6 audit had no reachable API. All five prior completed trials retained. Interrupted trial not used; same stock/request fixture retained and audited after reconnect, then remaining round rerun.",
+  "initial_k6_log_summary": {
+    "initial_iterations": 500,
+    "total_http_requests": 111001,
+    "http_failed": 110788
+  },
+  "redis_process_not_restarted": "old master remained stopped until scoped recovery"
+}

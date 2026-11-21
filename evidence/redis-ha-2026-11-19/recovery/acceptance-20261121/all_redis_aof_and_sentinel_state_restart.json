@@ -1,0 +1,21 @@
+{
+  "master": "redis-replica-1",
+  "go_processes_restarted": false,
+  "sentinel_ids_retained": true,
+  "during_outage_status": 503,
+  "recovery_seconds": 16.447972000110894,
+  "final": {
+    "merchant_id": 266446643000,
+    "template_id": "3aa6369d0043797305f157cbe568b47b",
+    "initial": 5,
+    "db_remaining": 0,
+    "issued": 5,
+    "projected": 5,
+    "redis_remaining": 0,
+    "pending": 0,
+    "failed": 0,
+    "consistent": true
+  },
+  "passed": true,
+  "scenario": "all_redis_aof_and_sentinel_state_restart"
+}

@@ -40,6 +40,12 @@ Stream PEL Pending 是消费组已经取出但未 ACK 的消息；业务 pending
 
 ## 复现与边界
 
+### Redis HA 扩展
+
+保留上面的单机 Redis 验收。新增 [HA 文档](REDIS_HA.md) 与 [独立工件](../evidence/redis-ha-2026-11-19/)：覆盖 Master 停机、Replica 停机、Sentinel 单点/多数失效、私网隔离、切主并发、PEL 接管、重复投递、旧主回归、WAIT 超时及复制不足拒写。成功轮次检查 SQL/Redis 库存、唯一事实、用户限领、投影及业务 pending；失败轮次保留原因，不算通过。
+
+恢复扩展还验证消费组丢失后从 0 重建、三个 Go 进程不重启而 Redis 全层 AOF/选主状态重启恢复、认证与私有端口，以及包含 HA guard/WAIT 的三进程 Trace。完整且内部平衡的历史丢失仍可能无法发现，不把这些定点测试推广为任意故障下零丢失保证。
+
 ```sh
 python scripts/verify.py --faults
 python scripts/reliability_matrix.py
@@ -50,4 +56,4 @@ python scripts/verify_observability.py
 
 `verify.py` 的证据目录应通过 `EVIDENCE_DIR` 指向新目录，避免覆盖历史。故障门仅由 `FAULT_INJECTION_ENABLED/FAULT_POINT/FAULT_EVENT_ID/FAULT_GATE_DIR` 进程环境启用；宿主观察 reached 文件后 kill 指定角色，默认关闭，等待有界并支持取消。源码：[faults.go](../internal/app/faults.go)、[矩阵脚本](../scripts/reliability_matrix.py)、[事务测试](../internal/app/transaction_test.go)。测试会暂停/重启实验栈，请勿向生产或其他项目运行；不会删除数据卷。
 
-当前验证是单机各组件重启、AOF 恢复及指定故障窗口，不覆盖磁盘永久丢失、Redis 主从切换、Broker 集群灾难或网络任意分区。没有固定次数后自动告警或生产 HA 的实现；预留与追踪账本保留仍有内存成本，后续归档策略尚未实现。
+原单机矩阵验证各组件重启、AOF 恢复及指定故障窗口；新增 Redis HA 扩展另有 10 场景矩阵、5 场景恢复验收和三轮并发切主对照，见 [REDIS_HA.md](REDIS_HA.md)。仍不覆盖磁盘永久丢失、Broker 集群灾难或任意网络分区。没有固定次数后自动告警或生产 HA 的实现；预留与追踪账本保留仍有内存成本，后续归档策略尚未实现。

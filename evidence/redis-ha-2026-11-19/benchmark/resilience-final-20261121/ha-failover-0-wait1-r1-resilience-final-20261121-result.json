@@ -1,0 +1,26 @@
+{
+  "test_id": "ha-failover-0-wait1-r1-resilience-final-20261121",
+  "scenario": "paced_control",
+  "mode": "sentinel",
+  "wait": 1,
+  "measurements": {
+    "final_issue_tps": 78.66582756450597,
+    "accepted_http_qps": 184.6381093057607,
+    "initial_accepted": 500,
+    "initial_unknown": 0,
+    "initial_safe_rejected": 0
+  },
+  "audit": {
+    "merchant_id": 584898570200,
+    "template_id": "9dde367b76a07a1a3d21723b41b2e1fc",
+    "initial": 500,
+    "db_remaining": 0,
+    "issued": 500,
+    "projected": 500,
+    "redis_remaining": 0,
+    "pending": 0,
+    "failed": 0,
+    "consistent": true
+  },
+  "fault": {}
+}

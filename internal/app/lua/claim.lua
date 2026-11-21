@@ -5,6 +5,16 @@ for i=1,#KEYS do
  local ty=redis.call('TYPE',KEYS[i]).ok
  if ty~='none' and ty~=expected[i] then return redis.error_reply('WRONGTYPE claim key '..i) end
 end
+-- HA admission checks only; preserve the original reservation and event identity.
+-- Complete historical rollback can remain balanced and is NOT detectable here.
+if ARGV[6] and ARGV[6]~='' then
+ local stock=tonumber(redis.call('GET',KEYS[2]) or '-1')
+ local initial=tonumber(ARGV[6]); local total=redis.call('HLEN',KEYS[4])
+ if redis.call('EXISTS',KEYS[1])==0 or stock<0 or stock>initial or stock+total<initial
+  or total~=redis.call('HLEN',KEYS[5]) or (total>0 and redis.call('EXISTS',KEYS[7])==0) then
+  return {5,'HA ledger incomplete; restore verified state'}
+ end
+end
 local old=redis.call('HGET',KEYS[4],ARGV[1])
 if old then return {0,old} end
 if redis.call('EXISTS',KEYS[1])==0 or redis.call('EXISTS',KEYS[2])==0 then return {5,'not warmed'} end

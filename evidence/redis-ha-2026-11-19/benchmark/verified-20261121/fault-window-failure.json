@@ -1,0 +1,7 @@
+{
+  "passed": false,
+  "scenario": "fault_injection_window",
+  "reason": "All initial HTTP requests finished before the Compose stop action took effect; strict overlap assertion rejected this trial",
+  "initial_pacing_seconds": 0.02,
+  "fix": "Use fast targeted Docker engine stop and equal 0.1s pacing in both control/fault groups; keep exact final issuance checks"
+}

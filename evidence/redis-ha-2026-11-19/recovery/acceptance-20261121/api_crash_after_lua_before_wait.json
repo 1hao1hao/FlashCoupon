@@ -1,0 +1,19 @@
+{
+  "initial_http_response": "connection_lost_or_unconfirmed",
+  "replay_status": 202,
+  "identical_event_id": true,
+  "final": {
+    "merchant_id": 288814077500,
+    "template_id": "257fabb088021d5d65077bee8543efae",
+    "initial": 1,
+    "db_remaining": 0,
+    "issued": 1,
+    "projected": 1,
+    "redis_remaining": 0,
+    "pending": 0,
+    "failed": 0,
+    "consistent": true
+  },
+  "passed": true,
+  "scenario": "api_crash_after_lua_before_wait"
+}

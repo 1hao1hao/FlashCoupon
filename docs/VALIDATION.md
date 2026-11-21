@@ -1,5 +1,7 @@
 # 工程收尾验收报告
 
+Redis Sentinel 改造的 2026-11-21 验收与 18 轮对照实验见 [REDIS_HA.md](REDIS_HA.md) 和 [独立证据](../evidence/redis-ha-2026-11-19/summary.json)。下文历史实验条件和数字保留，不能与新负载直接比较。
+
 新增 2026-11-19 验收单独保存在 [observability 工件](../evidence/observability-2026-11-19/)，说明见 [可靠性矩阵](RELIABILITY_MATRIX.md) 与 [跨机对照](DISTRIBUTED_EXPERIMENT.md)；下文为原始验收结果，未用新负载覆盖历史数字。
 
 日期：2026-11-09（Asia/Shanghai）。本文件由 `python scripts/summarize.py` 从 `evidence/engineering-2026-11-09/*.json` 生成。

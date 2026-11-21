@@ -27,6 +27,17 @@ MySQL：`127.0.0.1:13306`；Redis：`127.0.0.1:16379`；Proxy：`127.0.0.1:13307
 
 不带 `compose.sharding.yaml` 可运行无 Proxy 开发模式。已有数据时不能直接切换两种存储布局，应先迁移券、订单唯一约束及模板投影。启动自动建表、初始化 MQ 数据卷权限、创建 Topic 和安装 JDBC 驱动；首次需要网络下载依赖。Redis 使用 AOF `appendfsync always`/`noeviction`，Broker 使用 `SYNC_FLUSH`。
 
+### 可选 Redis Sentinel 部署
+
+新增 [compose.redis-ha.yaml](compose.redis-ha.yaml)：一主两从、三个 Sentinel（quorum=2），各自持久化 AOF/选主状态，数据与 Sentinel 使用独立认证，Redis/Sentinel 不发布宿主端口。Go 通过 `REDIS_MODE=sentinel` 自动发现 Master；默认单机模式保留。WAIT 与领取 Lua 固定在同一连接，超时返回结果未知，不自动退库存。
+
+```sh
+# 使用未提交的 env-file 设置 REDIS_PASSWORD / REDIS_SENTINEL_PASSWORD 等密钥
+docker compose -p flashcoupon-ha --env-file reports/redis-ha.env -f compose.yaml -f compose.sharding.yaml -f compose.observability.yaml -f compose.redis-ha.yaml up -d --build
+```
+
+不要直接把新 Redis 卷叠到已有业务数据库上；并行部署需要隔离数据和端口。完整的隔离实验、固定私网地址、故障复现、WAIT 性能与数据丢失边界见 [REDIS_HA.md](docs/REDIS_HA.md)。这里只验证同机多容器的进程故障转移，不是物理主机级高可用。
+
 ## 调用
 
 默认开发密钥为 `ADMIN_KEY=dev-admin-key`、`USER_KEY=dev-user-key`；可通过环境变量或本地 `.env` 覆盖，`.env` 不提交。管理员接口携带 `X-Admin-Key`，用户接口使用 `Authorization: Bearer <token>`。签名密钥仅由可信登录后端持有；请求体不能指定其他用户 ID。

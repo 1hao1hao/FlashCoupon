@@ -1,0 +1,8 @@
+{
+  "passed": false,
+  "stage": "sentinel_majority_required",
+  "reason": "Compose start of Sentinel dependencies also restarted the deliberately stopped master; no promotion expected once original master was back",
+  "fix": "Restart named fault nodes with docker start, not Compose dependency traversal",
+  "prior_successful_scenarios": 7,
+  "volumes_deleted": false
+}

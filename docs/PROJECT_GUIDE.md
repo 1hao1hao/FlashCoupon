@@ -341,6 +341,10 @@ SQL 核销成功但缓存更新失败时，接口可能返回 503；客户端应
 
 源码：[batch.go](../internal/app/batch.go)：`Import/processBatch/batchWorker`；[messaging.go](../internal/app/messaging.go)：`StartMessaging/Maintenance/ReconcileFor`；[recovery.go](../internal/app/recovery.go)。
 
+### 5.8 Redis HA
+
+[REDIS_HA.md](REDIS_HA.md) 对应 [redis_ha.go](../internal/app/redis_ha.go) 和 [独立 Compose](../compose.redis-ha.yaml)。沿着三个问题复习：Sentinel 负责选择并发现新主，不替业务决定是否已受理；WAIT 只确认同连接之前的写入被多少副本接收，不等于 SQL 发券成功；超时后仍用同 request_id 重试，不能假设预扣回滚。可见账本缺失/冲突时停止受理并核对可信 AOF，完整且内部平衡的历史丢失可能无法被现有等式发现。当前验收是单机多容器进程故障转移，不是跨主机 HA。
+
 ## 6. 测试与性能
 
 ### 6.1 测试覆盖与证据

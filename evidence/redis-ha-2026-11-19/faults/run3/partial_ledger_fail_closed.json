@@ -1,0 +1,23 @@
+{
+  "status": 503,
+  "sql_inventory_reset": false,
+  "restored_from": "exact saved reservation payload",
+  "final": {
+    "audit": {
+      "merchant_id": 385775312100,
+      "template_id": "322e45898c95598677c164b522faeb31",
+      "initial": 2,
+      "db_remaining": 0,
+      "issued": 2,
+      "projected": 2,
+      "redis_remaining": 0,
+      "pending": 0,
+      "failed": 0,
+      "consistent": true
+    },
+    "unique_users": 2,
+    "max_per_user": 1
+  },
+  "scenario": "partial_ledger_fail_closed",
+  "passed": true
+}

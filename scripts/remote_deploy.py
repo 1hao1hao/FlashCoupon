@@ -20,6 +20,7 @@ def connect(args):
     if known.exists():client.load_host_keys(str(known))
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     client.connect(args.host,port=args.port,username=args.user,password=os.environ.get(args.password_env),timeout=15,auth_timeout=15)
+    client.get_transport().set_keepalive(15)
     known.parent.mkdir(exist_ok=True);client.save_host_keys(str(known))
     return client
 
@@ -43,7 +44,7 @@ def main():
         command(client,f'mkdir -p {q}')
         bundle=io.BytesIO()
         with tarfile.open(fileobj=bundle,mode='w:gz') as tar:
-            for rel in ['README.md','.env.example','go.mod','go.sum','Dockerfile','compose.yaml','compose.sharding.yaml','compose.observability.yaml','compose.transaction.yaml','cmd','internal','third_party','deploy','scripts','tests','docs']:
+            for rel in ['README.md','.env.example','go.mod','go.sum','Dockerfile','compose.yaml','compose.sharding.yaml','compose.observability.yaml','compose.transaction.yaml','compose.redis-ha.yaml','cmd','internal','third_party','deploy','scripts','tests','docs']:
                 tar.add(ROOT/rel,arcname=rel,filter=lambda t: None if '__pycache__' in t.name else t)
         sftp=client.open_sftp()
         if args.image_archive:

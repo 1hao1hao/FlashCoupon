@@ -1,0 +1,6 @@
+{
+  "passed": false,
+  "stage": "fixture_copy_standalone_to_ha",
+  "reason": "Standalone fixture container did not inherit its CLI authentication environment; application and 500-grant audit passed, copy failed before changing HA data",
+  "fix": "Pass REDIS_PASSWORD inside fixture container and restore from complete standalone source, without deleting data"
+}

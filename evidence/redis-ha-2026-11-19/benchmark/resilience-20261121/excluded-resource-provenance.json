@@ -1,0 +1,4 @@
+{
+  "selected": false,
+  "reason": "After SSH interruption the third trial reused its ID. The remote collector refuses overwriting an existing JSON; its old .done marker could therefore satisfy finish_collect. Business audit was successful, but resource provenance for this third trial is ambiguous. Entire tag is excluded from final aggregates; all three control/failover pairs rerun with unique IDs under resilience-final-20261121. Added explicit collector collision rejection and started_unix for new runs."
+}

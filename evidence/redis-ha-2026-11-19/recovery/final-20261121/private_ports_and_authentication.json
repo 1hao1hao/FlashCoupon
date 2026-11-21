@@ -1,0 +1,6 @@
+{
+  "redis_and_sentinel_host_ports": false,
+  "invalid_credentials_rejected": true,
+  "passed": true,
+  "scenario": "private_ports_and_authentication"
+}

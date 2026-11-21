@@ -1,0 +1,8 @@
+{
+  "passed": false,
+  "stage": "master_network_partition",
+  "reason": "Docker DNS withdrawal stalled hostname-based Sentinel and triggered TILT; no promotion within 45s",
+  "fix": "Private static announced addresses; preserve existing epochs/AOF and retest",
+  "prior_successful_scenarios": 6,
+  "volumes_deleted": false
+}

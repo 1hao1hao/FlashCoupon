@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "real_sentinel": true,
+  "static_linux_test_binary": true,
+  "tests": [
+    "--- PASS: TestRedisHASameConnectionIntegration (0.17s)",
+    "PASS"
+  ]
+}

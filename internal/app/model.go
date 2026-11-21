@@ -12,6 +12,9 @@ import (
 )
 
 type Config struct {
+	RedisMode, RedisPassword, SentinelPassword, RedisMasterName                 string
+	SentinelAddrs, RedisObserveAddrs                                            []string
+	RedisWaitReplicas, RedisWaitTimeoutMS                                       int
 	TestDisableCleanup                                                          bool
 	ControlDSN, CouponDSN, RedisAddr, Nameserver, Addr, AdminKey, UserKey, Role string
 	TestStreamWorker                                                            bool
@@ -26,7 +29,16 @@ func env(k, d string) string {
 }
 func LoadConfig() Config {
 	r, _ := strconv.Atoi(env("RATE_LIMIT", "5000"))
+	w, we := strconv.Atoi(env("REDIS_WAIT_REPLICAS", "0"))
+	if we != nil {
+		w = -1
+	}
+	timeout, te := strconv.Atoi(env("REDIS_WAIT_TIMEOUT_MS", "200"))
+	if te != nil {
+		timeout = -1
+	}
 	return Config{
+		RedisMode: env("REDIS_MODE", "standalone"), RedisPassword: os.Getenv("REDIS_PASSWORD"), SentinelPassword: os.Getenv("REDIS_SENTINEL_PASSWORD"), RedisMasterName: env("REDIS_MASTER_NAME", "flashcoupon"), SentinelAddrs: splitAddresses(os.Getenv("REDIS_SENTINEL_ADDRS")), RedisObserveAddrs: splitAddresses(os.Getenv("REDIS_OBSERVE_ADDRS")), RedisWaitReplicas: w, RedisWaitTimeoutMS: timeout,
 		ControlDSN: env("CONTROL_DSN", "root:flashcoupon@tcp(localhost:3306)/control?parseTime=true&loc=UTC"),
 		CouponDSN:  env("COUPON_DSN", "root:flashcoupon@tcp(localhost:3306)/control?parseTime=true&loc=UTC"),
 		RedisAddr:  env("REDIS_ADDR", "localhost:6379"), Nameserver: env("MQ_NAMESERVER", "localhost:9876"),

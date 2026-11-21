@@ -1,0 +1,17 @@
+{
+  "final": {
+    "merchant_id": 259131760500,
+    "template_id": "7eaa243c7dd06140b3081008c9fe5d04",
+    "initial": 2,
+    "db_remaining": 0,
+    "issued": 2,
+    "projected": 2,
+    "redis_remaining": 0,
+    "pending": 0,
+    "failed": 0,
+    "consistent": true
+  },
+  "batch_group_restored": true,
+  "passed": true,
+  "scenario": "consumer_group_loss_without_process_restart"
+}

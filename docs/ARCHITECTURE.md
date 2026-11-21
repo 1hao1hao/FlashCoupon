@@ -4,6 +4,8 @@
 
 ## 真实部署
 
+可选 [Redis HA](REDIS_HA.md) 将图中的 Redis 替换为一主两从与三个 Sentinel；Go 主客户端仍只读写当前 Master，副本只接收复制或提供独立观测。默认业务链路、SQL 事实与投影幂等不变。Sentinel 模式对可见账本冲突关闭受理，WAIT 超时记为未知，不按 SQL remaining 自动重置丢失账本。实际私网与六节点关系见 HA 文档图，以下保留默认单机拓扑。
+
 ```mermaid
 flowchart LR
   U[签名用户请求] --> API[app 进程 ROLE=api :8080]

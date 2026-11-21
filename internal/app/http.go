@@ -56,6 +56,15 @@ func VerifyToken(token, key string) (int64, error) {
 	return u, nil
 }
 func fail(c *gin.Context, e error) {
+	var admission *AdmissionError
+	if errors.As(e, &admission) {
+		c.JSON(503, gin.H{"error": admission.Message, "outcome": admission.Outcome, "event_id": admission.EventID, "retry_same_request_id": true})
+		return
+	}
+	if strings.Contains(e.Error(), "NOREPLICAS") || strings.Contains(e.Error(), "READONLY") {
+		c.JSON(503, gin.H{"error": "Redis not writable; retry the identical request_id", "outcome": "safe_rejected", "retry_same_request_id": true})
+		return
+	}
 	status := http.StatusServiceUnavailable
 	var ce *ClaimError
 	if errors.Is(e, sql.ErrNoRows) {

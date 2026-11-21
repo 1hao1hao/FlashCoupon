@@ -1,0 +1,22 @@
+{
+  "test_id": "ha-normal-sentinel-wait1-r3-verified-20261121",
+  "scenario": "normal",
+  "mode": "sentinel",
+  "wait": 1,
+  "measurements": {
+    "accepted_http_qps": 335.5704697986577,
+    "final_issue_tps": 84.11843876177659
+  },
+  "audit": {
+    "merchant_id": 1795232565327,
+    "template_id": "9067f1e43eb43e7eafb0db9f4b268bc1",
+    "initial": 500,
+    "db_remaining": 0,
+    "issued": 500,
+    "projected": 500,
+    "redis_remaining": 0,
+    "pending": 0,
+    "failed": 0,
+    "consistent": true
+  }
+}

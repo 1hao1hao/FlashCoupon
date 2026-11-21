@@ -33,6 +33,7 @@ var limitScript = redis.NewScript(limitLua)
 const stream = "fc:outbox"
 
 type Service struct {
+	RedisHA     *RedisRuntime
 	Store       *Store
 	R           *redis.Client
 	Config      Config
@@ -52,7 +53,12 @@ func NewService(c Config) (*Service, error) {
 	if e != nil {
 		return nil, e
 	}
-	r := redis.NewClient(&redis.Options{Addr: c.RedisAddr, PoolSize: 100, PoolTimeout: 30 * time.Second})
+	r, err := newRedisClient(c)
+	if err != nil {
+		s.DB.Close()
+		s.Coupons.Close()
+		return nil, err
+	}
 	telemetry, err := newTelemetry(c.Role)
 	if err != nil {
 		r.Close()
@@ -61,6 +67,7 @@ func NewService(c Config) (*Service, error) {
 		return nil, err
 	}
 	service := &Service{Store: s, R: r, Config: c, Metrics: NewMetrics(c.Role), Telemetry: telemetry}
+	service.RedisHA = newRedisRuntime(service)
 	s.observe = service.stage
 	service.registerDBMetrics()
 	return service, nil
@@ -252,12 +259,19 @@ func (s *Service) claimWithMode(ctx context.Context, m, u int64, tID, request, m
 	if mode == "transaction" {
 		keys = append(keys, transactionLedger)
 	}
-	res, e := claimScript.Run(ctx, s.R, keys, ev.ID, strconv.FormatInt(u, 10), encode(ev), carrier(ctx), mode).Slice()
+	args := []any{ev.ID, strconv.FormatInt(u, 10), encode(ev), carrier(ctx), mode, ""}
+	if s.Config.RedisMode == "sentinel" {
+		args[5] = t.Stock
+	}
+	res, e := s.reserveRedis(ctx, t, keys, args)
 	if e != nil {
 		return ev, e
 	}
 	code := int(res[0].(int64))
 	if code != 0 {
+		if code == 5 && s.Config.RedisMode == "sentinel" {
+			return ev, s.redisFailure("safe_rejected", ev.ID, fmt.Errorf("HA inventory state unavailable"))
+		}
 		return ev, &ClaimError{code, fmt.Sprint(res[1])}
 	}
 	e = json.Unmarshal([]byte(res[1].(string)), &ev)

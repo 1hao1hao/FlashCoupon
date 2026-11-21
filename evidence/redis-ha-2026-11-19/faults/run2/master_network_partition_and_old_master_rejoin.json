@@ -1,0 +1,24 @@
+{
+  "old_master": "redis-replica-1",
+  "new_master": "redis",
+  "old_master_write_rejected": true,
+  "old_master_rejoined_as": "slave",
+  "final": {
+    "audit": {
+      "merchant_id": 938390374600,
+      "template_id": "5c3f48aa014540459520f9a4b3797571",
+      "initial": 1,
+      "db_remaining": 0,
+      "issued": 1,
+      "projected": 1,
+      "redis_remaining": 0,
+      "pending": 0,
+      "failed": 0,
+      "consistent": true
+    },
+    "unique_users": 1,
+    "max_per_user": 1
+  },
+  "scenario": "master_network_partition_and_old_master_rejoin",
+  "passed": true
+}

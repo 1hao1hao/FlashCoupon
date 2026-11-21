@@ -29,7 +29,8 @@ def forwarding(transport,port):
     class Handler(socketserver.BaseRequestHandler):
         def handle(self):
             self.request.setsockopt(socket.IPPROTO_TCP,socket.TCP_NODELAY,1)
-            channel=transport.open_channel('direct-tcpip',('127.0.0.1',port),self.request.getpeername())
+            try:channel=transport.open_channel('direct-tcpip',('127.0.0.1',port),self.request.getpeername())
+            except Exception:return  # Target can legitimately disappear during fault tests.
             if channel is None:return
             try:
                 while True:

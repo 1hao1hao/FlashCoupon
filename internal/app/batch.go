@@ -188,6 +188,9 @@ func (s *Service) batchWorker(ctx context.Context) {
 		}
 		rows, e := s.R.XReadGroup(ctx, &redis.XReadGroupArgs{Group: "batch", Consumer: name, Streams: []string{batchStream, ">"}, Count: 100, Block: time.Second}).Result()
 		if e != nil && e != redis.Nil && ctx.Err() == nil {
+			if strings.Contains(e.Error(), "NOGROUP") {
+				_ = s.R.XGroupCreateMkStream(ctx, batchStream, "batch", "0").Err()
+			}
 			select {
 			case <-ctx.Done():
 				return

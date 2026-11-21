@@ -37,6 +37,7 @@ type Messaging struct {
 func (s *Service) StartMessaging(ctx context.Context) (*Messaging, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	m := &Messaging{S: s, cancel: cancel}
+	m.start(func() { s.observeRedis(ctx) })
 	ok := false
 	defer func() {
 		if !ok {
@@ -393,7 +394,7 @@ func (s *Service) ReconcileFor(ctx context.Context, repair bool, merchant, tid s
 			if e != nil {
 				return nil, e
 			}
-			if repair && t.Stock-int64(len(seen))+a.Failed >= 0 {
+			if repair && t.Stock-int64(len(seen))+a.Failed >= 0 && (s.Config.RedisMode != "sentinel" || t.Stock-int64(len(seen))+a.Failed == a.RedisRemaining) {
 				expected := t.Stock - int64(len(seen)) + a.Failed
 				n, err := repairInventory.Run(ctx, s.R, []string{p + "revision", p + "stock", p + "users", p + "meta"}, revision, expected, encode(users)).Int()
 				if err != nil {

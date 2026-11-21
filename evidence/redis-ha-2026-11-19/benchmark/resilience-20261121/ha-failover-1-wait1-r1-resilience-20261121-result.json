@@ -1,0 +1,32 @@
+{
+  "test_id": "ha-failover-1-wait1-r1-resilience-20261121",
+  "scenario": "fault",
+  "mode": "sentinel",
+  "wait": 1,
+  "measurements": {
+    "accepted_http_qps": 65.43105869137882,
+    "final_issue_tps": 30.393289161753085,
+    "initial_accepted": 466,
+    "initial_unknown": 16,
+    "initial_safe_rejected": 18
+  },
+  "audit": {
+    "merchant_id": 826436387200,
+    "template_id": "afa0d445c5f6bf51e4c9897b7eb60141",
+    "initial": 500,
+    "db_remaining": 0,
+    "issued": 500,
+    "projected": 500,
+    "redis_remaining": 0,
+    "pending": 0,
+    "failed": 0,
+    "consistent": true
+  },
+  "fault": {
+    "injected_unix": 1795232827.8919733,
+    "old_master": "redis",
+    "new_master": "redis-replica-2",
+    "election_seconds": 5.083993300329894,
+    "all_nodes_restored_seconds": 21.735027900431305
+  }
+}

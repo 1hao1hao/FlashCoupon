@@ -113,6 +113,11 @@ func (m *Messaging) readOutbox(ctx context.Context, count int64, handle func(red
 		}
 		rows, err := m.S.R.XReadGroup(ctx, &redis.XReadGroupArgs{Group: "relay", Consumer: name, Streams: []string{stream, ">"}, Count: count, Block: time.Second}).Result()
 		if err != nil && err != redis.Nil && ctx.Err() == nil {
+			if strings.Contains(err.Error(), "NOGROUP") {
+				// Group creation may lag the replicated entries across promotion.
+				// Restart at zero; duplicates are safe, skipping entries is not.
+				_ = m.S.createOutboxGroup(ctx)
+			}
 			m.S.Metrics.Retry.WithLabelValues("stream_read").Inc()
 			select {
 			case <-ctx.Done():

@@ -1,0 +1,112 @@
+# Independent data: use -p flashcoupon-ha; never overlay onto live standalone data.
+# Docker Compose >=2.24.4 (!override). All discovery is inside the Compose network.
+services:
+  redis: &data-node
+    image: redis:7-alpine
+    restart: unless-stopped
+    entrypoint: ['/bin/sh', '/ha/start.sh']
+    command: ['data', 'redis']
+    environment: &ha-secrets
+      REDIS_HA_PREFIX: ${REDIS_HA_PREFIX:-172.29.239}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?set a Redis HA secret}
+      REDIS_SENTINEL_PASSWORD: ${REDIS_SENTINEL_PASSWORD:?set a Sentinel secret}
+    ports: !override []
+    volumes: !override ['ha-master-data:/data', './deploy/redis-ha:/ha:ro']
+    networks:
+      redis-ha: {ipv4_address: '${REDIS_HA_PREFIX:-172.29.239}.11'}
+    healthcheck:
+      test: ['CMD-SHELL', 'REDISCLI_AUTH="$$REDIS_PASSWORD" redis-cli ping | grep -q PONG']
+      interval: 2s
+      timeout: 2s
+      retries: 60
+  redis-replica-1:
+    <<: *data-node
+    command: ['data', 'redis-replica-1']
+    volumes: ['ha-replica-1-data:/data', './deploy/redis-ha:/ha:ro']
+    networks:
+      redis-ha: {ipv4_address: '${REDIS_HA_PREFIX:-172.29.239}.12'}
+    depends_on:
+      redis: {condition: service_healthy}
+  redis-replica-2:
+    <<: *data-node
+    command: ['data', 'redis-replica-2']
+    volumes: ['ha-replica-2-data:/data', './deploy/redis-ha:/ha:ro']
+    networks:
+      redis-ha: {ipv4_address: '${REDIS_HA_PREFIX:-172.29.239}.13'}
+    depends_on:
+      redis: {condition: service_healthy}
+  sentinel-1: &sentinel
+    image: redis:7-alpine
+    restart: unless-stopped
+    entrypoint: ['/bin/sh', '/ha/start.sh']
+    command: ['sentinel', 'sentinel-1']
+    environment: *ha-secrets
+    volumes: ['ha-sentinel-1:/data', './deploy/redis-ha:/ha:ro']
+    networks:
+      redis-ha: {ipv4_address: '${REDIS_HA_PREFIX:-172.29.239}.21'}
+    healthcheck:
+      test: ['CMD-SHELL', 'REDISCLI_AUTH="$$REDIS_SENTINEL_PASSWORD" redis-cli -p 26379 SENTINEL ckquorum flashcoupon | grep -q OK']
+      interval: 2s
+      timeout: 2s
+      retries: 60
+    depends_on:
+      redis: {condition: service_healthy}
+      redis-replica-1: {condition: service_healthy}
+      redis-replica-2: {condition: service_healthy}
+  sentinel-2:
+    <<: *sentinel
+    command: ['sentinel', 'sentinel-2']
+    volumes: ['ha-sentinel-2:/data', './deploy/redis-ha:/ha:ro']
+    networks:
+      redis-ha: {ipv4_address: '${REDIS_HA_PREFIX:-172.29.239}.22'}
+  sentinel-3:
+    <<: *sentinel
+    command: ['sentinel', 'sentinel-3']
+    volumes: ['ha-sentinel-3:/data', './deploy/redis-ha:/ha:ro']
+    networks:
+      redis-ha: {ipv4_address: '${REDIS_HA_PREFIX:-172.29.239}.23'}
+  app:
+    networks: [default, redis-ha]
+    environment: &failover-client
+      REDIS_MODE: sentinel
+      REDIS_MASTER_NAME: flashcoupon
+      REDIS_SENTINEL_ADDRS: sentinel-1:26379,sentinel-2:26379,sentinel-3:26379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?set a Redis HA secret}
+      REDIS_SENTINEL_PASSWORD: ${REDIS_SENTINEL_PASSWORD:?set a Sentinel secret}
+      REDIS_OBSERVE_ADDRS: redis:6379,redis-replica-1:6379,redis-replica-2:6379
+      REDIS_WAIT_REPLICAS: ${REDIS_WAIT_REPLICAS:-1}
+      REDIS_WAIT_TIMEOUT_MS: ${REDIS_WAIT_TIMEOUT_MS:-200}
+    depends_on:
+      sentinel-1: {condition: service_healthy}
+      sentinel-2: {condition: service_healthy}
+      sentinel-3: {condition: service_healthy}
+  relay:
+    networks: [default, redis-ha]
+    environment: *failover-client
+    depends_on:
+      sentinel-1: {condition: service_healthy}
+      sentinel-2: {condition: service_healthy}
+      sentinel-3: {condition: service_healthy}
+  worker:
+    networks: [default, redis-ha]
+    environment: *failover-client
+    depends_on:
+      sentinel-1: {condition: service_healthy}
+      sentinel-2: {condition: service_healthy}
+      sentinel-3: {condition: service_healthy}
+  toolbox:
+    networks: [default, redis-ha]
+    environment: *failover-client
+volumes:
+  ha-master-data:
+  ha-replica-1-data:
+  ha-replica-2-data:
+  ha-sentinel-1:
+  ha-sentinel-2:
+  ha-sentinel-3:
+networks:
+  redis-ha:
+    internal: true
+    ipam:
+      config:
+        - subnet: '${REDIS_HA_PREFIX:-172.29.239}.0/24'

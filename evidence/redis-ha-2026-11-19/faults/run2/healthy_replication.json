@@ -1,0 +1,21 @@
+{
+  "master": "redis",
+  "final": {
+    "audit": {
+      "merchant_id": 785917141800,
+      "template_id": "842acb352feb083e85584c4b1363e5fa",
+      "initial": 5,
+      "db_remaining": 0,
+      "issued": 5,
+      "projected": 5,
+      "redis_remaining": 0,
+      "pending": 0,
+      "failed": 0,
+      "consistent": true
+    },
+    "unique_users": 5,
+    "max_per_user": 1
+  },
+  "scenario": "healthy_replication",
+  "passed": true
+}

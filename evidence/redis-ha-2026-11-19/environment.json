@@ -1,0 +1,198 @@
+{
+  "hardware": "Linux 6.1.0-52-amd64 x86_64 GNU/Linux\n40\n               total        used        free      shared  buff/cache   available\n\u5185\u5b58\uff1a   134641115136 37126529024 54334984192    47194112 44312903680 97514586112\n",
+  "runtime_images": "/flashcoupon-ha-app-1 sha256:cadc65980204dda70f4322141b8d1124cc869670f31ac1d9cddf85618b082a26\n/flashcoupon-ha-relay-1 sha256:cadc65980204dda70f4322141b8d1124cc869670f31ac1d9cddf85618b082a26\n/flashcoupon-ha-worker-1 sha256:cadc65980204dda70f4322141b8d1124cc869670f31ac1d9cddf85618b082a26\n/flashcoupon-ha-redis-1 sha256:e7b0b929eb5b1e7b18f4662e190ceeac481b72e35dfede063b09a4ce8beac79f\n/flashcoupon-ha-mysql-1 sha256:1c83f38450c378c8df08cc10dd46400d17a404c68a63cf92ccfb49fb75b9cdfb\n/flashcoupon-ha-broker-1 sha256:0a6c08fe53901569dc475bffdba2e569dedc14824b80f2618e253d56ae462c32\n/flashcoupon-ha-proxy-1 sha256:b266df8378a48925c5833a09bbaddb8ab24d7d29df5b0e9fceb7d71b31f14926\n/flashcoupon-ha-jaeger-1 sha256:51f7cf34678178e0bbd51eeaab4104aa8f729eac33f7dfa51fdba5f62b9c3a34\n",
+  "master": "redis",
+  "redis": {
+    "redis": {
+      "redis_version": "7.4.12",
+      "role": "master",
+      "connected_slaves": "2",
+      "master_host": null,
+      "master_link_status": null,
+      "master_last_io_seconds_ago": null,
+      "aof_enabled": "1",
+      "aof_last_write_status": "ok",
+      "aof_last_bgrewrite_status": "ok",
+      "config": {
+        "appendonly": {
+          "appendonly": "yes"
+        },
+        "appendfsync": {
+          "appendfsync": "always"
+        },
+        "min-replicas-to-write": {
+          "min-replicas-to-write": "1"
+        },
+        "min-replicas-max-lag": {
+          "min-replicas-max-lag": "2"
+        },
+        "maxmemory-policy": {
+          "maxmemory-policy": "noeviction"
+        }
+      }
+    },
+    "redis-replica-1": {
+      "redis_version": "7.4.12",
+      "role": "slave",
+      "connected_slaves": "0",
+      "master_host": "172.29.239.11",
+      "master_link_status": "up",
+      "master_last_io_seconds_ago": "1",
+      "aof_enabled": "1",
+      "aof_last_write_status": "ok",
+      "aof_last_bgrewrite_status": "ok",
+      "config": {
+        "appendonly": {
+          "appendonly": "yes"
+        },
+        "appendfsync": {
+          "appendfsync": "always"
+        },
+        "min-replicas-to-write": {
+          "min-replicas-to-write": "1"
+        },
+        "min-replicas-max-lag": {
+          "min-replicas-max-lag": "2"
+        },
+        "maxmemory-policy": {
+          "maxmemory-policy": "noeviction"
+        }
+      }
+    },
+    "redis-replica-2": {
+      "redis_version": "7.4.12",
+      "role": "slave",
+      "connected_slaves": "0",
+      "master_host": "172.29.239.11",
+      "master_link_status": "up",
+      "master_last_io_seconds_ago": "0",
+      "aof_enabled": "1",
+      "aof_last_write_status": "ok",
+      "aof_last_bgrewrite_status": "ok",
+      "config": {
+        "appendonly": {
+          "appendonly": "yes"
+        },
+        "appendfsync": {
+          "appendfsync": "always"
+        },
+        "min-replicas-to-write": {
+          "min-replicas-to-write": "1"
+        },
+        "min-replicas-max-lag": {
+          "min-replicas-max-lag": "2"
+        },
+        "maxmemory-policy": {
+          "maxmemory-policy": "noeviction"
+        }
+      }
+    }
+  },
+  "sentinel": {
+    "sentinel-1": {
+      "name": "flashcoupon",
+      "ip": "172.29.239.11",
+      "port": "6379",
+      "runid": "8433880ec57d9bf120ab82c031f34509b9bf391e",
+      "flags": "master",
+      "link-pending-commands": "0",
+      "link-refcount": "1",
+      "last-ping-sent": "0",
+      "last-ok-ping-reply": "544",
+      "last-ping-reply": "544",
+      "down-after-milliseconds": "2000",
+      "info-refresh": "8343",
+      "role-reported": "master",
+      "role-reported-time": "180450",
+      "config-epoch": "17",
+      "num-slaves": "2",
+      "num-other-sentinels": "2",
+      "quorum": "2",
+      "failover-timeout": "15000",
+      "parallel-syncs": "1"
+    },
+    "sentinel-2": {
+      "name": "flashcoupon",
+      "ip": "172.29.239.11",
+      "port": "6379",
+      "runid": "8433880ec57d9bf120ab82c031f34509b9bf391e",
+      "flags": "master",
+      "link-pending-commands": "0",
+      "link-refcount": "1",
+      "last-ping-sent": "0",
+      "last-ok-ping-reply": "595",
+      "last-ping-reply": "595",
+      "down-after-milliseconds": "2000",
+      "info-refresh": "8054",
+      "role-reported": "master",
+      "role-reported-time": "181194",
+      "config-epoch": "17",
+      "num-slaves": "2",
+      "num-other-sentinels": "2",
+      "quorum": "2",
+      "failover-timeout": "15000",
+      "parallel-syncs": "1"
+    },
+    "sentinel-3": {
+      "name": "flashcoupon",
+      "ip": "172.29.239.11",
+      "port": "6379",
+      "runid": "8433880ec57d9bf120ab82c031f34509b9bf391e",
+      "flags": "master",
+      "link-pending-commands": "0",
+      "link-refcount": "1",
+      "last-ping-sent": "0",
+      "last-ok-ping-reply": "395",
+      "last-ping-reply": "395",
+      "down-after-milliseconds": "2000",
+      "info-refresh": "9933",
+      "role-reported": "master",
+      "role-reported-time": "180892",
+      "config-epoch": "17",
+      "num-slaves": "2",
+      "num-other-sentinels": "2",
+      "quorum": "2",
+      "failover-timeout": "15000",
+      "parallel-syncs": "1"
+    }
+  },
+  "final_audit": {
+    "templates": 60,
+    "inconsistent": 0,
+    "pending": 0
+  },
+  "source_base_commit": "8b8561b0dbfdc58d70ac4bbaaf276dc6e4f42044",
+  "source_sha256": {
+    "compose.redis-ha.yaml": "08f951bf9fb3e990cfbd71db4c99f4ee5ac725a1d2e8c70a6eb245b9c227de56",
+    "deploy/redis-ha/start.sh": "cbdaf7c59ab50447c0a7f5484f0a3b1beecae2f88f73841bc683a5c7d94e0127",
+    "internal/app/redis_ha.go": "b51939670906bff4160d1a96a625c39a4faad7fcf2db56e8097f2d9e2e03210d",
+    "internal/app/lua/claim.lua": "24afb2a3a7c31e0e3c3813e3dbf23ed934adbf6256f3f6feee7e40b695fbf147",
+    "internal/app/cache.go": "7928e5547cd7d1c587bda1d62dcd6cd578b572286b553ab8acbc5119ce176def",
+    "internal/app/messaging.go": "780c445d8836337addfe27b5b8670f36980ed86106d16bf617ec7ad7f40ed178",
+    "internal/app/outbox.go": "8917b30692fcf2c51102e79d5c175ada01ad9fca6644dddc1e8a76bf1b4b267f",
+    "internal/app/batch.go": "6901de3f07c1f7a56e94909d18471be57ae18937009a15e02c1a1e498bb317db"
+  },
+  "k6": "k6.exe v0.57.0 (commit/50afd82c18, go1.23.6, windows/amd64)",
+  "scope": "One Linux physical host; isolated project; no physical-host HA proof; work began Nov 19, final acceptance Nov 21 2026.",
+  "final_roles": {
+    "app": {
+      "redis_mode": "sentinel",
+      "wait_replicas": 1,
+      "fault_injection_enabled": false,
+      "healthy": true
+    },
+    "relay": {
+      "redis_mode": "sentinel",
+      "wait_replicas": 1,
+      "fault_injection_enabled": false,
+      "healthy": true
+    },
+    "worker": {
+      "redis_mode": "sentinel",
+      "wait_replicas": 1,
+      "fault_injection_enabled": false,
+      "healthy": true
+    }
+  },
+  "generated_secrets_scan": "passed"
+}
